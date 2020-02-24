@@ -40,6 +40,9 @@ UCLASS()
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystemComponent")
+	static void InitGlobalData();
+	
 	UFUNCTION(BlueprintCallable, Category = "Ability|Attribute")
 	static void AddAttributeSet(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UAttributeSet> Attributes, const UDataTable* DataTable, FName GroupName);
 
@@ -175,7 +178,6 @@ public:
 	/** Sets the magnitude of a SetByCaller modifier */
 	UFUNCTION(BlueprintCallable, Category = "Effect")
 	static void SetSetByCallerMagnitude(UPARAM(ref) FGameplayEffectSpec& Spec, FGameplayTag DataTag, float Magnitude);
-
 
 	//////////////
 	//// Tags

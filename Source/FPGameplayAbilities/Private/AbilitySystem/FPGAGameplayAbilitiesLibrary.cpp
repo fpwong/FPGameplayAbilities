@@ -15,6 +15,11 @@
 #include "GameplayEffectTypes.h"
 #include "Engine/Engine.h"
 
+void UFPGAGameplayAbilitiesLibrary::InitGlobalData()
+{
+	UAbilitySystemGlobals::Get().InitGlobalData();
+}
+
 void UFPGAGameplayAbilitiesLibrary::AddAttributeSet(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UAttributeSet> Attributes, const UDataTable* DataTable, FName GroupName)
 {
 	if (!AbilitySystem || !Attributes)
