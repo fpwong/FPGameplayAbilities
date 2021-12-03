@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask_WaitCancel.h"
-#include "FPGACharacter.h"
 #include "AITypes.h"
 #include "FPGAAbilityTask_WaitRangeAndFacing.generated.h"
 
@@ -53,7 +52,7 @@ UCLASS()
 
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE", ExpandEnumAsExecs = "ResetExec"))
 	static UFPGAAbilityTask_WaitRangeAndFacing* WaitRangeAndFacing(
-		TEnumAsByte<EWaitRangeAndFacingExecution> ResetExec,
+		EWaitRangeAndFacingExecution ResetExec,
 		UGameplayAbility* OwningAbility,
 		FName TaskInstanceName,
 		float MaxRange,

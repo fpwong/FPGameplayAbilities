@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask_WaitCancel.h"
-#include "FPGACharacter.h"
 #include "AITypes.h"
 #include "FPGAAbilityTask_SimpleMoveAndFace.generated.h"
 

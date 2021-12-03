@@ -25,17 +25,7 @@ public class FPGameplayAbilities : ModuleRules
 			{
 				"Core",
 				// ... add other public dependencies that you statically link with here ...
-                "GameplayAbilities",
-                "GameplayTasks",
-                "GameplayTags",
-                "OnlineSubsystemSteam",
-                "Steamworks",
-                "AIModule",
-                "UMG",
-                //"Blutility",
-                //"GameplayAbilitiesEditor",
-                "NavigationSystem"
-            }
+			}
 			);
 			
 		
@@ -47,8 +37,16 @@ public class FPGameplayAbilities : ModuleRules
 				"Slate",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
-                "GameplayAbilities",
-            }
+		        "GameplayAbilities",
+				"GameplayTasks",
+				"GameplayTags",
+				"OnlineSubsystemSteam",
+				"Steamworks",
+				"AIModule",
+				"UMG",
+				"NavigationSystem",
+				"GameplayAbilities",
+			}
 			);
 		
 		

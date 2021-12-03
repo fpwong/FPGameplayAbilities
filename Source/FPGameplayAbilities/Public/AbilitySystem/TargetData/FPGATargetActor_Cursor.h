@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
-#include "Perception/AIPerceptionTypes.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "FPGAGameplayAbilityTargetActor.h"
 #include "FPGATargetActor_Cursor.generated.h"
 

@@ -20,7 +20,7 @@ class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplay : public UTextBlock
 public:
 	FDelegateHandle DelegateHandle;
 
-	UAbilitySystemComponent* AbilitySystemPtr;
+	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystemPtr = nullptr;
 
 	bool bNeedToUnbind = false;
 
@@ -30,6 +30,8 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;
+
+	UFPGAAttributeDisplay();
 
 	UFUNCTION(BlueprintCallable)
 	void BindAttribute(UAbilitySystemComponent* AbilitySystem);

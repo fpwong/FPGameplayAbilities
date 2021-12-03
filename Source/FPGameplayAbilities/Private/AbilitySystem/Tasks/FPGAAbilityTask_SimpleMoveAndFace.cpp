@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Tasks/FPGAAbilityTask_SimpleMoveAndFace.h"
-#include "FPGACharacter.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Controller.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"

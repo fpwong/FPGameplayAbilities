@@ -20,8 +20,10 @@ class FPGAMEPLAYABILITIES_API UFPGAAttributeBar : public UProgressBar
 public:
 	bool bNeedToUnbind;
 
-	float LastCurrentValue;
-	float LastMaxValue;
+	float CurrentValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxValue;
 
 	FDelegateHandle CurrentDelegateHandle;
 	FDelegateHandle MaxDelegateHandle;
@@ -48,9 +50,19 @@ public:
 	void OnCurrentAttributeChanged(const FOnAttributeChangeData& ChangeData);
 	void OnMaxAttributeChanged(const FOnAttributeChangeData& ChangeData);
 
+	UFUNCTION(BlueprintCallable)
+	void SetMaxValue(float NewMaxValue);
+	
 	void UpdatePercent();
 
-	void BeginDestroy() override;
+	virtual void BeginDestroy() override;
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentValue() const { return CurrentValue; }
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxValue() const { return MaxValue; }
+	
 
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory() override;

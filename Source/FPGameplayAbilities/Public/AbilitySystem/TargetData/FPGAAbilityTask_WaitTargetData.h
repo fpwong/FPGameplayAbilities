@@ -71,7 +71,7 @@ public:
 
 protected:
 	bool ShouldSpawnTargetActor() const;
-	void InitializeTargetActor(AFPGAGameplayAbilityTargetActor* SpawnedActor) const;
+	void InitializeTargetActor(AFPGAGameplayAbilityTargetActor* SpawnedActor);
 	void FinalizeTargetActor(AFPGAGameplayAbilityTargetActor* SpawnedActor) const;
 
 	void RegisterTargetDataCallbacks();

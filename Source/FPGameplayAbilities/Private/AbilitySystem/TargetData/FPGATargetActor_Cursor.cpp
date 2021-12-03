@@ -10,7 +10,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "FPGAPlayerController.h"
+// #include "FPGAPlayerController.h"
 
 AFPGATargetActor_Cursor::AFPGATargetActor_Cursor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -130,15 +130,14 @@ FHitResult AFPGATargetActor_Cursor::GetCursorHit()
 
 	check(Pawn);
 
-	AFPGAPlayerController* PlayerController = Cast<AFPGAPlayerController>(Pawn->GetController());
+	// AFPGAPlayerController* PlayerController = Cast<AFPGAPlayerController>(Pawn->GetController());
+	APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
 
 	if (PlayerController == nullptr)
 		return FHitResult();
 
-	//check(PlayerController);
-
 	TArray<FHitResult> HitResults;
-	PlayerController->GetHitResultsUnderCursor(ObjectTypes, HitResults);
+	// PlayerController->GetHitResultsUnderCursor(ObjectTypes, HitResults);
 
 	for (FHitResult HitResult : HitResults)
 	{

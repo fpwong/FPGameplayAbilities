@@ -60,6 +60,8 @@ void UFPGAAbilityTask_PlayMontageNotify::OnMontageInterrupted()
 
 void UFPGAAbilityTask_PlayMontageNotify::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	UnbindDelegates();
+	
 	if (!bInterrupted)
 	{
 		if (ShouldBroadcastAbilityTaskDelegates())
@@ -68,7 +70,6 @@ void UFPGAAbilityTask_PlayMontageNotify::OnMontageEnded(UAnimMontage* Montage, b
 		}
 	}
 
-	UnbindDelegates();
 	EndTask();
 }
 
@@ -89,7 +90,7 @@ UFPGAAbilityTask_PlayMontageNotify* UFPGAAbilityTask_PlayMontageNotify::CreatePl
 	MyObj->Rate = Rate;
 	MyObj->StartSection = StartSection;
 	MyObj->AnimRootMotionTranslationScale = AnimRootMotionTranslationScale;
-	MyObj->bEndOnCancelInput = bEndOnCancelInput;
+	// MyObj->bEndOnCancelInput = bEndOnCancelInput;
 	MyObj->bStopWhenAbilityEnds = bStopWhenAbilityEnds;
 
 	return MyObj;
@@ -97,7 +98,7 @@ UFPGAAbilityTask_PlayMontageNotify* UFPGAAbilityTask_PlayMontageNotify::CreatePl
 
 void UFPGAAbilityTask_PlayMontageNotify::Activate()
 {
-	Super::Activate();
+	// Super::Activate();
 
 	if (Ability == nullptr)
 	{
@@ -190,7 +191,7 @@ void UFPGAAbilityTask_PlayMontageNotify::ExternalCancel()
 }
 
 void UFPGAAbilityTask_PlayMontageNotify::OnDestroy(bool AbilityEnded)
-{
+{	
 	// Note: Clearing montage end delegate isn't necessary since its not a multicast and will be cleared when the next montage plays.
 	// (If we are destroyed, it will detect this and not do anything)
 
@@ -198,11 +199,14 @@ void UFPGAAbilityTask_PlayMontageNotify::OnDestroy(bool AbilityEnded)
 	if (Ability)
 	{
 		Ability->OnGameplayAbilityCancelled.Remove(InterruptedHandle);
-		//if (AbilityEnded && bStopWhenAbilityEnds)
-		if (bStopWhenAbilityEnds)
+		if (AbilityEnded && bStopWhenAbilityEnds)
 		{
 			StopPlayingMontage();
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability invalid"));
 	}
 
 	Super::OnDestroy(AbilityEnded);
@@ -213,12 +217,14 @@ bool UFPGAAbilityTask_PlayMontageNotify::StopPlayingMontage()
 	const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
 	if (!ActorInfo)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor info invalid"));
 		return false;
 	}
 
 	UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
 	if (AnimInstance == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Anim instance invalid"));
 		return false;
 	}
 
@@ -236,7 +242,12 @@ bool UFPGAAbilityTask_PlayMontageNotify::StopPlayingMontage()
 				MontageInstance->OnMontageBlendingOutStarted.Unbind();
 				MontageInstance->OnMontageEnded.Unbind();
 			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Failed to unbind?"));
+			}
 
+			// UE_LOG(LogTemp, Warning, TEXT("Stopped playing montage! %s | %s"), *ActorInfo->OwnerActor->GetName(), *AbilitySystemComponent->GetOwner()->GetName());
 			AbilitySystemComponent->CurrentMontageStop();
 			return true;
 		}
@@ -274,6 +285,5 @@ void UFPGAAbilityTask_PlayMontageNotify::UnbindDelegates()
 void UFPGAAbilityTask_PlayMontageNotify::BeginDestroy()
 {
 	UnbindDelegates();
-
 	Super::BeginDestroy();
 }

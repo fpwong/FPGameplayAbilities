@@ -12,7 +12,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMontageNotifyDelegate, FName, NotifyName);
 
 UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGAAbilityTask_PlayMontageNotify : public UFPGAAbilityTask_WaitCancel
+class FPGAMEPLAYABILITIES_API UFPGAAbilityTask_PlayMontageNotify : public UAbilityTask//UFPGAAbilityTask_WaitCancel
 {
 	GENERATED_UCLASS_BODY()
 

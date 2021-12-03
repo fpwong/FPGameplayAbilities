@@ -14,38 +14,41 @@ DECLARE_DELEGATE_RetVal_OneParam(bool, FFPGATargetDataFilterCustomMatch, const A
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FFPGATargetDataFilterCustomMatch_Dynamic, const AActor*, Actor, bool&, bReturnValue);
 
 USTRUCT(BlueprintType)
-	struct FPGAMEPLAYABILITIES_API FFPGAGameplayTargetDataFilter
+struct FPGAMEPLAYABILITIES_API FFPGAGameplayTargetDataFilter
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
 	FFPGAGameplayTargetDataFilter();
 
-	/** Actor we're comparing against. */
-	UPROPERTY()
-	AActor* SelfActor;
+	// /** Actor we're comparing against. */
+	// UPROPERTY()
+	// AActor* SelfActor;
 
 	/** Native delegate for providing custom matching conditions. */
 	FFPGATargetDataFilterCustomMatch CustomMatchDelegate;
 
 	/** BP-exposed delegate for providing custom matching conditions. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Query)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FFPGATargetDataFilterCustomMatch_Dynamic CustomMatchDelegate_BP;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGameplayTagContainer OwnerTags;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGameplayTagQuery OwnerTagQuery;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGameplayEffectQuery RequiredEffectQuery;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGameplayEffectQuery BlockedEffectQuery;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ExposeOnSpawn = true))
-	FAISenseAffiliationFilter Affiliation;
+	// UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// FAISenseAffiliationFilter Affiliation;
 
 	/** Initializes SelfActor */
-	void InitializeFilterContext(AActor* FilterActor) { SelfActor = FilterActor; }
+	void InitializeFilterContext(AActor* FilterActor) {} //SelfActor = FilterActor; }
 
 	bool FilterPassesForActor(const AActor* ActorToBeFiltered) const;
 };

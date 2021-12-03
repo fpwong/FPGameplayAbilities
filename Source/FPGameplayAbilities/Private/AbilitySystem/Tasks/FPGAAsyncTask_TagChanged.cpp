@@ -3,13 +3,16 @@
 #include "AbilitySystem/Tasks/FPGAAsyncTask_TagChanged.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-UFPGAAsyncTask_TagChanged* UFPGAAsyncTask_TagChanged::ListenForTagChange(UAbilitySystemComponent * AbilitySystemComponent, const FGameplayTag InTag, EGameplayTagEventType::Type InEventType)
+UFPGAAsyncTask_TagChanged* UFPGAAsyncTask_TagChanged::ListenForTagChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag InTag, EGameplayTagEventType::Type InEventType)
 {
 	UFPGAAsyncTask_TagChanged* ListenForTagChange = NewObject<UFPGAAsyncTask_TagChanged>();
 	ListenForTagChange->ASC = AbilitySystemComponent;
 	ListenForTagChange->Tag = InTag;
 
-	AbilitySystemComponent->RegisterGameplayTagEvent(InTag, InEventType).AddUObject(ListenForTagChange, &UFPGAAsyncTask_TagChanged::TagChanged);
+	if (IsValid(AbilitySystemComponent))
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(InTag, InEventType).AddUObject(ListenForTagChange, &UFPGAAsyncTask_TagChanged::TagChanged);
+	}
 
 	return ListenForTagChange;
 }
@@ -27,8 +30,8 @@ void UFPGAAsyncTask_TagChanged::EndTask()
 
 void UFPGAAsyncTask_TagChanged::TagChanged(const FGameplayTag TagChanged, int32 NewCount)
 {
-	if (NewCount == 0)
+	// if (NewCount == 0)
 	{
-		OnTagChanged.Broadcast(TagChanged, NewCount);
+		OnTagChanged.Broadcast(ASC, TagChanged, NewCount);
 	}
 }

@@ -33,12 +33,12 @@ bool FFPGAGameplayTargetDataFilter::FilterPassesForActor(const AActor* ActorToBe
 		}
 	}
 
-	IGenericTeamAgentInterface* TeamAgent = Cast<IGenericTeamAgentInterface>(SelfActor);
-	if (TeamAgent != nullptr)
-	{
-		if (!FAISenseAffiliationFilter::ShouldSenseTeam(TeamAgent, *ActorToBeFiltered, Affiliation.GetAsFlags()))
-			return false;
-	}
+	// IGenericTeamAgentInterface* TeamAgent = Cast<IGenericTeamAgentInterface>(SelfActor);
+	// if (TeamAgent != nullptr)
+	// {
+	// 	if (!FAISenseAffiliationFilter::ShouldSenseTeam(TeamAgent, *ActorToBeFiltered, Affiliation.GetAsFlags()))
+	// 		return false;
+	// }
 
 	if (!OwnerTagQuery.IsEmpty())
 	{

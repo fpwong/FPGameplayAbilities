@@ -11,17 +11,22 @@ void UFPGAAttributeBar::BindAttributes(UAbilitySystemComponent* AbilitySystem)
 	// bind to the new ability system
 	AbilitySystemPtr = AbilitySystem;
 
-	if (AbilitySystemPtr != nullptr && CurrentAttribute.IsValid() && MaxAttribute.IsValid())
+	if (AbilitySystemPtr != nullptr && CurrentAttribute.IsValid())
 	{
 		check(AbilitySystemPtr->IsValidLowLevel());
 
 		bNeedToUnbind = true;
 
 		CurrentDelegateHandle = AbilitySystemPtr->GetGameplayAttributeValueChangeDelegate(CurrentAttribute).AddUObject(this, &UFPGAAttributeBar::OnCurrentAttributeChanged);
-		MaxDelegateHandle = AbilitySystemPtr->GetGameplayAttributeValueChangeDelegate(MaxAttribute).AddUObject(this, &UFPGAAttributeBar::OnMaxAttributeChanged);
 
-		LastCurrentValue = AbilitySystemPtr->GetNumericAttribute(CurrentAttribute);
-		LastMaxValue = AbilitySystemPtr->GetNumericAttribute(MaxAttribute);
+		CurrentValue = AbilitySystemPtr->GetNumericAttribute(CurrentAttribute);
+
+		if (MaxAttribute.IsValid())
+		{
+			MaxDelegateHandle = AbilitySystemPtr->GetGameplayAttributeValueChangeDelegate(MaxAttribute).AddUObject(this, &UFPGAAttributeBar::OnMaxAttributeChanged);
+			MaxValue = AbilitySystemPtr->GetNumericAttribute(MaxAttribute);
+		}
+		
 		UpdatePercent();
 	}
 }
@@ -36,7 +41,7 @@ void UFPGAAttributeBar::BindAndSetAttributes(UAbilitySystemComponent* AbilitySys
 
 void UFPGAAttributeBar::UnbindAttributes()
 {
-	if (bNeedToUnbind && AbilitySystemPtr != nullptr && AbilitySystemPtr->IsValidLowLevel() && CurrentAttribute.IsValid() && MaxAttribute.IsValid())
+	if (bNeedToUnbind && AbilitySystemPtr != nullptr && AbilitySystemPtr->IsValidLowLevel() && CurrentAttribute.IsValid())
 	{
 		if (CurrentDelegateHandle.IsValid())
 		{
@@ -47,7 +52,7 @@ void UFPGAAttributeBar::UnbindAttributes()
 			}
 		}
 
-		if (MaxDelegateHandle.IsValid())
+		if (MaxAttribute.IsValid() && MaxDelegateHandle.IsValid())
 		{
 			FOnGameplayAttributeValueChange& Delegate = AbilitySystemPtr->GetGameplayAttributeValueChangeDelegate(MaxAttribute);
 			if (Delegate.IsBound())
@@ -60,20 +65,26 @@ void UFPGAAttributeBar::UnbindAttributes()
 
 void UFPGAAttributeBar::OnCurrentAttributeChanged(const FOnAttributeChangeData& ChangeData)
 {
-	LastCurrentValue = ChangeData.NewValue;
+	CurrentValue = ChangeData.NewValue;
 	UpdatePercent();
 }
 
 void UFPGAAttributeBar::OnMaxAttributeChanged(const FOnAttributeChangeData& ChangeData)
 {
-	LastMaxValue = ChangeData.NewValue;
+	MaxValue = ChangeData.NewValue;
+	UpdatePercent();
+}
+
+void UFPGAAttributeBar::SetMaxValue(float NewMaxValue)
+{
+	MaxValue = NewMaxValue;
 	UpdatePercent();
 }
 
 void UFPGAAttributeBar::UpdatePercent()
 {
-	const bool bIsZero = LastCurrentValue == 0 || LastMaxValue == 0;
-	const float NewPercent = bIsZero ? 0 : LastCurrentValue / LastMaxValue;
+	const bool bIsZero = CurrentValue == 0 || MaxValue == 0;
+	const float NewPercent = bIsZero ? 0 : CurrentValue / MaxValue;
 	const float OldPercent = NewPercent;
 
  	SetPercent(NewPercent);

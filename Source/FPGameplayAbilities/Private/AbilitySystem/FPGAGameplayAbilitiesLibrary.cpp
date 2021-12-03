@@ -13,6 +13,7 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameplayTagContainer.h"
 #include "GameplayEffectTypes.h"
+#include "GameplayEffectExecutionCalculation.h"
 #include "Engine/Engine.h"
 
 void UFPGAGameplayAbilitiesLibrary::InitGlobalData()
@@ -30,7 +31,7 @@ void UFPGAGameplayAbilitiesLibrary::AddAttributeSet(UAbilitySystemComponent* Abi
 
 	// Get your attribute set
 	UAttributeSet* AttributeSet = nullptr;
-	for (UAttributeSet* Att : AbilitySystem->SpawnedAttributes)
+	for (UAttributeSet* Att : AbilitySystem->GetSpawnedAttributes())
 	{
 		if (Att->GetClass() == Attributes)
 		{
@@ -49,13 +50,13 @@ void UFPGAGameplayAbilitiesLibrary::AddAttributeSet(UAbilitySystemComponent* Abi
 	// Load data table
 	static const FString Context = FString(TEXT("AddAttributeSet"));
 
-	for (TFieldIterator<UProperty> It(AttributeSet->GetClass(), EFieldIteratorFlags::IncludeSuper); It; ++It)
+	for (TFieldIterator<FProperty> It(AttributeSet->GetClass(), EFieldIteratorFlags::IncludeSuper); It; ++It)
 	{
-		UProperty* Property = *It;
-		UNumericProperty* NumericProperty = Cast<UNumericProperty>(Property);
+		FProperty* Property = *It;
+		FNumericProperty* NumericProperty = CastField<FNumericProperty>(Property);
 		if (NumericProperty)
 		{
-			FString RowNameStr = FString::Printf(TEXT("%s.%s.%s"), *GroupName.ToString(), *Property->GetOuter()->GetName(), *Property->GetName());
+			FString RowNameStr = FString::Printf(TEXT("%s.%s.%s"), *GroupName.ToString(), *Property->GetOwnerVariant().GetName(), *Property->GetName());
 
 			FAttributeMetaData* MetaData = DataTable->FindRow<FAttributeMetaData>(FName(*RowNameStr), Context, true);
 			if (MetaData)
@@ -77,16 +78,58 @@ void UFPGAGameplayAbilitiesLibrary::AddAttributeSet(UAbilitySystemComponent* Abi
 
 FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GiveAbility(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> Ability)
 {
-	if (!AbilitySystem)
-		return FGameplayAbilitySpecHandle();
-
-	if (AbilitySystem->GetOwner()->HasAuthority() && Ability)
+	if (AbilitySystem && AbilitySystem->GetOwner()->HasAuthority() && Ability)
 	{
-		FGameplayAbilitySpecHandle Handle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1));
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
+		FGameplayAbilitySpecHandle Handle = AbilitySystem->GiveAbility(AbilitySpec);
 		return Handle;
 	}
 
 	return FGameplayAbilitySpecHandle();
+}
+
+FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GiveAbilityAndActivateOnce(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> Ability, const FGameplayEventData& EventData)
+{
+	FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
+	return AbilitySystem->GiveAbilityAndActivateOnce(Spec, &EventData);
+	// if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(Ability))
+	// {
+	// 	return AbilitySystem->GiveAbilityAndActivateOnce(*Spec, &EventData);
+	// }
+	//
+	// return FGameplayAbilitySpecHandle();
+
+
+	// FGameplayAbilitySpec* FoundSpec = AbilitySystem->FindAbilitySpecFromHandle(Ability);
+	// if (AbilitySystem && AbilitySystem->GetOwner()->HasAuthority() && Ability)
+	// {
+	// 	FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
+	//
+	// 	Spec.bActivateOnce = true;
+	//
+	// 	FGameplayAbilitySpecHandle AddedAbilityHandle = AbilitySystem->GiveAbility(Spec);
+	//
+	// 	AbilitySystem->GiveAbilityAndActivateOnce();
+	//
+	// 	if (FoundSpec)
+	// 	{
+	// 		FoundSpec->RemoveAfterActivation = true;
+	//
+	// 		if (!AbilitySystem->InternalTryActivateAbility(AddedAbilityHandle, FPredictionKey(), nullptr, nullptr, &EventData))
+	// 		{
+	// 			// We failed to activate it, so remove it now
+	// 			AbilitySystem->ClearAbility(AddedAbilityHandle);
+	//
+	// 			return FGameplayAbilitySpecHandle();
+	// 		}
+	// 	}
+	//
+	// 	UE_LOG(LogTemp, Warning, TEXT("Activated ability?"));
+	//
+	// 	return AddedAbilityHandle;
+	// }
+	//
+	// return FGameplayAbilitySpecHandle();
 }
 
 UGameplayAbility* UFPGAGameplayAbilitiesLibrary::FindAbilityFromHandle(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle Handle)
@@ -158,10 +201,28 @@ bool UFPGAGameplayAbilitiesLibrary::TryActivateAbility(UAbilitySystemComponent* 
 	return AbilitySystem->TryActivateAbility(AbilityToActivate, bAllowRemoteActivation);
 }
 
+bool UFPGAGameplayAbilitiesLibrary::TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData)
+{
+	if (!AbilitySystem)
+	{
+		return false;
+	}
+
+	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	{
+		return AbilitySystem->InternalTryActivateAbility(Spec->Handle, FPredictionKey(), nullptr, nullptr, &EventData);
+	}
+
+	return false;
+}
+
 FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GetAbilitySpecHandle(UGameplayAbility* Ability)
 {
 	if (!Ability)
+	{
 		return FGameplayAbilitySpecHandle();
+	}
+	
 	return Ability->GetCurrentAbilitySpecHandle();
 }
 
@@ -262,6 +323,26 @@ UAttributeSet* UFPGAGameplayAbilitiesLibrary::FindAttributeSetOfClass(UAbilitySy
 		}
 	}
 	return nullptr;
+}
+
+FGameplayEffectContextHandle UFPGAGameplayAbilitiesLibrary::GetContextFromEffectSpec(const FGameplayEffectSpec& Spec)
+{
+	return Spec.GetContext();
+}
+
+TArray<AActor*> UFPGAGameplayAbilitiesLibrary::EffectContectGetActors(FGameplayEffectContextHandle EffectContext)
+{
+	TArray<AActor*> Actors;
+
+	for (TWeakObjectPtr<AActor> ActorPtr : EffectContext.GetActors())
+	{
+		if (ActorPtr.IsValid())
+		{
+			Actors.Add(ActorPtr.Get());
+		}
+	}
+
+	return Actors;
 }
 
 // CALCULATIONS ----------------------------------------------------
@@ -382,30 +463,64 @@ class UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorAbili
 	return Spec.GetContext().GetInstigatorAbilitySystemComponent();
 }
 
-FVector UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, int32 Index)
+bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, int32 Index, FVector& Location)
 {
-	if (TargetData.Data.IsValidIndex(Index))
+	if (!TargetData.Data.IsValidIndex(Index))
 	{
-		FGameplayAbilityTargetData* Data = TargetData.Data[Index].Get();
-		if (Data)
+		return false;
+	}
+
+	FGameplayAbilityTargetData* Data = TargetData.Data[Index].Get();
+	if (!Data)
+	{
+		return false;
+	}
+
+	TArray<TWeakObjectPtr<AActor>> WeakArray = Data->GetActors();
+	for (TWeakObjectPtr<AActor>& WeakPtr : WeakArray)
+	{
+		if (WeakPtr.IsValid())
 		{
-			TArray<TWeakObjectPtr<AActor>> WeakArray = Data->GetActors();
-			for (TWeakObjectPtr<AActor>& WeakPtr : WeakArray)
-			{
-				return WeakPtr.Get()->GetActorLocation();
-			}
-
-			const FHitResult* HitResultPtr = Data->GetHitResult();
-			if (HitResultPtr)
-			{
-				return HitResultPtr->Location;
-			}
-
-			return Data->GetEndPoint();
+			Location = WeakPtr->GetActorLocation();
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
-	return FVector::ZeroVector;
+	const FHitResult* HitResultPtr = Data->GetHitResult();
+	if (HitResultPtr)
+	{
+		Location = HitResultPtr->Location;
+		return true;
+	}
+
+	Location = Data->GetEndPoint();
+	return true;
+}
+
+FGameplayAbilityTargetDataHandle UFPGAGameplayAbilitiesLibrary::MakeTargetDataFromLocations(FVector Source, FVector Target)
+{
+	// Construct TargetData
+	FGameplayAbilityTargetData_LocationInfo*	NewData = new FGameplayAbilityTargetData_LocationInfo();
+	 
+	FGameplayAbilityTargetingLocationInfo SourceLocation;
+	SourceLocation.LiteralTransform.SetLocation(Source);
+	SourceLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	NewData->SourceLocation = SourceLocation;
+
+
+	FGameplayAbilityTargetingLocationInfo TargetLocation;
+	TargetLocation.LiteralTransform.SetLocation(Target);
+	TargetLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	NewData->TargetLocation = TargetLocation;
+
+	// Give it a handle and return
+	FGameplayAbilityTargetDataHandle	Handle;
+	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData_LocationInfo>(NewData));
+	return Handle;
 }
 
 bool UFPGAGameplayAbilitiesLibrary::CanActivateAbilityFromHandle(
@@ -445,6 +560,16 @@ bool UFPGAGameplayAbilitiesLibrary::CanActivateAbility(UAbilitySystemComponent* 
 void UFPGAGameplayAbilitiesLibrary::SetSetByCallerMagnitude(FGameplayEffectSpec& Spec, FGameplayTag DataTag, float Magnitude)
 {
 	Spec.SetSetByCallerMagnitude(DataTag, Magnitude);
+}
+
+FGameplayEffectSpec UFPGAGameplayAbilitiesLibrary::GetEffectSpecFromHandle(FGameplayEffectSpecHandle& Spec)
+{
+	if (Spec.Data.IsValid())
+	{
+		return *Spec.Data.Get();
+	}
+
+	return FGameplayEffectSpec();
 }
 
 int32 UFPGAGameplayAbilitiesLibrary::GetTagCount(UAbilitySystemComponent* AbilitySystem, FGameplayTag Tag)

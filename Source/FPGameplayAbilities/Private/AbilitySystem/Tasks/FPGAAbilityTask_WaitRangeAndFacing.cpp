@@ -1,15 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Tasks/FPGAAbilityTask_WaitRangeAndFacing.h"
-#include "FPGACharacter.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Controller.h"
-#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+#include "GameFramework/Character.h"
 
 UFPGAAbilityTask_WaitRangeAndFacing::UFPGAAbilityTask_WaitRangeAndFacing(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -20,7 +18,7 @@ UFPGAAbilityTask_WaitRangeAndFacing::UFPGAAbilityTask_WaitRangeAndFacing(const F
 }
 
 UFPGAAbilityTask_WaitRangeAndFacing* UFPGAAbilityTask_WaitRangeAndFacing::WaitRangeAndFacing(
-	TEnumAsByte<EWaitRangeAndFacingExecution> ResetExec,
+	EWaitRangeAndFacingExecution ResetExec,
 	UGameplayAbility* OwningAbility,
 	FName TaskInstanceName,
 	float MaxRange,

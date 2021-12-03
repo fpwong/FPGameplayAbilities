@@ -8,7 +8,7 @@
 #include "GameplayTagContainer.h"
 #include "FPGAAsyncTask_TagChanged.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagChanged, const FGameplayTag, Tag, int32, NewCount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTagChanged, UAbilitySystemComponent*, AbilitySystemComponent, const FGameplayTag, Tag, int32, NewCount);
 
 /**
  * Blueprint node to automatically register a listener for changes (Begin and End) to an array of Tag tags.
