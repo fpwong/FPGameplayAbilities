@@ -15,6 +15,7 @@
 #include "GameplayEffectTypes.h"
 #include "GameplayEffectExecutionCalculation.h"
 #include "Engine/Engine.h"
+#include "FPGameplayAbilities/Targeting/FPGATargetTypes.h"
 
 void UFPGAGameplayAbilitiesLibrary::InitGlobalData()
 {
@@ -315,7 +316,7 @@ void UFPGAGameplayAbilitiesLibrary::CancelAbilitiesWithTags(UAbilitySystemCompon
 
 UAttributeSet* UFPGAGameplayAbilitiesLibrary::FindAttributeSetOfClass(UAbilitySystemComponent* AbilitySystem, const TSubclassOf<UAttributeSet> AttributeClass)
 {
-	for (UAttributeSet* Set : AbilitySystem->SpawnedAttributes)
+	for (UAttributeSet* Set : AbilitySystem->GetSpawnedAttributes())
 	{
 		if (Set && Set->IsA(AttributeClass))
 		{
@@ -504,7 +505,7 @@ bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbi
 FGameplayAbilityTargetDataHandle UFPGAGameplayAbilitiesLibrary::MakeTargetDataFromLocations(FVector Source, FVector Target)
 {
 	// Construct TargetData
-	FGameplayAbilityTargetData_LocationInfo*	NewData = new FGameplayAbilityTargetData_LocationInfo();
+	FGameplayAbilityTargetData_LocationInfo* NewData = new FGameplayAbilityTargetData_LocationInfo();
 	 
 	FGameplayAbilityTargetingLocationInfo SourceLocation;
 	SourceLocation.LiteralTransform.SetLocation(Source);
@@ -518,8 +519,15 @@ FGameplayAbilityTargetDataHandle UFPGAGameplayAbilitiesLibrary::MakeTargetDataFr
 	NewData->TargetLocation = TargetLocation;
 
 	// Give it a handle and return
-	FGameplayAbilityTargetDataHandle	Handle;
-	Handle.Data.Add(TSharedPtr<FGameplayAbilityTargetData_LocationInfo>(NewData));
+	FGameplayAbilityTargetDataHandle Handle;
+	Handle.Data.Add(MakeShareable(NewData));
+	return Handle;
+}
+
+FGameplayAbilityTargetDataHandle UFPGAGameplayAbilitiesLibrary::MakeVectorTargetData(FVector Location)
+{
+	FGameplayAbilityTargetDataHandle Handle;
+	Handle.Data.Add(MakeShareable(FFPGATargetData_Vector::MakeVectorTargetData(Location)));
 	return Handle;
 }
 

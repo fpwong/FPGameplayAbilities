@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "GameplayEffect.h"
+#include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTargetDataFilter.h"
 #include "Perception/AISense.h"
-#include "GameplayTagContainer.h"
-#include "GameplayEffect.h"
+#include "UObject/NoExportTypes.h"
 #include "FPGAGameplayTargetDataFilter.generated.h"
 
 DECLARE_DELEGATE_RetVal_OneParam(bool, FFPGATargetDataFilterCustomMatch, const AActor*);

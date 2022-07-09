@@ -9,6 +9,7 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
+#include "GameFramework/Character.h"
 
 UFPGAAbilityTask_SimpleMoveAndFace::UFPGAAbilityTask_SimpleMoveAndFace(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/TextBlock.h"
 #include "AttributeSet.h"
+#include "CommonTextBlock.h"
 #include "FPGAAttributeDisplay.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFPGAAttributeDisplayChanged, float, OldValue, float, NewValue);
@@ -13,7 +14,7 @@ struct FOnAttributeChangeData;
 class UAbilitySystemComponent;
 
 UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplay : public UTextBlock
+class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplay : public UCommonTextBlock
 {
 	GENERATED_BODY()
 
@@ -43,9 +44,9 @@ public:
 
 	void OnAttributeChanged(const FOnAttributeChangeData& ChangeData);
 
-	void BeginDestroy() override;
+	virtual void BeginDestroy() override;
 
 #if WITH_EDITOR
-	const FText GetPaletteCategory() override;
+	virtual const FText GetPaletteCategory() override;
 #endif
 };

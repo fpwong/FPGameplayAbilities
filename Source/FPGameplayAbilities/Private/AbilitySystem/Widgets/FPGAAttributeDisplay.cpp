@@ -71,7 +71,7 @@ void UFPGAAttributeDisplay::UnbindAttribute()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s: Delegate Handle Invalid"), TEXT(__FUNCTION__));
+			UE_LOG(LogTemp, Error, TEXT("%s: Delegate Handle Invalid"), ANSI_TO_TCHAR(__FUNCTION__));
 		}
 	}
 

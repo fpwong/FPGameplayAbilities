@@ -7,28 +7,31 @@ public class FPGameplayAbilities : ModuleRules
 	public FPGameplayAbilities(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		bUseUnity = false;
+
 		PublicIncludePaths.AddRange(
-			new string[] {
+			new string[]
+			{
 				// ... add public include paths required here ...
 			});
-				
-		
+
+
 		PrivateIncludePaths.AddRange(
-			new string[] {
+			new string[]
+			{
 				// ... add other private include paths required here ...
 			});
-			
-		
+
+
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
-			);
-			
-		
+		);
+
+
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -37,24 +40,27 @@ public class FPGameplayAbilities : ModuleRules
 				"Slate",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
-		        "GameplayAbilities",
+				"GameplayAbilities",
 				"GameplayTasks",
 				"GameplayTags",
 				"OnlineSubsystemSteam",
 				"Steamworks",
 				"AIModule",
 				"UMG",
+				"CommonUI",
 				"NavigationSystem",
 				"GameplayAbilities",
+				"DeveloperSettings",
+				"NetCore"
 			}
-			);
-		
-		
+		);
+
+
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 				// ... add any modules that your module loads dynamically here ...
 			}
-			);
+		);
 	}
 }

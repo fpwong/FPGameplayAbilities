@@ -176,6 +176,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")
 	static FGameplayAbilityTargetDataHandle MakeTargetDataFromLocations(FVector Source, FVector Target);
 
+	UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")
+	static FGameplayAbilityTargetDataHandle MakeVectorTargetData(FVector Location);
+
 	// UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")
 	// static FGameplayAbilityTargetData MakeTargetDataFromHitData(const FGameplayAbilityTargetDataHandle& TargetData, int32 Index);
 
