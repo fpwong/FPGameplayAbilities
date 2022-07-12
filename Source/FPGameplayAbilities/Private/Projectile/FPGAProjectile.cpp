@@ -2,6 +2,7 @@
 
 #include "Projectile/FPGAProjectile.h"
 
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -37,9 +38,23 @@ AFPGAProjectile::AFPGAProjectile()
 	SetReplicatingMovement(true);
 }
 
-void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData)
+// Called when the game starts or when spawned
+void AFPGAProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProjectileMovementComponent->bRotationFollowsVelocity = false;
+	}
+
+	OnActorHit.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnActorHit);
+}
+
+void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData, const FFPGAProjectileEffectData& InProjectileEffectData)
 {
 	TargetData = InTargetData;
+	ProjectileEffectData = InProjectileEffectData;
 
 	if (ProjectileMovementComponent->bIsHomingProjectile)
 	{
@@ -62,15 +77,13 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 			}
 		}
 	}
-	else
+
+	// set initial velocity
+	FVector TargetLocation;
+	if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
 	{
-		// just fly forwards until we hit something?
-		FVector TargetLocation;
-		if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
-		{
-			const FVector ToTarget = TargetLocation - GetActorLocation();
-			ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
-		}
+		const FVector ToTarget = TargetLocation - GetActorLocation();
+		ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
 	}
 
 	// TODO init projectile stats, poe style
@@ -78,17 +91,6 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 	if (NumBounces)
 	{
 		ProjectileMovementComponent->bShouldBounce = true;
-	}
-}
-
-// Called when the game starts or when spawned
-void AFPGAProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		ProjectileMovementComponent->bRotationFollowsVelocity = false;
 	}
 }
 
@@ -136,12 +138,16 @@ void AFPGAProjectile::Tick(float DeltaTime)
 		return;
 	}
 
-	const FVector ToTarget = TargetLocation - GetActorLocation();
-	if (ToTarget.SizeSquared2D() < 25 * 25)
+	if (TargetSceneComponent.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit target!"));
-		Destroy();
+		const FVector ToTarget = TargetSceneComponent->GetComponentLocation() - GetActorLocation();
+		if (ToTarget.SizeSquared2D() < 25 * 25)
+		{
+			ApplyEffect(UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(TargetData));
+			Destroy();
+		}
 	}
+
 	// else
 	// {
 	// 	UE_LOG(LogTemp, Warning, TEXT("Updating velocity"));
@@ -156,7 +162,45 @@ void AFPGAProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(AFPGAProjectile, TargetData);
 }
 
+bool AFPGAProjectile::ApplyEffect(AActor* TargetActor)
+{
+	if (!TargetActor || !Owner)
+	{
+		return false;
+	}
+
+	if (UAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UAbilitySystemComponent>())
+	{
+		// gameplay gameplay cue
+		if (OnHitGameplayCueTag.IsValid())
+		{
+			AbilitySystemComponent->ExecuteGameplayCue(OnHitGameplayCueTag);
+		}
+
+		// apply the gameplay effect to the target
+		if (Owner->GetLocalRole() == ROLE_Authority)
+		{
+			if (UAbilitySystemComponent* TargetASC = TargetActor->FindComponentByClass<UAbilitySystemComponent>())
+			{
+				FGameplayEffectSpec Spec = UFPGAGameplayAbilitiesLibrary::GetEffectSpecFromHandle(ProjectileEffectData.OnHitGameplayEffect);
+				AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(Spec, TargetASC);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void AFPGAProjectile::OnTargetDestroyed(AActor* Actor)
 {
 	TargetSceneComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+}
+
+void AFPGAProjectile::HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (ApplyEffect(OtherActor))
+	{
+		Destroy();
+	}
 }

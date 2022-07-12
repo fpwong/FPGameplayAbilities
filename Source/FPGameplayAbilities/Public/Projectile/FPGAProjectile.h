@@ -8,6 +8,16 @@
 #include "FPGAProjectile.generated.h"
 
 class UProjectileMovementComponent;
+
+USTRUCT(BlueprintType)
+struct FPGAMEPLAYABILITIES_API FFPGAProjectileEffectData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayEffectSpecHandle OnHitGameplayEffect;
+};
+
 UCLASS()
 class FPGAMEPLAYABILITIES_API AFPGAProjectile : public AActor
 {
@@ -20,13 +30,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY()
+	FFPGAProjectileEffectData ProjectileEffectData;
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag OnHitGameplayCueTag;
+
 	TWeakObjectPtr<USceneComponent> TargetSceneComponent; 
 
 	// Sets default values for this actor's properties
 	AFPGAProjectile();
 
 	UFUNCTION(BlueprintCallable)
-	void InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData);
+	void InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData, const FFPGAProjectileEffectData& InProjectileEffectData);
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,6 +60,11 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual bool ApplyEffect(AActor* TargetActor);
+
 	UFUNCTION()
 	void OnTargetDestroyed(AActor* Actor);
+
+	UFUNCTION()
+	void HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 };

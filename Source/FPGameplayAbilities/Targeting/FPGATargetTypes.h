@@ -33,7 +33,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetData_Vector : public FGameplayAbilityT
 		return TEXT("FFPGATargetData_Vector");
 	}
 
-	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+	bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess);
 };
 
 template<>
@@ -41,6 +41,7 @@ struct TStructOpsTypeTraits<FFPGATargetData_Vector> : public TStructOpsTypeTrait
 {
 	enum
 	{
-		WithNetSerializer = true	// For now this is REQUIRED for FFPGATargetData_Vector net serialization to work
+		WithNetSerializer = true,	// For now this is REQUIRED for FFPGATargetData_Vector net serialization to work
+		WithNetSharedSerialization = true
 	};
 };
