@@ -174,6 +174,9 @@ public:
 	static bool GetLocationFromTargetData(const FGameplayAbilityTargetDataHandle& TargetData, int32 Index, FVector& Location);
 
 	UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")
+	static AActor* GetFirstActorFromTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")
 	static FGameplayAbilityTargetDataHandle MakeTargetDataFromLocations(FVector Source, FVector Target);
 
 	UFUNCTION(BlueprintPure, Category = "FPGAAbility|Target Data")

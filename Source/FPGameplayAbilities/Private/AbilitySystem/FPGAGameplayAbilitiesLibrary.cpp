@@ -502,6 +502,22 @@ bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbi
 	return true;
 }
 
+AActor* UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	for (TSharedPtr<FGameplayAbilityTargetData> TargetData : TargetDataHandle.Data)
+	{
+		for (TWeakObjectPtr<AActor> Actor : TargetData->GetActors())
+		{
+			if (Actor.IsValid())
+			{
+				return Actor.Get();
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 FGameplayAbilityTargetDataHandle UFPGAGameplayAbilitiesLibrary::MakeTargetDataFromLocations(FVector Source, FVector Target)
 {
 	// Construct TargetData
