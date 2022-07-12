@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbilityTargetTypes.h"
 #include "GameFramework/Actor.h"
-#include "Targeting/FPGATargetData.h"
 #include "FPGAProjectile.generated.h"
 
 class UProjectileMovementComponent;
@@ -35,6 +35,8 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	virtual void Destroyed() override;
+
+	virtual void PostNetReceiveLocationAndRotation() override;
 
 public:
 	// Called every frame

@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "FPGAProjectile.h"
+#include "Projectile/FPGAProjectile.h"
 
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -14,10 +14,10 @@ AFPGAProjectile::AFPGAProjectile()
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovement");
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bRotationRemainsVertical = true;
+	ProjectileMovementComponent->bRotationRemainsVertical = false;
 	ProjectileMovementComponent->bInitialVelocityInLocalSpace = false;
 
-	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+	ProjectileMovementComponent->ProjectileGravityScale = 1.0f;
 	ProjectileMovementComponent->Friction = 0.0f;
 
 	ProjectileMovementComponent->MaxSpeed = 500.0f;
@@ -29,6 +29,10 @@ AFPGAProjectile::AFPGAProjectile()
 
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 
+	ProjectileMovementComponent->Bounciness = 1.0f;
+
+	NetUpdateFrequency = 100.0f;
+
 	SetReplicates(true);
 	SetReplicatingMovement(true);
 }
@@ -37,12 +41,11 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 {
 	TargetData = InTargetData;
 
-	TargetSceneComponent = NewObject<USceneComponent>(this);
-	TargetSceneComponent->RegisterComponent();
-
 	if (ProjectileMovementComponent->bIsHomingProjectile)
 	{
-		ProjectileMovementComponent->bIsHomingProjectile = true;
+		TargetSceneComponent = NewObject<USceneComponent>(this);
+		TargetSceneComponent->RegisterComponent();
+
 		ProjectileMovementComponent->HomingTargetComponent = TargetSceneComponent;
 
 		if (AActor* TargetActor = UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(TargetData))
@@ -55,10 +58,6 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 			FVector TargetLocation;
 			if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
 			{
-				// const FVector ToTarget = TargetLocation - GetActorLocation();
-				// FVector ProjectileVelocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->MaxSpeed;
-				// ProjectileMovementComponent->Velocity = ProjectileVelocity;
-
 				TargetSceneComponent->SetWorldLocation(TargetLocation);
 			}
 		}
@@ -73,12 +72,24 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 			ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
 		}
 	}
+
+	// TODO init projectile stats, poe style
+	int NumBounces = 4;
+	if (NumBounces)
+	{
+		ProjectileMovementComponent->bShouldBounce = true;
+	}
 }
 
 // Called when the game starts or when spawned
 void AFPGAProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProjectileMovementComponent->bRotationFollowsVelocity = false;
+	}
 }
 
 void AFPGAProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -94,6 +105,18 @@ void AFPGAProjectile::Destroyed()
 	if (AActor* TargetActor = UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(TargetData))
 	{
 		TargetActor->OnDestroyed.RemoveAll(this);
+	}
+}
+
+void AFPGAProjectile::PostNetReceiveLocationAndRotation()
+{
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		const FRepMovement& LocalRepMovement = GetReplicatedMovement();
+		const FVector NewLocation = FRepMovement::RebaseOntoLocalOrigin(LocalRepMovement.Location, this);
+		ProjectileMovementComponent->MoveInterpolationTarget(NewLocation, LocalRepMovement.Rotation);
+
+		// DrawDebugSphere(GetWorld(), NewLocation, 8, 4, FColor::Green);
 	}
 }
 
