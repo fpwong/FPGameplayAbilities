@@ -13,7 +13,7 @@ UFPGAGameplayAbility::UFPGAGameplayAbility()
 	};
 
 	{
-		static FName FuncName = FName(TEXT("K2_ActivateAbilityWithTargetData"));
+		static FName FuncName = FName(TEXT("K2_ActivateAbilityFromTargetData"));
 		UFunction* ShouldRespondFunction = GetClass()->FindFunctionByName(FuncName);
 		bHasBlueprintActivateAbilityWithTargetData = ImplementedInBlueprint(ShouldRespondFunction);
 	}
