@@ -24,7 +24,6 @@ class FPGAMEPLAYABILITIES_API AFPGAProjectile : public AActor
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Replicated)
 	FGameplayAbilityTargetDataHandle TargetData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -57,8 +56,6 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual bool ApplyEffect(AActor* TargetActor);
 

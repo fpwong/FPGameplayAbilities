@@ -53,6 +53,11 @@ void AFPGAProjectile::BeginPlay()
 
 void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData, const FFPGAProjectileEffectData& InProjectileEffectData)
 {
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		return;
+	}
+
 	TargetData = InTargetData;
 	ProjectileEffectData = InProjectileEffectData;
 
@@ -112,7 +117,7 @@ void AFPGAProjectile::Destroyed()
 
 void AFPGAProjectile::PostNetReceiveLocationAndRotation()
 {
-	if (GetLocalRole() == ROLE_SimulatedProxy)
+	if (GetLocalRole() != ROLE_Authority)
 	{
 		const FRepMovement& LocalRepMovement = GetReplicatedMovement();
 		const FVector NewLocation = FRepMovement::RebaseOntoLocalOrigin(LocalRepMovement.Location, this);
@@ -155,13 +160,6 @@ void AFPGAProjectile::Tick(float DeltaTime)
 	// }
 }
 
-void AFPGAProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AFPGAProjectile, TargetData);
-}
-
 bool AFPGAProjectile::ApplyEffect(AActor* TargetActor)
 {
 	if (!TargetActor || !Owner)
@@ -199,6 +197,11 @@ void AFPGAProjectile::OnTargetDestroyed(AActor* Actor)
 
 void AFPGAProjectile::HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		return;
+	}
+
 	if (ApplyEffect(OtherActor))
 	{
 		Destroy();
