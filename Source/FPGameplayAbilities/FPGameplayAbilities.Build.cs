@@ -26,7 +26,7 @@ public class FPGameplayAbilities : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core"
 				// ... add other public dependencies that you statically link with here ...
 			}
 		);
@@ -51,7 +51,8 @@ public class FPGameplayAbilities : ModuleRules
 				"NavigationSystem",
 				"GameplayAbilities",
 				"DeveloperSettings",
-				"NetCore"
+				"NetCore",
+				"GASCompanion"
 			}
 		);
 
