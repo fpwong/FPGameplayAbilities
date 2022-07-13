@@ -71,7 +71,7 @@ public:
 	static bool TryActivateAbility(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle AbilityToActivate, bool bAllowRemoteActivation = true);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
-	static bool TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
+	static FGameplayAbilitySpecHandle TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
 
 	/** Gets the current AbilitySpecHandle- can only be called on instanced abilities. */
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")

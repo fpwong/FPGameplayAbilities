@@ -202,19 +202,22 @@ bool UFPGAGameplayAbilitiesLibrary::TryActivateAbility(UAbilitySystemComponent* 
 	return AbilitySystem->TryActivateAbility(AbilityToActivate, bAllowRemoteActivation);
 }
 
-bool UFPGAGameplayAbilitiesLibrary::TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData)
+FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData)
 {
 	if (!AbilitySystem)
 	{
-		return false;
+		return FGameplayAbilitySpecHandle();
 	}
 
 	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
 	{
-		return AbilitySystem->InternalTryActivateAbility(Spec->Handle, FPredictionKey(), nullptr, nullptr, &EventData);
+		if (AbilitySystem->InternalTryActivateAbility(Spec->Handle, FPredictionKey(), nullptr, nullptr, &EventData))
+		{
+			return Spec->Handle;
+		}
 	}
 
-	return false;
+	return FGameplayAbilitySpecHandle();
 }
 
 FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GetAbilitySpecHandle(UGameplayAbility* Ability)
