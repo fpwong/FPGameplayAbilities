@@ -308,9 +308,7 @@ FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AAc
 		{
 			if (IsValidActor(OrderedActor, Actor))
 			{
-				FGameplayAbilityTargetData_ActorArray* Data = new FGameplayAbilityTargetData_ActorArray();
-				Data->TargetActorArray.Add(Actor);
-				return Data;
+				return FFPGATargetData_SingleActor::MakeSingleActorTargetData(Actor);
 			}
 		}
 	}
