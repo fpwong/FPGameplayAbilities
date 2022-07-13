@@ -32,9 +32,9 @@ AFPGAProjectile::AFPGAProjectile()
 
 	ProjectileMovementComponent->Bounciness = 1.0f;
 
-	NetUpdateFrequency = 100.0f;
+	NetUpdateFrequency = 30.0f;
 
-	SetReplicates(true);
+	bReplicates = true;
 	SetReplicatingMovement(true);
 }
 
@@ -46,6 +46,7 @@ void AFPGAProjectile::BeginPlay()
 	if (GetLocalRole() == ROLE_SimulatedProxy)
 	{
 		ProjectileMovementComponent->bRotationFollowsVelocity = false;
+		ProjectileMovementComponent->bSimulationEnabled = false;
 	}
 
 	OnActorHit.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnActorHit);
