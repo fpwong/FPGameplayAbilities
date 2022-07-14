@@ -11,6 +11,7 @@
  */
 UCLASS()
 class FPGAMEPLAYABILITIES_API UFPGAGameplayAbility : public UGSCGameplayAbility
+// class FPGAMEPLAYABILITIES_API UFPGAGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 

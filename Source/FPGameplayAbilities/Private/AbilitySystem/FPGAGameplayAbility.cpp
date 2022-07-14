@@ -88,6 +88,8 @@ void UFPGAGameplayAbility::NotifyTargetDataReady(const FGameplayAbilityTargetDat
 
 void UFPGAGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	return;
 	// UE_LOG(LogTemp, Warning, TEXT("Activate ability"));
 	// if (bHasBlueprintActivate)
 	// {
@@ -117,6 +119,9 @@ void UFPGAGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 void UFPGAGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	return;
+
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
 	check(ASC);
 
