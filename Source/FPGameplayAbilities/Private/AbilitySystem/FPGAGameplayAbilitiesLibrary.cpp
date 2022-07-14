@@ -220,6 +220,26 @@ FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::TryActivateAbilityWith
 	return FGameplayAbilitySpecHandle();
 }
 
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate)
+{
+	if (!AbilitySystem)
+	{
+		return nullptr;
+	}
+
+	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	{
+		UGameplayAbility* OutAbility = nullptr;
+
+		if (AbilitySystem->InternalTryActivateAbility(Spec->Handle, FPredictionKey(), &OutAbility, OnGameplayAbilityEndedDelegate, &EventData))
+		{
+			return OutAbility;
+		}
+	}
+
+	return nullptr;
+}
+
 FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GetAbilitySpecHandle(UGameplayAbility* Ability)
 {
 	if (!Ability)

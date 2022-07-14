@@ -10,6 +10,7 @@
 #include "AttributeSet.h"
 #include "GameplayEffect.h"
 #include "GameplayEffectTypes.h"
+#include "Abilities/GameplayAbility.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Abilities/GameplayAbilityTargetDataFilter.h"
@@ -72,6 +73,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static FGameplayAbilitySpecHandle TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
+
+	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
 
 	/** Gets the current AbilitySpecHandle- can only be called on instanced abilities. */
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
