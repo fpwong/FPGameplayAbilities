@@ -17,6 +17,9 @@ class FPGAMEPLAYABILITIES_API UFPGAUWAbilityDisplay : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly)
+	bool bFullProgressWhenOnCooldown = true;
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UCommonTextBlock* CooldownLabel;
 
