@@ -211,6 +211,15 @@ FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::TryActivateAbilityWith
 		return FGameplayAbilitySpecHandle();
 	}
 
+	if (AActor* TargetActor = GetFirstActorFromTargetData(EventData.TargetData))
+	{
+		if (UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor))
+		{
+			TargetAbilitySystem->GetOwnedGameplayTags(EventData.TargetTags);
+			FillRelationshipTags(EventData.TargetTags, AbilitySystem->GetOwnerActor(), TargetActor);
+		}
+	}
+
 	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
 	{
 		if (AbilitySystem->InternalTryActivateAbility(Spec->Handle, FPredictionKey(), nullptr, nullptr, &EventData))
