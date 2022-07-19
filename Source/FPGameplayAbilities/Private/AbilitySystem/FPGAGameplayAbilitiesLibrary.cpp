@@ -14,6 +14,8 @@
 #include "GameplayTagContainer.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayEffectExecutionCalculation.h"
+#include "GenericTeamAgentInterface.h"
+#include "AbilitySystem/FPGAGlobalTags.h"
 #include "Engine/Engine.h"
 #include "FPGameplayAbilities/Targeting/FPGATargetTypes.h"
 
@@ -622,6 +624,36 @@ FGameplayEffectSpec UFPGAGameplayAbilitiesLibrary::GetEffectSpecFromHandle(FGame
 int32 UFPGAGameplayAbilitiesLibrary::GetTagCount(UAbilitySystemComponent* AbilitySystem, FGameplayTag Tag)
 {
 	return (AbilitySystem == nullptr) ? -1 : AbilitySystem->GetTagCount(Tag);
+}
+
+void UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(UPARAM(ref) FGameplayTagContainer& TagContainer, const AActor* Source, const AActor* Target)
+{
+	if (Source == nullptr || Target == nullptr)
+	{
+		return;
+	}
+
+	if (Source == Target)
+	{
+		TagContainer.AddTag(UFPGAGlobalTags::Relationship_Friendly());
+		TagContainer.AddTag(UFPGAGlobalTags::Relationship_Self());
+	}
+	else
+	{
+		if (const IGenericTeamAgentInterface* SourceAgent = Cast<IGenericTeamAgentInterface>(Source))
+		{
+			ETeamAttitude::Type Attitude = SourceAgent->GetTeamAttitudeTowards(*Target);
+
+			if (Attitude == ETeamAttitude::Friendly)
+			{
+				TagContainer.AddTag(UFPGAGlobalTags::Relationship_Friendly());
+			}
+			else if (Attitude == ETeamAttitude::Hostile)
+			{
+				TagContainer.AddTag(UFPGAGlobalTags::Relationship_Hostile());
+			}
+		}
+	}
 }
 
 //FGameplayTargetDataFilterHandle UFPGAGameplayAbilitiesLibrary::MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor)

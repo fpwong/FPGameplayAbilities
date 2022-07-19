@@ -210,4 +210,8 @@ public:
 	///** Create a handle for filtering target data, filling out all fields */
 	//UFUNCTION(BlueprintPure, Category = "Filter")
 	//static FGameplayTargetDataFilterHandle MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor);
+
+	/* Idea from https://github.com/DaedalicEntertainment/ue4-orders-abilities */
+	UFUNCTION(BlueprintCallable)
+	static void FillRelationshipTags(UPARAM(ref) FGameplayTagContainer& TagContainer, const AActor* Source, const AActor* Target);
 };

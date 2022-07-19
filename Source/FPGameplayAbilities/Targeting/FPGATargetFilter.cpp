@@ -4,10 +4,11 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 
 bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
 {
-	if (!SourceActor || !TargetActor)
+	if (!TargetActor)
 	{
 		return false;
 	}
@@ -22,7 +23,8 @@ bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* 
 	{
 		FGameplayTagContainer TargetTags;
 
-		// TODO: Add affiliation
+		UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(TargetTags, SourceActor, TargetActor);
+
 		AbilitySystem->GetOwnedGameplayTags(TargetTags);
 		if (!TargetTagQuery.Matches(TargetTags))
 		{
