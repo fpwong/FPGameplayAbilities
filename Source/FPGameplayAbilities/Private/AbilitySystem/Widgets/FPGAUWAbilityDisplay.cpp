@@ -22,6 +22,11 @@ void UFPGAUWAbilityDisplay::OnAbilityEnded(UGameplayAbility* GameplayAbility)
 
 void UFPGAUWAbilityDisplay::OnAbilityActivate(UGameplayAbility* GameplayAbility)
 {
+	if (!Ability || !GameplayAbility)
+	{
+		return;
+	}
+
 	if (GameplayAbility->GetClass() == Ability->GetClass())
 	{
 		ActiveAbility = GameplayAbility;
@@ -46,6 +51,18 @@ void UFPGAUWAbilityDisplay::InitAbility(UAbilitySystemComponent* InAbilitySystem
 	}
 
 	UpdateAbilityProgress();
+}
+
+void UFPGAUWAbilityDisplay::ClearAbility()
+{
+	if (AbilitySystem)
+	{
+		AbilitySystem->AbilityActivatedCallbacks.RemoveAll(this);
+	}
+
+	Ability = nullptr;
+	AbilitySystem = nullptr;
+	AbilityProgressBar->SetPercent(0);
 }
 
 void UFPGAUWAbilityDisplay::UpdateAbilityProgress()
