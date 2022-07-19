@@ -44,3 +44,55 @@ bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* 
 
 	return true;
 }
+
+//~~ FFPGATargetFilterCallbacks
+
+void FFPGATargetFilterValidation::BindToActor(const FFPGATargetFilter& InFilter, AActor* InSourceActor, AActor* InTargetActor)
+{
+	Filter = InFilter;
+	SourceActor = InSourceActor;
+	TargetActor = InTargetActor;
+
+	if (!SourceActor || !TargetActor)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
+	if (!AbilitySystem)
+	{
+		return;
+	}
+
+	FGameplayTagQueryExpression Query;
+	Filter.TargetTagQuery.GetQueryExpr(Query);
+
+	TArray<uint8> Tokens;
+	TArray<FGameplayTag> TagDictionary;
+	Query.EmitTokens(Tokens, TagDictionary);
+
+	for (const FGameplayTag& Tag : TagDictionary)
+	{
+		FDelegateHandle Handle = AbilitySystem->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddRaw(this, &FFPGATargetFilterValidation::OnFilterTagChanged);
+		TagChangedDelegates.Add(Tag, Handle);
+	}
+}
+
+void FFPGATargetFilterValidation::OnFilterTagChanged(FGameplayTag Tag, int NewCount)
+{
+	if (!Filter.DoesFilterPass(SourceActor, TargetActor))
+	{
+		OnFilterFailed.Broadcast();
+	}
+}
+
+void FFPGATargetFilterValidation::Clear()
+{
+	if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor))
+	{
+		for (const auto& Kvp : TagChangedDelegates)
+		{
+			AbilitySystem->UnregisterGameplayTagEvent(Kvp.Value, Kvp.Key, EGameplayTagEventType::NewOrRemoved);
+		}
+	}
+}

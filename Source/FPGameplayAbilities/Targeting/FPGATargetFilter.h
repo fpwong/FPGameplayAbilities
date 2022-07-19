@@ -30,3 +30,30 @@ public:
 
 	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const;
 };
+
+DECLARE_MULTICAST_DELEGATE(FFPOnTargetFilterFailed);
+
+USTRUCT(BlueprintType)
+struct FPGAMEPLAYABILITIES_API FFPGATargetFilterValidation
+{
+	GENERATED_BODY()
+
+	FFPGATargetFilter Filter;
+
+	UPROPERTY()
+	AActor* SourceActor = nullptr;
+
+	UPROPERTY()
+	AActor* TargetActor = nullptr;
+
+	FFPOnTargetFilterFailed OnFilterFailed;
+
+	void BindToActor(const FFPGATargetFilter& InFilter, AActor* InSourceActor, AActor* InTargetActor);
+
+	void OnFilterTagChanged(FGameplayTag Tag, int NewCount);
+
+	void Clear();
+
+private:
+	TMap<FGameplayTag, FDelegateHandle> TagChangedDelegates;
+};
