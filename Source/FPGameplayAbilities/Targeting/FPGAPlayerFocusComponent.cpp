@@ -18,33 +18,28 @@ void UFPGAPlayerFocusComponent::UpdateStateFromHitResults(const TArray<FHitResul
 {
 	for (const auto& HitResult : HitResults)
 	{
-		if (auto HitActor = HitResult.GetActor())
+		if (AActor* NewHovered = HitResult.GetActor())
 		{
-			if (TargetFilter.DoesFilterPass(nullptr, HitActor))
+			if (TargetFilter.DoesFilterPass(nullptr, NewHovered))
 			{
-				if (HoveredActor.Get() == HitActor)
+				AActor* OldHovered = HoveredActor.Get();
+				if (OldHovered == NewHovered)
 				{
 					return;
 				}
 
-				if (HoveredActor.IsValid())
+				if (OldHovered && OldHovered->Implements<UFPGAPlayerFocusInterface>())
 				{
-					if (HoveredActor.Get()->Implements<UFPGAPlayerFocusInterface>())
-					{
-						IFPGAPlayerFocusInterface::Execute_OnEndFocus(HoveredActor.Get());
-					}
-
-					HoveredActor.Reset();
+					IFPGAPlayerFocusInterface::Execute_OnEndHovered(OldHovered);
 				}
 
-				OnHoveredActorChanged.Broadcast(HoveredActor.Get(), HitActor);
-
-				HoveredActor = HitActor;
-				if (HitActor->Implements<UFPGAPlayerFocusInterface>())
+				if (NewHovered && NewHovered->Implements<UFPGAPlayerFocusInterface>())
 				{
-					IFPGAPlayerFocusInterface::Execute_OnBeginFocus(HitActor);
+					IFPGAPlayerFocusInterface::Execute_OnBeginHovered(NewHovered);
 				}
 
+				HoveredActor = NewHovered;
+				OnHoveredActorChanged.Broadcast(OldHovered, NewHovered);
 				return;
 			}
 		}
@@ -55,5 +50,43 @@ void UFPGAPlayerFocusComponent::UpdateStateFromHitResults(const TArray<FHitResul
 		OnHoveredActorChanged.Broadcast(HoveredActor.Get(), nullptr);
 		HoveredActor = nullptr;
 	}
+}
+
+void UFPGAPlayerFocusComponent::SetFocus(AActor* NewFocus)
+{
+	AActor* OldFocused = FocusedActor.Get();
+
+	if (OldFocused == NewFocus)
+	{
+		return;
+	}
+
+	if (NewFocus && !IsValidActor(NewFocus))
+	{
+		return;
+	}
+
+	if (OldFocused && OldFocused->Implements<UFPGAPlayerFocusInterface>())
+	{
+		IFPGAPlayerFocusInterface::Execute_OnEndFocus(OldFocused);
+	}
+
+	if (NewFocus && NewFocus->Implements<UFPGAPlayerFocusInterface>())
+	{
+		IFPGAPlayerFocusInterface::Execute_OnBeginFocus(NewFocus);
+	}
+
+	FocusedActor = NewFocus;
+	OnFocusedActorChanged.Broadcast(OldFocused, NewFocus);
+}
+
+void UFPGAPlayerFocusComponent::FocusHoveredActor()
+{
+	SetFocus(GetHoveredActor());
+}
+
+bool UFPGAPlayerFocusComponent::IsValidActor(AActor* Actor)
+{
+	return TargetFilter.DoesFilterPass(nullptr, Actor);
 }
 

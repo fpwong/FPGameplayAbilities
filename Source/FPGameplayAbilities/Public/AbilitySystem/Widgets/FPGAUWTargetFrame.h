@@ -6,6 +6,7 @@
 #include "FPGAAttributeBar.h"
 #include "FPGAUWStatusBar.h"
 #include "Blueprint/UserWidget.h"
+#include "FPGameplayAbilities/Targeting/FPGAPlayerFocusComponent.h"
 #include "FPGAUWTargetFrame.generated.h"
 
 UCLASS()
@@ -15,9 +16,6 @@ class FPGAMEPLAYABILITIES_API UFPGAUWTargetFrame : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-	AActor* TargetActor;
-
-	UPROPERTY(BlueprintReadOnly)
 	UAbilitySystemComponent* TargetAbilitySystem = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -26,8 +24,22 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UFPGAUWStatusBar* StatusBar;
 
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<AActor> TargetActor;
+
+	TWeakObjectPtr<UFPGAPlayerFocusComponent> PlayerFocusComponent;
+
 	virtual void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetActor(AActor* InTargetActor);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void BindToPlayerFocus(UFPGAPlayerFocusComponent* InPlayerFocusComponent);
+
+	UFUNCTION()
+	void HandleHoveredActorChanged(AActor* OldActor, AActor* NewActor);
+
+	UFUNCTION()
+	void HandleFocusedActorChanged(AActor* OldActor, AActor* NewActor);
 };
