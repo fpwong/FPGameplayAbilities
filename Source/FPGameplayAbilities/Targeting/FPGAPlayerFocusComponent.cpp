@@ -47,6 +47,12 @@ void UFPGAPlayerFocusComponent::UpdateStateFromHitResults(const TArray<FHitResul
 
 	if (HoveredActor.IsValid())
 	{
+		AActor* OldHovered = HoveredActor.Get();
+		if (OldHovered && OldHovered->Implements<UFPGAPlayerFocusInterface>())
+		{
+			IFPGAPlayerFocusInterface::Execute_OnEndHovered(OldHovered);
+		}
+
 		OnHoveredActorChanged.Broadcast(HoveredActor.Get(), nullptr);
 		HoveredActor = nullptr;
 	}
