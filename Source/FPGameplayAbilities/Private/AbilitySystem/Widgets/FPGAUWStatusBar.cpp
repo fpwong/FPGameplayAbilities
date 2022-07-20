@@ -7,67 +7,75 @@
 #include "AbilitySystem/Widgets/FPGAUWStatusBarItem.h"
 #include "Blueprint/WidgetTree.h"
 
+void UFPGAUWStatusBar::NativeConstruct()
+{
+	Super::NativeConstruct();
+	SetVisibility(ESlateVisibility::Hidden);
+}
+
 void UFPGAUWStatusBar::SetActor(AActor* Actor)
 {
 	UAbilitySystemComponent* NewAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor);
+	if (NewAbilitySystem == BoundAbilitySystem)
+	{
+		return;
+	}
+
+	StatusBarPanel->ClearChildren();
 
 	// unbind from previous ability system
-	if (BoundAbilitySystem && NewAbilitySystem != BoundAbilitySystem)
+	if (BoundAbilitySystem)
 	{
 		BoundAbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
 	}
 
 	BoundAbilitySystem = NewAbilitySystem;
+
 	if (!BoundAbilitySystem)
 	{
-		StatusBarPanel->ClearChildren();
+		SetVisibility(ESlateVisibility::Hidden);
 		return;
 	}
 
-	BoundAbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &ThisClass::HandleGameplayEffectAdded);
+	SetVisibility(ESlateVisibility::Visible);
 
-	TArray<FGameplayEffectSpec> ActiveGameplayEffectSpecs;
-	BoundAbilitySystem->GetAllActiveGameplayEffectSpecs(ActiveGameplayEffectSpecs);
+	BoundAbilitySystem->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &ThisClass::HandleGameplayEffectAdded);
 
 	if (StatusBarItemClass)
 	{
 		for (FActiveGameplayEffectHandle Handle : BoundAbilitySystem->GetActiveEffects(EffectQuery))
 		{
-			if (auto Effect = BoundAbilitySystem->GetActiveGameplayEffect(Handle))
-			{
-				CreateStatusBarItem(Effect);
-			}
+			CreateStatusBarItem(Handle, false);
 		}
 	}
 }
 
-void UFPGAUWStatusBar::CreateStatusBarItem(const FActiveGameplayEffect* ActiveGameplayEffect)
+void UFPGAUWStatusBar::CreateStatusBarItem(const FActiveGameplayEffectHandle& ActiveEffectHandle, bool bCheckEffectQuery)
 {
-	if (!ActiveGameplayEffect)
+	if (!ActiveEffectHandle.IsValid())
 	{
 		return;
 	}
 
-	// // check effect tags
-	// if (!EffectTagRequirements.IsEmpty())
-	// {
-	// 	FGameplayTagContainer GETags;
-	// 	ActiveGameplayEffect->Spec.GetAllAssetTags(GETags);
-	//
-	// 	if (!EffectTagRequirements.Matches(GETags))
-	// 	{
-	// 		return;
-	// 	}
-	// }
+	if (bCheckEffectQuery)
+	{
+		if (const FActiveGameplayEffect* GameplayEffect = BoundAbilitySystem->GetActiveGameplayEffect(ActiveEffectHandle))
+		{
+			if (!EffectQuery.Matches(*GameplayEffect))
+			{
+				return;
+			}
+		}
+	}
 
 	if (UFPGAUWStatusBarItem* StatusBarItem = WidgetTree->ConstructWidget<UFPGAUWStatusBarItem>(StatusBarItemClass))
 	{
-		StatusBarItem->SetGameplayEffect(ActiveGameplayEffect->Handle);
+		StatusBarItem->SetGameplayEffect(ActiveEffectHandle);
 		StatusBarPanel->AddChild(StatusBarItem);
 	}
 }
 
 void UFPGAUWStatusBar::HandleGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& GameplayEffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
 {
-	CreateStatusBarItem(AbilitySystemComponent->GetActiveGameplayEffect(ActiveGameplayEffectHandle));
+	CreateStatusBarItem(ActiveGameplayEffectHandle, true);
 }

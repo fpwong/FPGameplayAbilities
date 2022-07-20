@@ -31,10 +31,12 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFPGAUWStatusBarItem> StatusBarItemClass;
 
+	virtual void NativeConstruct() override;
+
 	UFUNCTION(BlueprintCallable)
 	void SetActor(AActor* Actor);
 
 protected:
-	void CreateStatusBarItem(const FActiveGameplayEffect* ActiveGameplayEffect);
+	void CreateStatusBarItem(const FActiveGameplayEffectHandle& ActiveGameplayEffect, bool bCheckEffectQuery);
 	void HandleGameplayEffectAdded(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& GameplayEffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
 };

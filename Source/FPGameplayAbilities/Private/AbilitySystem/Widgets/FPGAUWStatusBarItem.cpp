@@ -4,50 +4,89 @@
 
 #include "AbilitySystemComponent.h"
 #include "CommonTextBlock.h"
+#include "Components/ProgressBar.h"
 
-void UFPGAUWStatusBarItem::SetGameplayEffect(const FActiveGameplayEffectHandle& InActiveGameplayEffectHandle)
+void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiveGameplayEffectHandle)
 {
 	ActiveGameplayEffectHandle = InActiveGameplayEffectHandle;
+	check(ActiveGameplayEffectHandle.IsValid());
 	AbilitySystem = ActiveGameplayEffectHandle.GetOwningAbilitySystemComponent();
 
-	if (NameLabel)
 	{
-		if (const FActiveGameplayEffect* ActiveGameplayEffect = GetActiveGameplayEffect())
+		if (FActiveGameplayEffectEvents* ActiveEventSet = AbilitySystem->GetActiveEffectEventSet(ActiveGameplayEffectHandle))
+		{
+			ActiveEventSet->OnEffectRemoved.AddUObject(this, &ThisClass::OnEffectRemoved);
+		}
+	}
+
+	// TODO: stack change / time change
+	// AbilitySystem->OnGameplayEffectStackChangeDelegate(ActiveGameplayEffectHandle);
+	// AbilitySystem->OnGameplayEffectTimeChangeDelegate(ActiveGameplayEffectHandle);
+
+	if (const FActiveGameplayEffect* ActiveGameplayEffect = AbilitySystem->GetActiveGameplayEffect(ActiveGameplayEffectHandle))
+	{
+		ActiveGameplayEffect->EventSet.OnEffectRemoved;;
+		StartWorldTime = ActiveGameplayEffect->StartWorldTime;
+		Duration = ActiveGameplayEffect->GetDuration();
+
+		// infinite duration, set the progress to full
+		if (Duration < 0.0f && DurationBar)
+		{
+			DurationBar->SetPercent(1.0f);
+		}
+
+		auto EffectName = FText::FromString(ActiveGameplayEffect->Spec.Def->GetName());
+		if (NameLabel)
 		{
 			NameLabel->SetText(FText::FromString(ActiveGameplayEffect->Spec.Def->GetName()));
 		}
-	}
-}
 
-const FActiveGameplayEffect* UFPGAUWStatusBarItem::GetActiveGameplayEffect()
-{
-	return AbilitySystem->GetActiveGameplayEffect(ActiveGameplayEffectHandle);
+		// TODO: Setup a tooltip widget
+		if (UWidget* Root = GetRootWidget())
+		{
+			Root->SetToolTipText(EffectName);
+		}
+	}
+
+	if (DurationLabel)
+	{
+		DurationLabel->SetText(FText::GetEmpty());
+	}
 }
 
 void UFPGAUWStatusBarItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (DurationLabel)
+	if (Duration > 0)
 	{
-		if (const FActiveGameplayEffect* ActiveGameplayEffect = GetActiveGameplayEffect())
+		const float TimeRemaining = Duration - (GetWorld()->GetTimeSeconds() - StartWorldTime);
+		if (TimeRemaining > 0)
 		{
-			FText DurationText; 
-			if (ActiveGameplayEffect->GetDuration() > 0)
+			if (DurationLabel)
 			{
-				const float TimeRemaining = ActiveGameplayEffect->GetTimeRemaining(GetWorld()->GetTimeSeconds());
-
+				FText DurationText;
 				if (TimeRemaining > 0)
 				{
-					DurationText = FText::FromString(FString::Printf(TEXT("%.1f"), TimeRemaining));
+					DurationText = FText::FromString(FString::Printf(TEXT("%d"), FMath::RoundToInt(TimeRemaining)));
 				}
+
+				DurationLabel->SetText(DurationText);
 			}
 
-			DurationLabel->SetText(DurationText);
+			if (DurationBar)
+			{
+				DurationBar->SetPercent(TimeRemaining / Duration);
+			}
 		}
 		else
 		{
 			RemoveFromParent();
 		}
 	}
+}
+
+void UFPGAUWStatusBarItem::OnEffectRemoved(const FGameplayEffectRemovalInfo& GameplayEffectRemovalInfo)
+{
+	RemoveFromParent();
 }
