@@ -72,6 +72,9 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly)
 	FFPGATargetFilter TargetFilter;
 
+	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly)
+	FFPGATargetFilter SourceFilter;
+
 	/**
 	* The target types of this stage.
 	*/
@@ -94,15 +97,15 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	bool IsValidHitResult(AActor* OrderedActor, const FHitResult& HitResult) const;
 
 	bool IsValidLocation(AActor* OrderedActor, const FVector& Location) const;
-	bool IsValidActor(AActor* OrderedActor, AActor* TargetActor) const;
+	bool IsValidActor(AActor* SourceActor, AActor* TargetActor) const;
 
 	bool IsTargetTypeFlagChecked(int32 InFlag) const;
 	bool IsTargetTypeFlagChecked(EFPGATargetTypeFlags InFlag) const;
 
-	FGameplayAbilityTargetData* MakeTargetDataFromHitResult(AActor* OrderedActor, const FHitResult& HitResult) const;
+	FGameplayAbilityTargetData* MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult) const;
 
 	// FVector GetSourceLocation(const TArray<FFPGATargetData>& OrderData, AActor* OrderedActor) const;
-	FVector GetSourceLocation(AActor* OrderedActor) const;
+	FVector GetSourceLocation(AActor* SourceActor) const;
 };
 
 USTRUCT(BlueprintType)

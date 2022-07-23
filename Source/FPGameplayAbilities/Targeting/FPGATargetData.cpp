@@ -113,6 +113,7 @@ FFPGATargetingStage::FFPGATargetingStage()
 	// );
 
 	TargetFilter = GetDefault<UFPGADeveloperSettings>()->DefaultStageTargetFilter;
+	SourceFilter = GetDefault<UFPGADeveloperSettings>()->DefaultStageSourceFilter;
 }
 
 bool FFPGATargetingStage::IsValidLocation(AActor* OrderedActor, const FVector& Location) const
@@ -198,7 +199,7 @@ bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGamepla
 	{
 		if (TargetData->HasEndPoint())
 		{
-			if (IsValidLocation(OrderedActor, TargetData->GetEndPoint()))
+			if (IsValidLocation(OrderedActor, TargetData->GetEndPoint()) && SourceFilter.DoesFilterPass(nullptr, OrderedActor))
 			{
 				return true;
 			}
@@ -237,11 +238,11 @@ bool FFPGATargetingStage::IsValidHitResult(AActor* OrderedActor, const FHitResul
 	return false;
 }
 
-bool FFPGATargetingStage::IsValidActor(AActor* OrderedActor, AActor* TargetActor) const
+bool FFPGATargetingStage::IsValidActor(AActor* SourceActor, AActor* TargetActor) const
 {
 	if (TargetActor && UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
 	{
-		return TargetFilter.DoesFilterPass(OrderedActor, TargetActor);
+		return TargetFilter.DoesFilterPass(SourceActor, TargetActor) && SourceFilter.DoesFilterPass(TargetActor, SourceActor);
 	}
 
 	return false;
@@ -295,7 +296,7 @@ bool FFPGATargetingStage::IsTargetTypeFlagChecked(EFPGATargetTypeFlags InFlag) c
 	return UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, InFlag);
 }
 
-FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AActor* OrderedActor, const FHitResult& HitResult) const
+FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult) const
 {
 	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::NONE | EFPGATargetTypeFlags::PASSIVE))
 	{
@@ -306,7 +307,7 @@ FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AAc
 	{
 		if (AActor* Actor = HitResult.GetActor())
 		{
-			if (IsValidActor(OrderedActor, Actor))
+			if (IsValidActor(SourceActor, Actor))
 			{
 				return FFPGATargetData_SingleActor::MakeSingleActorTargetData(Actor);
 			}
@@ -317,20 +318,23 @@ FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AAc
 	{
 		if (HitResult.IsValidBlockingHit())
 		{
-			return FFPGATargetData_Vector::MakeVectorTargetData(HitResult.Location);
+			if (SourceFilter.DoesFilterPass(nullptr, SourceActor))
+			{
+				return FFPGATargetData_Vector::MakeVectorTargetData(HitResult.Location);
+			}
 		}
 	}
 
 	return nullptr;
 }
 
-FVector FFPGATargetingStage::GetSourceLocation(AActor* OrderedActor) const
+FVector FFPGATargetingStage::GetSourceLocation(AActor* SourceActor) const
 {
 	switch (TargetRangeSource)
 	{
 		case EFPGATargetRangeSource::UNIT:
 		{
-			return OrderedActor->GetActorLocation();
+			return SourceActor->GetActorLocation();
 		}
 		case EFPGATargetRangeSource::LAST_TARGET:
 		{

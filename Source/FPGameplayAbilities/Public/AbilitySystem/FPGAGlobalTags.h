@@ -4,33 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "UObject/Object.h"
-#include "FPGAGlobalTags.generated.h"
+#include "GameplayTagsManager.h"
 
-/**
- * 
- */
-UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGAGlobalTags : public UBlueprintFunctionLibrary
+struct FPGAMEPLAYABILITIES_API FFPGAGlobalTags : public FGameplayTagNativeAdder
 {
-	GENERATED_BODY()
+	FORCEINLINE static const FFPGAGlobalTags& Get() { return Tags; }
 
-public:
-	static const FGameplayTag& Relationship_Self()
+	FGameplayTag Misc_Dummy;
+	FGameplayTag Relationship_Self;
+	FGameplayTag Relationship_Friendly;
+	FGameplayTag Relationship_Hostile;
+ 
+protected:
+	virtual void AddTags() override
 	{
-		static FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName(TEXT("Relationship.Self")));
-		return Tag;
+		UGameplayTagsManager& Manager = UGameplayTagsManager::Get();
+		Misc_Dummy = Manager.AddNativeGameplayTag(TEXT("Misc.Dummy"));
+		Relationship_Self = Manager.AddNativeGameplayTag(TEXT("Relationship.Self"));
+		Relationship_Friendly = Manager.AddNativeGameplayTag(TEXT("Relationship.Friendly"));
+		Relationship_Hostile = Manager.AddNativeGameplayTag(TEXT("Relationship.Hostile"));
 	}
 
-	static const FGameplayTag& Relationship_Friendly()
-	{
-		static FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName(TEXT("Relationship.Friendly")));
-		return Tag;
-	}
-
-	static const FGameplayTag& Relationship_Hostile()
-	{
-		static FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName(TEXT("Relationship.Hostile")));
-		return Tag;
-	}
+private:
+	static FFPGAGlobalTags Tags;
 };

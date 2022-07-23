@@ -10,7 +10,7 @@ bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* 
 {
 	if (!TargetActor)
 	{
-		return false;
+		return true;
 	}
 
 	UAbilitySystemComponent* AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
@@ -55,7 +55,7 @@ void FFPGATargetFilterValidation::BindToActor(const FFPGATargetFilter& InFilter,
 	SourceActor = InSourceActor;
 	TargetActor = InTargetActor;
 
-	if (!SourceActor || !TargetActor)
+	if (!TargetActor)
 	{
 		return;
 	}

@@ -71,8 +71,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static bool TryActivateAbility(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle AbilityToActivate, bool bAllowRemoteActivation = true);
 
-	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
-	static FGameplayAbilitySpecHandle TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility", meta=(DisplayName="Try Activate Ability With Event", ScriptName="TryActivateAbilityWithEvent"))
+	static FGameplayAbilitySpecHandle BP_TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
 
 	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
 

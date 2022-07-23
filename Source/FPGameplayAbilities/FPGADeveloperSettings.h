@@ -14,4 +14,7 @@ class FPGAMEPLAYABILITIES_API UFPGADeveloperSettings : public UDeveloperSettings
 public:
 	UPROPERTY(Category = "Targeting", EditAnywhere)
 	FFPGATargetFilter DefaultStageTargetFilter;
+
+	UPROPERTY(Category = "Targeting", EditAnywhere)
+	FFPGATargetFilter DefaultStageSourceFilter;
 };
