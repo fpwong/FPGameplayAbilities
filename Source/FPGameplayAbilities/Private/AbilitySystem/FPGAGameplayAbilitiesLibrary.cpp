@@ -635,6 +635,16 @@ int32 UFPGAGameplayAbilitiesLibrary::GetTagCount(UAbilitySystemComponent* Abilit
 	return (AbilitySystem == nullptr) ? -1 : AbilitySystem->GetTagCount(Tag);
 }
 
+FName UFPGAGameplayAbilitiesLibrary::GetSimpleTagName(FGameplayTag Tag)
+{
+	if (TSharedPtr<FGameplayTagNode> TagNode = UGameplayTagsManager::Get().FindTagNode(Tag))
+	{
+		return TagNode->GetSimpleTagName();
+	}
+
+	return FName();
+}
+
 void UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(UPARAM(ref) FGameplayTagContainer& TagContainer, const AActor* Source, const AActor* Target)
 {
 	if (Source == nullptr || Target == nullptr)

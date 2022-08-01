@@ -4,6 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "CommonTextBlock.h"
+#include "GameplayTagsManager.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "Components/ProgressBar.h"
 
 void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiveGameplayEffectHandle)
@@ -35,16 +37,32 @@ void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiv
 			DurationBar->SetPercent(1.0f);
 		}
 
-		auto EffectName = FText::FromString(ActiveGameplayEffect->Spec.Def->GetName());
+		FString EffectName = ActiveGameplayEffect->Spec.ToSimpleString();
+		FGameplayTagContainer EffectTags;
+		ActiveGameplayEffect->Spec.GetAllAssetTags(EffectTags);
+		if (EffectTags.Num() > 0)
+		{
+			EffectName = UFPGAGameplayAbilitiesLibrary::GetSimpleTagName(EffectTags.GetByIndex(0)).ToString();
+		}
+		else
+		{
+			FGameplayTagContainer StatusTags;
+			ActiveGameplayEffect->Spec.GetAllGrantedTags(StatusTags);
+			if (StatusTags.Num() > 0)
+			{
+				EffectName = UFPGAGameplayAbilitiesLibrary::GetSimpleTagName(StatusTags.GetByIndex(0)).ToString();
+			}
+		}
+
 		if (NameLabel)
 		{
-			NameLabel->SetText(FText::FromString(ActiveGameplayEffect->Spec.Def->GetName()));
+			NameLabel->SetText(FText::FromString(EffectName));
 		}
 
 		// TODO: Setup a tooltip widget
 		if (UWidget* Root = GetRootWidget())
 		{
-			Root->SetToolTipText(EffectName);
+			Root->SetToolTipText(FText::FromString(EffectName));
 		}
 	}
 

@@ -207,6 +207,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Tags")
 	static int32 GetTagCount(UAbilitySystemComponent* AbilitySystem, FGameplayTag Tag);
 
+	UFUNCTION(BlueprintCallable, Category = "Tags")
+	static FName GetSimpleTagName(FGameplayTag Tag);
+
 	///** Create a handle for filtering target data, filling out all fields */
 	//UFUNCTION(BlueprintPure, Category = "Filter")
 	//static FGameplayTargetDataFilterHandle MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor);
