@@ -51,8 +51,7 @@ public class FPGameplayAbilities : ModuleRules
 				"NavigationSystem",
 				"GameplayAbilities",
 				"DeveloperSettings",
-				"NetCore",
-				"GASCompanion"
+				"NetCore"
 			}
 		);
 

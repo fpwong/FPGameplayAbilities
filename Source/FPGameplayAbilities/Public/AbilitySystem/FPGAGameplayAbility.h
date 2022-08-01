@@ -3,15 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GSCGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "FPGAGameplayAbility.generated.h"
 
 /**
  * See https://x157.github.io/UE5/GameplayAbilitySystem/How-To-Send-Client-Gameplay-Ability-Data-to-Server-in-C++
  */
 UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGAGameplayAbility : public UGSCGameplayAbility
-// class FPGAMEPLAYABILITIES_API UFPGAGameplayAbility : public UGameplayAbility
+class FPGAMEPLAYABILITIES_API UFPGAGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 
