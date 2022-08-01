@@ -21,9 +21,7 @@
  * @see FCharacterNetworkMoveDataContainer
  */
 
-struct FPGAMEPLAYABILITIES_API FFPGACharacterNetworkMoveDataContainer : public FCharacterNetworkMoveDataContainer
-{
-};
+struct FPGAMEPLAYABILITIES_API FFPGACharacterNetworkMoveDataContainer : public FCharacterNetworkMoveDataContainer {};
 
 //////////////////////////////////////////////////////////////////////////
 // Server to Client response
@@ -36,9 +34,7 @@ struct FPGAMEPLAYABILITIES_API FFPGACharacterNetworkMoveDataContainer : public F
  * setting a few relevant flags about the response and serializing the response to and from an FArchive for handling the variable-size
  * payload over the network.
  */
-struct FPGAMEPLAYABILITIES_API FFPGACharacterMoveResponseDataContainer : public FCharacterMoveResponseDataContainer
-{
-};
+struct FPGAMEPLAYABILITIES_API FFPGACharacterMoveResponseDataContainer : public FCharacterMoveResponseDataContainer {};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPGAMEPLAYABILITIES_API UFPGACharacterMovementComponent : public UCharacterMovementComponent
@@ -48,7 +44,7 @@ class FPGAMEPLAYABILITIES_API UFPGACharacterMovementComponent : public UCharacte
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTagContainer BlockedMovementTags;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayAttribute MovementSpeedAttribute;
 
@@ -59,9 +55,11 @@ public:
 
 	// ~~ CharacterMovementComponent
 	virtual float GetMaxSpeed() const override;
+	virtual void AddInputVector(FVector WorldVector, bool bForce) override;
 	virtual void ServerMoveHandleClientError(float ClientTimeStamp, float DeltaTime, const FVector& Accel, const FVector& RelativeClientLocation, UPrimitiveComponent* ClientMovementBase, FName ClientBaseBoneName, uint8 ClientMovementMode) override;
 	virtual bool ServerCheckClientError(float ClientTimeStamp, float DeltaTime, const FVector& Accel, const FVector& ClientWorldLocation, const FVector& RelativeClientLocation, UPrimitiveComponent* ClientMovementBase, FName ClientBaseBoneName, uint8 ClientMovementMode) override;
 	virtual void PerformMovement(float DeltaTime) override;
+	virtual void ClientAdjustPosition_Implementation(float TimeStamp, FVector NewLocation, FVector NewVelocity, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
 	// ~~ CharacterMovementComponent
 
 protected:
