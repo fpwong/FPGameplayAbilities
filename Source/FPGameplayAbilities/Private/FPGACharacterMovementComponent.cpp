@@ -196,6 +196,16 @@ void UFPGACharacterMovementComponent::ClientAdjustPosition_Implementation(
 	ClientData->bUpdatePosition = true;
 }
 
+void UFPGACharacterMovementComponent::RequestPathMove(const FVector& MoveInput)
+{
+	AddInputVector(MoveInput, false);
+}
+
+void UFPGACharacterMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
+{
+	AddInputVector(MoveVelocity, false);
+}
+
 float UFPGACharacterMovementComponent::GetMaxSpeed() const
 {
 	// TODO: register to on change callback
