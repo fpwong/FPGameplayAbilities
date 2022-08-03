@@ -532,8 +532,13 @@ bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbi
 		return true;
 	}
 
-	Location = Data->GetEndPoint();
-	return true;
+	if (Data->HasEndPoint())
+	{
+		Location = Data->GetEndPoint();
+		return true;
+	}
+
+	return false;
 }
 
 AActor* UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
