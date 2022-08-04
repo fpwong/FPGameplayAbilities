@@ -3,6 +3,7 @@
 #include "Projectile/FPGAProjectile.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayCueManager.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -50,6 +51,7 @@ void AFPGAProjectile::BeginPlay()
 	}
 
 	OnActorHit.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnActorHit);
+	OnActorBeginOverlap.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnBeginOverlap);
 }
 
 void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InTargetData, const FFPGAProjectileEffectData& InProjectileEffectData)
@@ -88,7 +90,8 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 	FVector TargetLocation;
 	if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
 	{
-		const FVector ToTarget = TargetLocation - GetActorLocation();
+		FVector ToTarget = TargetLocation - GetActorLocation();
+		ToTarget.Z = 0;
 		ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
 	}
 
@@ -170,11 +173,7 @@ bool AFPGAProjectile::ApplyEffect(AActor* TargetActor)
 
 	if (UAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UAbilitySystemComponent>())
 	{
-		// gameplay gameplay cue
-		if (OnHitGameplayCueTag.IsValid())
-		{
-			AbilitySystemComponent->ExecuteGameplayCue(OnHitGameplayCueTag);
-		}
+		ExecuteOnHitGameplayCue();
 
 		// apply the gameplay effect to the target
 		if (Owner->GetLocalRole() == ROLE_Authority)
@@ -196,15 +195,59 @@ void AFPGAProjectile::OnTargetDestroyed(AActor* Actor)
 	TargetSceneComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 }
 
-void AFPGAProjectile::HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+void AFPGAProjectile::HandleOnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	if (IsPendingKillPending())
+	{
+		return;
+	}
+
 	if (GetLocalRole() != ROLE_Authority)
 	{
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Porject overlap %s"), *OtherActor->GetName());
+
 	if (ApplyEffect(OtherActor))
 	{
 		Destroy();
+	}
+	else if (!ProjectileMovementComponent->bIsHomingProjectile)
+	{
+		ExecuteOnHitGameplayCue();
+		Destroy();
+	}
+}
+
+void AFPGAProjectile::HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (IsPendingKillPending())
+	{
+		return;
+	}
+
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	if (!ProjectileMovementComponent->bIsHomingProjectile)
+	{
+		ExecuteOnHitGameplayCue();
+		Destroy();
+	}
+}
+
+void AFPGAProjectile::ExecuteOnHitGameplayCue()
+{
+	if (UAbilitySystemComponent* AbilitySystemComponent = Owner->FindComponentByClass<UAbilitySystemComponent>())
+	{
+		if (OnHitGameplayCueTag.IsValid())
+		{
+			FGameplayCueParameters Parameters;
+			Parameters.Location = GetActorLocation();
+			AbilitySystemComponent->ExecuteGameplayCue(OnHitGameplayCueTag, Parameters);
+		}
 	}
 }

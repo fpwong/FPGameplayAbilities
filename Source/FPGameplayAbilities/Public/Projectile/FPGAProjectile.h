@@ -63,5 +63,10 @@ public:
 	void OnTargetDestroyed(AActor* Actor);
 
 	UFUNCTION()
+	void HandleOnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
 	void HandleOnActorHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+
+	void ExecuteOnHitGameplayCue();
 };
