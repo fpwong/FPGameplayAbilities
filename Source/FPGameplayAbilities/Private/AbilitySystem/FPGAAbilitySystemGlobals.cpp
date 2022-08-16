@@ -6,5 +6,5 @@
 
 void UFPGAAbilitySystemGlobals::AllocAttributeSetInitter()
 {
-	GlobalAttributeSetInitter = TSharedPtr<FAttributeSetInitter>(new FFPGAAttributeSetInitter());;
+	GlobalAttributeSetInitter = MakeShared<FFPGAAttributeSetInitter>();
 }
