@@ -8,6 +8,36 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
+AFPGAProjectile* AFPGAProjectile::SpawnProjectile(
+	const UObject* WorldContextObject,
+	TSubclassOf<AFPGAProjectile> ProjectileClass,
+	AActor* InOwner,
+	const FTransform& Transform,
+	const FGameplayAbilityTargetDataHandle& InTargetData,
+	const FFPGAProjectileEffectData& InProjectileEffectData)
+{
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull);
+	if (!World || !ProjectileClass)
+	{
+		return nullptr;
+	}
+
+	FActorSpawnParameters ActorSpawnParameters;
+	ActorSpawnParameters.Owner = InOwner;
+	ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ActorSpawnParameters.bDeferConstruction = true;
+
+	if (AFPGAProjectile* Projectile = World->SpawnActor<AFPGAProjectile>(ProjectileClass, ActorSpawnParameters))
+	{
+		Projectile->InitProjectile(InTargetData, InProjectileEffectData);
+		Projectile->FinishSpawning(Transform);
+		DrawDebugLine(World, Transform.GetLocation(), Transform.GetLocation() + Transform.Rotator().Vector() * 100.0f, FColor::Red, true);
+		return Projectile;
+	}
+
+	return nullptr;
+}
+
 // Sets default values
 AFPGAProjectile::AFPGAProjectile()
 {
@@ -50,6 +80,19 @@ void AFPGAProjectile::BeginPlay()
 		ProjectileMovementComponent->bSimulationEnabled = false;
 	}
 
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// set initial velocity
+		FVector TargetLocation;
+		if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
+		{
+			FVector ToTarget = TargetLocation - GetActorLocation();
+			ToTarget.Z = 0;
+			ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
+			// ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
+		}
+	}
+
 	OnActorHit.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnActorHit);
 	OnActorBeginOverlap.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnBeginOverlap);
 }
@@ -84,15 +127,6 @@ void AFPGAProjectile::InitProjectile(const FGameplayAbilityTargetDataHandle& InT
 				TargetSceneComponent->SetWorldLocation(TargetLocation);
 			}
 		}
-	}
-
-	// set initial velocity
-	FVector TargetLocation;
-	if (UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(TargetData, 0, TargetLocation))
-	{
-		FVector ToTarget = TargetLocation - GetActorLocation();
-		ToTarget.Z = 0;
-		ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
 	}
 
 	// TODO init projectile stats, poe style

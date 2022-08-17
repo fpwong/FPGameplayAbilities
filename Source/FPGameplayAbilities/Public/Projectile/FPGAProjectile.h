@@ -24,6 +24,15 @@ class FPGAMEPLAYABILITIES_API AFPGAProjectile : public AActor
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static AFPGAProjectile* SpawnProjectile(
+		const UObject* WorldContextObject,
+		TSubclassOf<AFPGAProjectile> ProjectileClass,
+		AActor* InOwner,
+		const FTransform& Transform,
+		const FGameplayAbilityTargetDataHandle& InTargetData,
+		const FFPGAProjectileEffectData& InProjectileEffectData);
+
 	FGameplayAbilityTargetDataHandle TargetData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
