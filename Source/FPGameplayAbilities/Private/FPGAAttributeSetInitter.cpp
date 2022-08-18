@@ -151,18 +151,15 @@ void FFPGAAttributeSetInitter::InitAttributeSetDefaults(UAbilitySystemComponent*
 		ABILITY_LOG(Warning, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
 		return;
 	}
-
+	
 	const FAttributeSetDefaults& SetDefaults = Collection->LevelData[Level - 1];
-	for (const UAttributeSet* Set : AbilitySystemComponent->GetSpawnedAttributes())
+
+	const auto SetAttributeValues = [&SetDefaults, &bInitialInit, &AbilitySystemComponent](const UAttributeSet* Set, TSubclassOf<UAttributeSet> Class)
 	{
-		if (!Set)
-		{
-			continue;
-		}
-		const FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Set->GetClass());
+		const FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Class);
 		if (DefaultDataList)
 		{
-			ABILITY_LOG(Log, TEXT("Initializing Set %s"), *Set->GetName());
+			ABILITY_LOG(Log, TEXT("Initializing Set %s (%s)"), *Set->GetName(), *Class->GetName());
 
 			for (auto& DataPair : DefaultDataList->List)
 			{
@@ -173,6 +170,29 @@ void FFPGAAttributeSetInitter::InitAttributeSetDefaults(UAbilitySystemComponent*
 					FGameplayAttribute AttributeToModify(DataPair.Property);
 					AbilitySystemComponent->SetNumericAttributeBase(AttributeToModify, DataPair.Value);
 				}
+			}
+		}
+	};
+
+	for (const UAttributeSet* Set : AbilitySystemComponent->GetSpawnedAttributes())
+	{
+		if (!Set)
+		{
+			continue;
+		}
+
+		TSubclassOf<UAttributeSet> NextClass(Set->GetClass());
+		while (NextClass && NextClass->IsChildOf(UAttributeSet::StaticClass()))
+		{
+			SetAttributeValues(Set, NextClass);
+
+			if (UClass* ParentClass = NextClass->GetSuperClass())
+			{
+				NextClass = TSubclassOf<UAttributeSet>(ParentClass);
+			}
+			else
+			{
+				NextClass = nullptr;
 			}
 		}
 	}
