@@ -9,6 +9,26 @@
 
 class UFPGAUWDamageNumber;
 
+USTRUCT()
+struct FDamageNumberInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TWeakObjectPtr<AActor> DamagedActor;
+
+	UPROPERTY()
+	float DamageAmount;
+
+	UPROPERTY()
+	FGameplayTagContainer DamageTags;
+};
+
+struct FActorDamageNumberInfo
+{
+	TQueue<FDamageNumberInfo> PendingDamageNumbers;
+};
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPGAMEPLAYABILITIES_API UFPGADamageNumberComponent : public UActorComponent
 {
@@ -21,6 +41,23 @@ public:
 	// Sets default values for this component's properties
 	UFPGADamageNumberComponent();
 
+	virtual void BeginPlay() override;
+
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
 	void Multicast_Damage(AActor* DamagedActor, float DamageAmount, const FGameplayTagContainer& DamageTags);
+
+	void TryPlayDamageNumber();
+
+	void PlayNextDamageNumber();
+
+	FActorDamageNumberInfo ActorDamageInfo;
+	// TMap<TWeakObjectPtr<AActor>, FActorDamageNumberInfo> PendingDamageNumbers;
+
+	FTimerHandle TimerHandle;
+
+	bool bWaitingForDamageNumber = false;
+
+	float LastPlayed = -1.0f;
+
+	float Delay = 0.1f;
 };

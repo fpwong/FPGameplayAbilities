@@ -29,13 +29,13 @@ void UFPGACharacterMovementComponent::ServerMoveHandleClientError(float ClientTi
 
 bool UFPGACharacterMovementComponent::ServerCheckClientError(float ClientTimeStamp, float DeltaTime, const FVector& Accel, const FVector& ClientWorldLocation, const FVector& RelativeClientLocation, UPrimitiveComponent* ClientMovementBase, FName ClientBaseBoneName, uint8 ClientMovementMode)
 {
-	if (AbilitySystem)
-	{
-		if (AbilitySystem->HasAnyMatchingGameplayTags(BlockedMovementTags))
-		{
-			return true;
-		}
-	}
+	// if (AbilitySystem)
+	// {
+	// 	if (AbilitySystem->HasAnyMatchingGameplayTags(BlockedMovementTags))
+	// 	{
+	// 		return true;
+	// 	}
+	// }
 
 	return Super::ServerCheckClientError(ClientTimeStamp, DeltaTime, Accel, ClientWorldLocation, RelativeClientLocation, ClientMovementBase, ClientBaseBoneName, ClientMovementMode);
 }
@@ -47,6 +47,7 @@ void UFPGACharacterMovementComponent::PerformMovement(float DeltaTime)
 		if (AbilitySystem->HasAnyMatchingGameplayTags(BlockedMovementTags))
 		{
 			ClearAccumulatedForces();
+			// StopActiveMovement();
 			return;
 		}
 	}
@@ -204,6 +205,47 @@ void UFPGACharacterMovementComponent::RequestPathMove(const FVector& MoveInput)
 void UFPGACharacterMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
 {
 	AddInputVector(MoveVelocity, false);
+}
+
+void UFPGACharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	// // if (GetOwnerRole() == ENetRole::ROLE_Authority)
+	// {
+	// 	FNetworkPredictionData_Client_Character* ClientData = GetPredictionData_Client_Character();
+	// 	if (ClientData)
+	// 	{
+	// 		for (TSharedPtr<FSavedMove_Character> SavedMove_Character : ClientData->SavedMoves)
+	// 		{
+	// 			DrawDebugSphere(GetWorld(), SavedMove_Character->StartLocation, 12, 4, FColor::Red);
+	// 		}
+	// 	}
+	// }
+
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UFPGACharacterMovementComponent::ControlledCharacterMove(const FVector& InputVector, float DeltaSeconds)
+{
+	{
+		// SCOPE_CYCLE_COUNTER(STAT_CharUpdateAcceleration);
+
+		// We need to check the jump state before adjusting input acceleration, to minimize latency
+		// and to make sure acceleration respects our potentially new falling state.
+		CharacterOwner->CheckJumpInput(DeltaSeconds);
+
+		// apply input to acceleration
+		Acceleration = ScaleInputAcceleration(ConstrainInputAcceleration(InputVector));
+		AnalogInputModifier = ComputeAnalogInputModifier();
+	}
+
+	if (CharacterOwner->GetLocalRole() == ROLE_Authority)
+	{
+		PerformMovement(DeltaSeconds);
+	}
+	else if (CharacterOwner->GetLocalRole() == ROLE_AutonomousProxy && IsNetMode(NM_Client))
+	{
+		ReplicateMoveToServer(DeltaSeconds, Acceleration);
+	}
 }
 
 float UFPGACharacterMovementComponent::GetMaxSpeed() const

@@ -62,6 +62,8 @@ public:
 	virtual void ClientAdjustPosition_Implementation(float TimeStamp, FVector NewLocation, FVector NewVelocity, UPrimitiveComponent* NewBase, FName NewBaseBoneName, bool bHasBase, bool bBaseRelativePosition, uint8 ServerMovementMode) override;
 	virtual void RequestPathMove(const FVector& MoveInput) override;
 	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void ControlledCharacterMove(const FVector& InputVector, float DeltaSeconds) override;
 	// ~~ CharacterMovementComponent
 
 protected:

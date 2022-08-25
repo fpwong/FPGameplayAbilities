@@ -31,7 +31,7 @@ AFPGAProjectile* AFPGAProjectile::SpawnProjectile(
 	{
 		Projectile->InitProjectile(InTargetData, InProjectileEffectData);
 		Projectile->FinishSpawning(Transform);
-		DrawDebugLine(World, Transform.GetLocation(), Transform.GetLocation() + Transform.Rotator().Vector() * 100.0f, FColor::Red, true);
+		// DrawDebugLine(World, Transform.GetLocation(), Transform.GetLocation() + Transform.Rotator().Vector() * 100.0f, FColor::Red, true);
 		return Projectile;
 	}
 
