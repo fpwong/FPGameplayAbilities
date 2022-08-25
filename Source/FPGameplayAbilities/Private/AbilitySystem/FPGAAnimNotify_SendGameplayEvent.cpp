@@ -16,10 +16,12 @@ UFPGAAnimNotify_SendGameplayEvent::UFPGAAnimNotify_SendGameplayEvent()
 	bIsNativeBranchingPoint = true;
 }
 
+#if WITH_EDITOR
 void UFPGAAnimNotify_SendGameplayEvent::OnAnimNotifyCreatedInEditor(FAnimNotifyEvent& ContainingAnimNotifyEvent)
 {
 	ContainingAnimNotifyEvent.MontageTickType = EMontageNotifyTickType::BranchingPoint;
 }
+#endif
 
 void UFPGAAnimNotify_SendGameplayEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
