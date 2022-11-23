@@ -78,7 +78,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	/**
 	* The target types of this stage.
 	*/
-	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly, BlueprintReadOnly, meta = (Bitmask, BitmaskEnum = EFPGATargetTypeFlags, AllowPrivateAccess = true))
+	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly, BlueprintReadOnly, meta = (Bitmask, BitmaskEnum="/Script/FPGameplayAbilities.EFPGATargetTypeFlags", AllowPrivateAccess = true))
 	int32 TargetTypeFlags;
 
 	// /** Details about the preview for this stage while choosing a target. */
