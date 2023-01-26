@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Interface.h"
 #include "FPGAGameplayAbilityInterface.generated.h"
 
-struct FGameplayTag;
 class UGameplayAbility;
 
 UINTERFACE()
@@ -20,5 +20,6 @@ class FPGAMEPLAYABILITIES_API IFPGAGameplayAbilityInterface
 	GENERATED_BODY()
 
 public:
-	virtual TSubclassOf<UGameplayAbility> GetAbilityByTag(FGameplayTag GameplayTag) = 0; 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	TSubclassOf<UGameplayAbility> GetAbilityByTag(FGameplayTag GameplayTag); 
 };
