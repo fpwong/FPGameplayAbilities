@@ -12,7 +12,7 @@ UFPGAAbilityTask_WaitCancel::UFPGAAbilityTask_WaitCancel(const FObjectInitialize
 
 void UFPGAAbilityTask_WaitCancel::OnCancelCallback()
 {
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent.IsValid())
 	{
 		AbilitySystemComponent->ConsumeGenericReplicatedEvent(EAbilityGenericReplicatedEvent::GenericCancel, GetAbilitySpecHandle(), GetActivationPredictionKey());
 		if (ShouldBroadcastAbilityTaskDelegates())
@@ -25,9 +25,9 @@ void UFPGAAbilityTask_WaitCancel::OnCancelCallback()
 
 void UFPGAAbilityTask_WaitCancel::OnLocalCancelCallback()
 {
-	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent, IsPredictingClient());
+	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent.Get(), IsPredictingClient());
 
-	if (AbilitySystemComponent && IsPredictingClient())
+	if (AbilitySystemComponent.IsValid() && IsPredictingClient())
 	{
 		AbilitySystemComponent->ServerSetReplicatedEvent(EAbilityGenericReplicatedEvent::GenericCancel, GetAbilitySpecHandle(), GetActivationPredictionKey(),
 		                                                 AbilitySystemComponent->ScopedPredictionKey);
@@ -44,7 +44,7 @@ UFPGAAbilityTask_WaitCancel* UFPGAAbilityTask_WaitCancel::FPGAWaitCancel(UGamepl
 
 void UFPGAAbilityTask_WaitCancel::Activate()
 {
-	if (AbilitySystemComponent && bEndOnCancelInput)
+	if (AbilitySystemComponent.IsValid() && bEndOnCancelInput)
 	{
 		const FGameplayAbilityActorInfo* Info = Ability->GetCurrentActorInfo();
 
@@ -68,7 +68,7 @@ void UFPGAAbilityTask_WaitCancel::Activate()
 
 void UFPGAAbilityTask_WaitCancel::OnDestroy(bool AbilityEnding)
 {
-	if (RegisteredCallbacks && AbilitySystemComponent)
+	if (RegisteredCallbacks && AbilitySystemComponent.IsValid())
 	{
 		AbilitySystemComponent->GenericLocalCancelCallbacks.RemoveDynamic(this, &UFPGAAbilityTask_WaitCancel::OnLocalCancelCallback);
 	}

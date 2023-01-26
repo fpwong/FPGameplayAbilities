@@ -40,7 +40,6 @@ void UFPGAAbilityTask_WaitTargetData::Activate()
 
 			RegisterTargetDataCallbacks();
 
-
 			if (IsPendingKill())
 			{
 				return;
@@ -213,7 +212,7 @@ void UFPGAAbilityTask_WaitTargetData::RegisterTargetDataCallbacks()
 /** Valid TargetData was replicated to use (we are server, was sent from client) */
 void UFPGAAbilityTask_WaitTargetData::OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& Data, FGameplayTag ActivationTag)
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 
 	FGameplayAbilityTargetDataHandle MutableData = Data;
 	AbilitySystemComponent->ConsumeClientReplicatedTargetData(GetAbilitySpecHandle(), GetActivationPredictionKey());
@@ -251,7 +250,7 @@ void UFPGAAbilityTask_WaitTargetData::OnTargetDataReplicatedCallback(const FGame
 /** Client canceled this Targeting Task (we are the server) */
 void UFPGAAbilityTask_WaitTargetData::OnTargetDataReplicatedCancelledCallback()
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
 		Cancelled.Broadcast(FGameplayAbilityTargetDataHandle());
@@ -262,13 +261,13 @@ void UFPGAAbilityTask_WaitTargetData::OnTargetDataReplicatedCancelledCallback()
 /** The TargetActor we spawned locally has called back with valid target data */
 void UFPGAAbilityTask_WaitTargetData::OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& Data)
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 	if (!Ability)
 	{
 		return;
 	}
 
-	FScopedPredictionWindow	ScopedPrediction(AbilitySystemComponent, ShouldReplicateDataToServer());
+	FScopedPredictionWindow	ScopedPrediction(AbilitySystemComponent.Get(), ShouldReplicateDataToServer());
 	
 	const FGameplayAbilityActorInfo* Info = Ability->GetCurrentActorInfo();
 	if (IsPredictingClient())
@@ -299,9 +298,9 @@ void UFPGAAbilityTask_WaitTargetData::OnTargetDataReadyCallback(const FGameplayA
 /** The TargetActor we spawned locally has called back with a cancel event (they still include the 'last/best' targetdata but the consumer of this may want to discard it) */
 void UFPGAAbilityTask_WaitTargetData::OnTargetDataCancelledCallback(const FGameplayAbilityTargetDataHandle& Data)
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 
-	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent, IsPredictingClient());
+	FScopedPredictionWindow ScopedPrediction(AbilitySystemComponent.Get(), IsPredictingClient());
 
 	if (IsPredictingClient())
 	{
@@ -322,7 +321,7 @@ void UFPGAAbilityTask_WaitTargetData::OnTargetDataCancelledCallback(const FGamep
 /** Called when the ability is asked to confirm from an outside node. What this means depends on the individual task. By default, this does nothing other than ending if bEndTask is true. */
 void UFPGAAbilityTask_WaitTargetData::ExternalConfirm(bool bEndTask)
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 	if (TargetActor)
 	{
 		if (TargetActor->ShouldProduceTargetData())
@@ -336,7 +335,7 @@ void UFPGAAbilityTask_WaitTargetData::ExternalConfirm(bool bEndTask)
 /** Called when the ability is asked to confirm from an outside node. What this means depends on the individual task. By default, this does nothing other than ending if bEndTask is true. */
 void UFPGAAbilityTask_WaitTargetData::ExternalCancel()
 {
-	check(AbilitySystemComponent);
+	check(AbilitySystemComponent.IsValid());
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
 		Cancelled.Broadcast(FGameplayAbilityTargetDataHandle());

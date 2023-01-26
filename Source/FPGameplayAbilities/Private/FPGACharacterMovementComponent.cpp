@@ -59,14 +59,15 @@ void UFPGACharacterMovementComponent::ClientAdjustPosition_Implementation(
 	float TimeStamp,
 	FVector NewLocation,
 	FVector NewVelocity,
-	UPrimitiveComponent* NewBase,
+	UPrimitiveComponent* NewBase, 
 	FName NewBaseBoneName,
 	bool bHasBase,
 	bool bBaseRelativePosition,
-	uint8 ServerMovementMode)
+	uint8 ServerMovementMode,
+	TOptional<FRotator> OptionalRotation)
 {
 	// this here does the corrections!
-	Super::ClientAdjustPosition_Implementation(TimeStamp, NewLocation, NewVelocity, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode);
+	Super::ClientAdjustPosition_Implementation(TimeStamp, NewLocation, NewVelocity, NewBase, NewBaseBoneName, bHasBase, bBaseRelativePosition, ServerMovementMode, OptionalRotation);
 	return;
 
 	if (!HasValidData() || !IsActive())
