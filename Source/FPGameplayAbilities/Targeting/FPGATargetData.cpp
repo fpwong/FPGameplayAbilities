@@ -4,8 +4,7 @@
 #include "FPGAHelperLibrary.h"
 #include "FPGATargetType.h"
 #include "FPGATargetTypes.h"
-#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
-#include "FPGameplayAbilities/FPGADeveloperSettings.h"
+#include "FPGameplayAbilities/FPGASettings.h"
 #include "GameFramework/Actor.h"
 
 FFPGATargetData::FFPGATargetData()
@@ -112,8 +111,8 @@ FFPGATargetingStage::FFPGATargetingStage()
 	// 										  .AddTag(UFPGAGlobalTags::Status_Changing_Invulnerable()))
 	// );
 
-	TargetFilter = GetDefault<UFPGADeveloperSettings>()->DefaultStageTargetFilter;
-	SourceFilter = GetDefault<UFPGADeveloperSettings>()->DefaultStageSourceFilter;
+	TargetFilter = GetDefault<UFPGASettings>()->DefaultStageTargetFilter;
+	SourceFilter = GetDefault<UFPGASettings>()->DefaultStageSourceFilter;
 }
 
 bool FFPGATargetingStage::IsValidLocation(AActor* OrderedActor, const FVector& Location) const

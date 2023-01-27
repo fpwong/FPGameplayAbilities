@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
+#include "FPGameplayAbilities/FPGASettings.h"
 
 bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
 {
@@ -44,7 +45,72 @@ bool FFPGATargetFilter::DoesFilterPass(const AActor* SourceActor, const AActor* 
 			return false;
 	}
 
+	for (FFPGATargetFilter* Filter : GetStaticFilters())
+	{
+		if (!Filter->DoesFilterPass(SourceActor, TargetActor))
+		{
+			return false;
+		}
+	}
+
+	// if (StaticFilters.Num())
+	// {
+	// 	if (UDataTable* DataTable = GetDefault<UFPGASettings>()->StaticTargetFiltersTable.LoadSynchronous())
+	// 	{
+	// 		for (const FGameplayTag& FilterRowName : StaticFilters)
+	// 		{
+	// 			if (FFPGATargetFilter* Filter = DataTable->FindRow<FFPGATargetFilter>(FilterRowName.GetTagName(), TEXT("FFPGATargetFilter::DoesFilterPass")))
+	// 			{
+	// 				if (!Filter->DoesFilterPass(SourceActor, TargetActor))
+	// 				{
+	// 					return false;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	return true;
+}
+
+TArray<FFPGATargetFilter*> FFPGATargetFilter::GetStaticFilters() const
+{
+	TArray<FFPGATargetFilter*> OutFilters;
+	if (StaticFilters.Num())
+	{
+		if (UDataTable* DataTable = GetDefault<UFPGASettings>()->StaticTargetFiltersTable.LoadSynchronous())
+		{
+			for (const FGameplayTag& FilterRowName : StaticFilters)
+			{
+				if (FFPGATargetFilter* Filter = DataTable->FindRow<FFPGATargetFilter>(FilterRowName.GetTagName(), TEXT("FFPGATargetFilter::DoesFilterPass")))
+				{
+					OutFilters.Add(Filter);
+				}
+			}
+		}
+	}
+
+	return OutFilters;
+}
+
+void FFPGATargetFilter::PrintFilter() const
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *TargetTagQuery.GetDescription());
+
+	if (StaticFilters.Num())
+	{
+		if (UDataTable* DataTable = GetDefault<UFPGASettings>()->StaticTargetFiltersTable.LoadSynchronous())
+		{
+			for (const FGameplayTag& FilterRowName : StaticFilters)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Child filter %s"), *FilterRowName.GetTagName().ToString());
+				if (FFPGATargetFilter* Filter = DataTable->FindRow<FFPGATargetFilter>(FilterRowName.GetTagName(), TEXT("FFPGATargetFilter::DoesFilterPass")))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("\t%s"), *Filter->TargetTagQuery.GetDescription());
+				}
+			}
+		}
+	}
 }
 
 //~~ FFPGATargetFilterCallbacks
@@ -66,14 +132,27 @@ void FFPGATargetFilterValidation::BindToActor(const FFPGATargetFilter& InFilter,
 		return;
 	}
 
-	FGameplayTagQueryExpression Query;
-	Filter.TargetTagQuery.GetQueryExpr(Query);
-
-	TArray<uint8> Tokens;
 	TArray<FGameplayTag> TagDictionary;
-	Query.EmitTokens(Tokens, TagDictionary);
 
-	for (const FGameplayTag& Tag : TagDictionary)
+	{
+		FGameplayTagQueryExpression Query;
+		Filter.TargetTagQuery.GetQueryExpr(Query);
+
+		TArray<uint8> Tokens;
+		Query.EmitTokens(Tokens, TagDictionary);
+	}
+
+	for (FFPGATargetFilter* StaticFilter : InFilter.GetStaticFilters())
+	{
+		FGameplayTagQueryExpression Query;
+		StaticFilter->TargetTagQuery.GetQueryExpr(Query);
+
+		TArray<uint8> Tokens;
+		Query.EmitTokens(Tokens, TagDictionary);
+	}
+
+	TSet<FGameplayTag> TagSet(TagDictionary);
+	for (const FGameplayTag& Tag : TagSet)
 	{
 		FDelegateHandle Handle = AbilitySystem->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddRaw(this, &FFPGATargetFilterValidation::OnFilterTagChanged);
 		TagChangedDelegates.Add(Tag, Handle);

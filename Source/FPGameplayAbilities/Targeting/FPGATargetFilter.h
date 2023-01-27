@@ -9,7 +9,7 @@
 #include "FPGATargetFilter.generated.h"
 
 USTRUCT(BlueprintType)
-struct FPGAMEPLAYABILITIES_API FFPGATargetFilter
+struct FPGAMEPLAYABILITIES_API FFPGATargetFilter : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -26,9 +26,13 @@ public:
 	FGameplayEffectQuery BlockedEffectQuery;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter)
-	FAISenseAffiliationFilter Affiliation;
+	TSet<FGameplayTag> StaticFilters;
+
+	TArray<FFPGATargetFilter*> GetStaticFilters() const;
 
 	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const;
+
+	void PrintFilter() const;
 };
 
 DECLARE_MULTICAST_DELEGATE(FFPOnTargetFilterFailed);
