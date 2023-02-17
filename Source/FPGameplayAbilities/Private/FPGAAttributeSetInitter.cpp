@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemLog.h"
+#include "DataRegistrySubsystem.h"
 
 void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*>& CurveData)
 {
@@ -133,66 +134,74 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 void FFPGAAttributeSetInitter::InitAttributeSetDefaults(UAbilitySystemComponent* AbilitySystemComponent, FName GroupName, int32 Level, bool bInitialInit) const
 {
 	check(AbilitySystemComponent != nullptr);
-	const FAttributeSetDefaultsCollection* Collection = Defaults.Find(GroupName);
-	if (!Collection)
+
+	FName DefaultAndGroupNames[2] = { FName(TEXT("Default")), GroupName };
+
+	for (const FName& Name : DefaultAndGroupNames)
 	{
-		ABILITY_LOG(Warning, TEXT("Unable to find DefaultAttributeSet Group %s. Falling back to Defaults"), *GroupName.ToString());
-		Collection = Defaults.Find(FName(TEXT("Default")));
+		const FAttributeSetDefaultsCollection* Collection = Defaults.Find(Name);
 		if (!Collection)
 		{
-			ABILITY_LOG(Error, TEXT("FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults Default DefaultAttributeSet not found! Skipping Initialization"));
+			// ABILITY_LOG(Warning, TEXT("Unable to find DefaultAttributeSet Group %s. Falling back to Defaults"), *GroupName.ToString());
+			ABILITY_LOG(Warning, TEXT("Unable to find DefaultAttributeSet Group %s skipping"), *GroupName.ToString());
+			continue;
+			// Collection = Defaults.Find(FName(TEXT("Default")));
+			// if (!Collection)
+			// {
+			// 	ABILITY_LOG(Error, TEXT("FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults Default DefaultAttributeSet not found! Skipping Initialization"));
+			// 	return;
+			// }
+		}
+
+		if (!Collection->LevelData.IsValidIndex(Level - 1))
+		{
+			// We could eventually extrapolate values outside of the max defined levels
+			ABILITY_LOG(Warning, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
 			return;
 		}
-	}
-
-	if (!Collection->LevelData.IsValidIndex(Level - 1))
-	{
-		// We could eventually extrapolate values outside of the max defined levels
-		ABILITY_LOG(Warning, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
-		return;
-	}
 	
-	const FAttributeSetDefaults& SetDefaults = Collection->LevelData[Level - 1];
+		const FAttributeSetDefaults& SetDefaults = Collection->LevelData[Level - 1];
 
-	const auto SetAttributeValues = [&SetDefaults, &bInitialInit, &AbilitySystemComponent](const UAttributeSet* Set, TSubclassOf<UAttributeSet> Class)
-	{
-		const FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Class);
-		if (DefaultDataList)
+		const auto SetAttributeValues = [&SetDefaults, &bInitialInit, &AbilitySystemComponent](const UAttributeSet* Set, TSubclassOf<UAttributeSet> Class)
 		{
-			ABILITY_LOG(Log, TEXT("Initializing Set %s (%s)"), *Set->GetName(), *Class->GetName());
-
-			for (auto& DataPair : DefaultDataList->List)
+			const FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Class);
+			if (DefaultDataList)
 			{
-				check(DataPair.Property);
+				ABILITY_LOG(Log, TEXT("Initializing Set %s (%s)"), *Set->GetName(), *Class->GetName());
 
-				if (Set->ShouldInitProperty(bInitialInit, DataPair.Property))
+				for (auto& DataPair : DefaultDataList->List)
 				{
-					FGameplayAttribute AttributeToModify(DataPair.Property);
-					AbilitySystemComponent->SetNumericAttributeBase(AttributeToModify, DataPair.Value);
+					check(DataPair.Property);
+
+					if (Set->ShouldInitProperty(bInitialInit, DataPair.Property))
+					{
+						FGameplayAttribute AttributeToModify(DataPair.Property);
+						AbilitySystemComponent->SetNumericAttributeBase(AttributeToModify, DataPair.Value);
+					}
 				}
 			}
-		}
-	};
+		};
 
-	for (const UAttributeSet* Set : AbilitySystemComponent->GetSpawnedAttributes())
-	{
-		if (!Set)
+		for (const UAttributeSet* Set : AbilitySystemComponent->GetSpawnedAttributes())
 		{
-			continue;
-		}
-
-		TSubclassOf<UAttributeSet> NextClass(Set->GetClass());
-		while (NextClass && NextClass->IsChildOf(UAttributeSet::StaticClass()))
-		{
-			SetAttributeValues(Set, NextClass);
-
-			if (UClass* ParentClass = NextClass->GetSuperClass())
+			if (!Set)
 			{
-				NextClass = TSubclassOf<UAttributeSet>(ParentClass);
+				continue;
 			}
-			else
+
+			TSubclassOf<UAttributeSet> NextClass(Set->GetClass());
+			while (NextClass && NextClass->IsChildOf(UAttributeSet::StaticClass()))
 			{
-				NextClass = nullptr;
+				SetAttributeValues(Set, NextClass);
+
+				if (UClass* ParentClass = NextClass->GetSuperClass())
+				{
+					NextClass = TSubclassOf<UAttributeSet>(ParentClass);
+				}
+				else
+				{
+					NextClass = nullptr;
+				}
 			}
 		}
 	}
