@@ -51,7 +51,10 @@ public class FPGameplayAbilities : ModuleRules
 				"NavigationSystem",
 				"GameplayAbilities",
 				"DeveloperSettings",
-				"NetCore"
+				"NetCore",
+				"UMG",
+				"DataRegistry", 
+				"TargetingSystem"
 			}
 		);
 

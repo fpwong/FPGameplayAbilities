@@ -4,6 +4,7 @@
 #include "GameplayAbilitySpec.h"
 #include "GameFramework/PlayerController.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemLog.h"
 #include "Net/UnrealNetwork.h"
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
