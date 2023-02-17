@@ -37,9 +37,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void BindToPlayerFocus(UFPGAPlayerFocusComponent* InPlayerFocusComponent);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void BindToTargetingSubsystem();
+
 	UFUNCTION()
 	void HandleHoveredActorChanged(AActor* OldActor, AActor* NewActor);
 
 	UFUNCTION()
 	void HandleFocusedActorChanged(AActor* OldActor, AActor* NewActor);
+
+	TWeakObjectPtr<AActor> FocusedActor;
+	TWeakObjectPtr<AActor> HoveredActor;
 };

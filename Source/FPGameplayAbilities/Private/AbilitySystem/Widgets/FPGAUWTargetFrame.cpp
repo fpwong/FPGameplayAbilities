@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "FPGameplayAbilities/Targeting/FPGATargetingSubsystem.h"
 
 void UFPGAUWTargetFrame::NativeConstruct()
 {
@@ -41,10 +42,22 @@ void UFPGAUWTargetFrame::BindToPlayerFocus_Implementation(UFPGAPlayerFocusCompon
 	PlayerFocusComponent = InPlayerFocusComponent;
 }
 
+void UFPGAUWTargetFrame::BindToTargetingSubsystem_Implementation()
+{
+	auto TargetingSystem = UFPGATargetingSubsystem::Get(GetWorld()->GetFirstLocalPlayerFromController());
+	check(TargetingSystem);
+
+	TargetingSystem->OnHoveredActorChanged.AddUniqueDynamic(this, &ThisClass::HandleHoveredActorChanged);
+	TargetingSystem->OnFocusedActorChanged.AddUniqueDynamic(this, &ThisClass::HandleFocusedActorChanged);
+}
+
 void UFPGAUWTargetFrame::HandleHoveredActorChanged(AActor* OldActor, AActor* NewActor)
 {
 	// the focused actor should override the hovered actor
-	if (PlayerFocusComponent->GetFocusedActor())
+	// if (PlayerFocusComponent->GetFocusedActor())
+	HoveredActor = NewActor;
+
+	if (FocusedActor.IsValid())
 	{
 		return;
 	}
@@ -54,10 +67,12 @@ void UFPGAUWTargetFrame::HandleHoveredActorChanged(AActor* OldActor, AActor* New
 
 void UFPGAUWTargetFrame::HandleFocusedActorChanged(AActor* OldActor, AActor* NewActor)
 {
+	FocusedActor = NewActor;
+
 	if (!NewActor)
 	{
 		// fallback to the hovered actor
-		SetActor(PlayerFocusComponent->GetHoveredActor());
+		SetActor(HoveredActor.Get());
 	}
 	else
 	{
