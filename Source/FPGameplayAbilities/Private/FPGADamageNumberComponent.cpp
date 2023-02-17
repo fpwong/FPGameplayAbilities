@@ -4,6 +4,7 @@
 
 #include "AbilitySystem/Widgets/FPGAUWDamageNumber.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/Character.h"
 
 UFPGADamageNumberComponent::UFPGADamageNumberComponent()
 {
@@ -81,14 +82,14 @@ void UFPGADamageNumberComponent::PlayNextDamageNumber()
 
 			const float Height = DamagedActor->GetSimpleCollisionHalfHeight();
 			FTransform Offset;
-			Offset.SetLocation(FVector(0, 0, Height));
+			Offset.SetLocation(FVector(0, 0, Height * 3));
 
 			// spawn a new widget component
 			if (UWorld* World = GetWorld())
 			{
 				if (UFPGAUWDamageNumber* DamageNumber = CreateWidget<UFPGAUWDamageNumber>(World, DamageNumberClass))
 				{
-					UWidgetComponent* WidgetComponent = Cast<UWidgetComponent>(DamagedActor->AddComponentByClass(UWidgetComponent::StaticClass(), false, Offset, true));
+					UWidgetComponent* WidgetComponent = Cast<UWidgetComponent>(DamagedActor->AddComponentByClass(UWidgetComponent::StaticClass(), true, Offset, true));
 					WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 					WidgetComponent->SetWidget(DamageNumber);
 					WidgetComponent->SetDrawAtDesiredSize(true);
@@ -96,6 +97,15 @@ void UFPGADamageNumberComponent::PlayNextDamageNumber()
 					DamageNumber->InitDamageNumber(WidgetComponent, DamageInfo.DamageAmount, DamageInfo.DamageTags);
 
 					DamagedActor->FinishAddComponent(WidgetComponent, false, Offset);
+
+					if (auto Character = Cast<ACharacter>(DamagedActor))
+					{
+						WidgetComponent->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform);
+					}
+
+					// WidgetComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+
+					
 				}
 			}
 		}

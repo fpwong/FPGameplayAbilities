@@ -18,7 +18,7 @@ struct FDamageNumberInfo
 	TWeakObjectPtr<AActor> DamagedActor;
 
 	UPROPERTY()
-	float DamageAmount;
+	float DamageAmount = 0.0f;
 
 	UPROPERTY()
 	FGameplayTagContainer DamageTags;
