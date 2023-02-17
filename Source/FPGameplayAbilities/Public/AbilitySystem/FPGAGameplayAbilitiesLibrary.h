@@ -46,6 +46,9 @@ public:
 	static UGameplayAbility* FindAbilityFromHandle(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle Handle);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
+	static UGameplayAbility* FindInstancedAbilityFromClass(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass);
+
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static FGameplayAbilitySpec FindAbilitySpecFromClass(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> InAbilityClass);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
@@ -75,6 +78,10 @@ public:
 	static FGameplayAbilitySpecHandle BP_TryActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData);
 
 	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
+
+	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayAbilityTargetDataHandle TargetData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
+
+	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
 
 	/** Gets the current AbilitySpecHandle- can only be called on instanced abilities. */
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
@@ -217,4 +224,7 @@ public:
 	/* Idea from https://github.com/DaedalicEntertainment/ue4-orders-abilities */
 	UFUNCTION(BlueprintCallable)
 	static void FillRelationshipTags(UPARAM(ref) FGameplayTagContainer& TagContainer, const AActor* Source, const AActor* Target);
+
+	UFUNCTION(BlueprintCallable)
+	static void ApplyGameplayAttributeInitter(FName GroupName, UAbilitySystemComponent* AbilitySystemComponent);
 };

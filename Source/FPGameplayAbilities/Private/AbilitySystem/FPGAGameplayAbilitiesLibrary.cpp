@@ -148,6 +148,20 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::FindAbilityFromHandle(UAbilityS
 	return nullptr;
 }
 
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::FindInstancedAbilityFromClass(
+	UAbilitySystemComponent* AbilitySystem,
+	TSubclassOf<UGameplayAbility> AbilityClass)
+{
+	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	{
+		UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
+		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability;
+		return Ability;
+	}
+
+	return nullptr;
+}
+
 FGameplayAbilitySpec UFPGAGameplayAbilitiesLibrary::FindAbilitySpecFromClass(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> InAbilityClass)
 {
 	if (!AbilitySystem)
@@ -221,6 +235,51 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 		return nullptr;
 	}
 
+	// if (AActor* TargetActor = GetFirstActorFromTargetData(EventData.TargetData))
+	// {
+	// 	if (UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor))
+	// 	{
+	// 		TargetAbilitySystem->GetOwnedGameplayTags(EventData.TargetTags);
+	// 		FillRelationshipTags(EventData.TargetTags, AbilitySystem->GetOwnerActor(), TargetActor);
+	// 	}
+	// }
+
+	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	{
+		return ActivateAbilityWithEvent(AbilitySystem, Spec, EventData.TargetData, OnGameplayAbilityEndedDelegate);
+		// FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
+		// const FGameplayTag& EventTag = EventData.EventTag.IsValid() ? EventData.EventTag : FFPGAGlobalTags::Get().Misc_Dummy;
+		// AbilitySystem->TriggerAbilityFromGameplayEvent(Spec->Handle, AbilitySystem->AbilityActorInfo.Get(), EventTag, &EventData, *AbilitySystem);
+		//
+		// UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
+		// UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability;
+		// if (Ability)
+		// {
+		// 	if (OnGameplayAbilityEndedDelegate)
+		// 	{
+		// 		Ability->OnGameplayAbilityEnded.Add(*OnGameplayAbilityEndedDelegate);
+		// 		return Ability;
+		// 	}
+		// }
+	}
+
+	return nullptr;
+}
+
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayAbilityTargetDataHandle TargetData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate)
+{
+	FGameplayEventData EventData;
+	EventData.TargetData = TargetData;
+	return ActivateAbilityWithEvent(AbilitySystem, Spec, EventData, OnGameplayAbilityEndedDelegate);
+}
+
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate)
+{
+	if (!AbilitySystem || !Spec)
+	{
+		return nullptr;
+	}
+
 	if (AActor* TargetActor = GetFirstActorFromTargetData(EventData.TargetData))
 	{
 		if (UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor))
@@ -230,12 +289,10 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 		}
 	}
 
-	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
+	const FGameplayTag& EventTag = EventData.EventTag.IsValid() ? EventData.EventTag : FFPGAGlobalTags::Get().Misc_Dummy;
+	if (AbilitySystem->TriggerAbilityFromGameplayEvent(Spec->Handle, AbilitySystem->AbilityActorInfo.Get(), EventTag, &EventData, *AbilitySystem))
 	{
-		FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
-		const FGameplayTag& EventTag = EventData.EventTag.IsValid() ? EventData.EventTag : FFPGAGlobalTags::Get().Misc_Dummy;
-		AbilitySystem->TriggerAbilityFromGameplayEvent(Spec->Handle, AbilitySystem->AbilityActorInfo.Get(), EventTag, &EventData, *AbilitySystem);
-
 		UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
 		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability;
 		if (Ability)
@@ -511,6 +568,13 @@ bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbi
 		return false;
 	}
 
+	const FHitResult* HitResultPtr = Data->GetHitResult();
+	if (HitResultPtr)
+	{
+		Location = HitResultPtr->Location;
+		return true;
+	}
+
 	TArray<TWeakObjectPtr<AActor>> WeakArray = Data->GetActors();
 	for (TWeakObjectPtr<AActor>& WeakPtr : WeakArray)
 	{
@@ -523,13 +587,6 @@ bool UFPGAGameplayAbilitiesLibrary::GetLocationFromTargetData(const FGameplayAbi
 		{
 			return false;
 		}
-	}
-
-	const FHitResult* HitResultPtr = Data->GetHitResult();
-	if (HitResultPtr)
-	{
-		Location = HitResultPtr->Location;
-		return true;
 	}
 
 	if (Data->HasEndPoint())
@@ -676,6 +733,17 @@ void UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(UPARAM(ref) FGameplayTa
 			{
 				TagContainer.AddTag(FFPGAGlobalTags::Get().Relationship_Hostile);
 			}
+		}
+	}
+}
+
+void UFPGAGameplayAbilitiesLibrary::ApplyGameplayAttributeInitter(FName GroupName, UAbilitySystemComponent* AbilitySystemComponent)
+{
+	if (FAttributeSetInitter* AttributeSetInit = IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter())
+	{
+		if (GroupName.IsValid())
+		{
+			AttributeSetInit->InitAttributeSetDefaults(AbilitySystemComponent, GroupName, 1, true);
 		}
 	}
 }
