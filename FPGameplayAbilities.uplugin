@@ -36,10 +36,6 @@
 		{
 			"Name": "CommonUI",
 			"Enabled": true
-		},
-		{
-			"Name": "GasCompanion",
-			"Enabled": true
 		}
 	]
 
