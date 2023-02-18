@@ -12,4 +12,6 @@ class FPGAMEPLAYABILITIES_API UFPGAAbilitySystemGlobals : public UAbilitySystemG
 	GENERATED_BODY()
 
 	virtual void AllocAttributeSetInitter() override;
+
+	virtual void InitGlobalTags() override;
 };
