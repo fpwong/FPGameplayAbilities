@@ -3,6 +3,7 @@
 #include "FPGATargetingSubsystem.h"
 
 #include "FPGAPlayerFocusComponent.h"
+#include "FPGameplayAbilities/FPGASettings.h"
 #include "Kismet/GameplayStatics.h"
 
 UFPGATargetingSubsystem* UFPGATargetingSubsystem::Get(const UWorld* World)
@@ -18,6 +19,8 @@ UFPGATargetingSubsystem* UFPGATargetingSubsystem::Get(const ULocalPlayer* LocalP
 void UFPGATargetingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	SettingsData = Cast<UFPGATargetingSystemSettingsData>(GetDefault<UFPGASettings>()->TargetingSettingsData.LoadSynchronous());
 }
 
 void UFPGATargetingSubsystem::Deinitialize()

@@ -23,4 +23,7 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = "Targeting")
 	TSoftObjectPtr<UDataTable> StaticTargetFiltersTable;
+
+	UPROPERTY(config, EditAnywhere, Category = "Targeting")
+	TSoftObjectPtr<UDataAsset> TargetingSettingsData;
 };
