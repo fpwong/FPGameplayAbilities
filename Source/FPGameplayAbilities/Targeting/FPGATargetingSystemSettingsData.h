@@ -15,7 +15,7 @@ struct FFPGAHoveredCursor
 	FFPGATargetFilter Filter;
 
 	UPROPERTY(EditDefaultsOnly)
-	TEnumAsByte<EMouseCursor::Type> CursorType;
+	TEnumAsByte<EMouseCursor::Type> CursorType = EMouseCursor::Type::Default;
 };
 
 UCLASS()
