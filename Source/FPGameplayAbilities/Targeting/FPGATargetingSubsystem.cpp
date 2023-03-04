@@ -21,6 +21,8 @@ void UFPGATargetingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	SettingsData = Cast<UFPGATargetingSystemSettingsData>(GetDefault<UFPGASettings>()->TargetingSettingsData.LoadSynchronous());
+
+	HoveredCursorState = EMouseCursor::Default;
 }
 
 void UFPGATargetingSubsystem::Deinitialize()
@@ -32,10 +34,6 @@ void UFPGATargetingSubsystem::StartTargetingRequest(TSharedPtr<FFPGATargetingReq
 {
 	CurrentRequest = Request;
 	GetLocalPlayer()->PlayerController->CurrentMouseCursor = EMouseCursor::Crosshairs;
-	if (TSharedPtr<FSlateUser> SlateUser = GetLocalPlayer()->GetSlateUser())
-	{
-		SlateUser->SetCursorVisibility(true);
-	}
 }
 
 bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResults)
@@ -261,12 +259,11 @@ void UFPGATargetingSubsystem::HandleHoveredActorChanged(AActor* OldActor, AActor
 
 void UFPGATargetingSubsystem::SetMouseCursor(const EMouseCursor::Type Cursor)
 {
-	if (auto PC = GetPlayerController())
+	if (APlayerController* PC = GetPlayerController())
 	{
-		PC->CurrentMouseCursor = Cursor;
-		if (TSharedPtr<FSlateUser> SlateUser = GetLocalPlayer()->GetSlateUser())
+		if (PC->CurrentMouseCursor != Cursor)
 		{
-			SlateUser->SetCursorVisibility(true);
+			PC->CurrentMouseCursor = Cursor;
 		}
 	}
 }

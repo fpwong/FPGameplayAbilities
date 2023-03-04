@@ -92,5 +92,5 @@ protected:
 
 	void SetMouseCursor(EMouseCursor::Type Cursor);
 
-	EMouseCursor::Type HoveredCursorState;
+	EMouseCursor::Type HoveredCursorState = EMouseCursor::Default;
 };
