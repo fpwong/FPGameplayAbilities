@@ -65,6 +65,12 @@ AFPGAProjectile::AFPGAProjectile()
 
 	NetUpdateFrequency = 30.0f;
 
+	USceneComponent* DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
+	SetRootComponent(DefaultSceneRoot);
+
+	VisualRootComponent = CreateDefaultSubobject<USceneComponent>("VisualRootComponent");
+	VisualRootComponent->SetupAttachment(RootComponent);
+
 	bReplicates = true;
 	SetReplicatingMovement(true);
 }
@@ -92,6 +98,8 @@ void AFPGAProjectile::BeginPlay()
 			// ProjectileMovementComponent->Velocity = ToTarget.GetSafeNormal2D() * ProjectileMovementComponent->InitialSpeed;
 		}
 	}
+
+	ProjectileMovementComponent->SetInterpolatedComponent(VisualRootComponent);
 
 	OnActorHit.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnActorHit);
 	OnActorBeginOverlap.AddUniqueDynamic(this, &AFPGAProjectile::HandleOnBeginOverlap);
@@ -241,7 +249,7 @@ void AFPGAProjectile::HandleOnBeginOverlap(AActor* OverlappedActor, AActor* Othe
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Porject overlap %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Porject overlap %s"), *OtherActor->GetName());
 
 	if (ApplyEffect(OtherActor))
 	{

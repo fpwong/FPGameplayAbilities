@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* VisualRootComponent;
+
 	UPROPERTY()
 	FFPGAProjectileEffectData ProjectileEffectData;
 
