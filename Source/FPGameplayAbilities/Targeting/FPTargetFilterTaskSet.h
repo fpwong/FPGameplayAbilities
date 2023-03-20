@@ -16,4 +16,6 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterTaskSet
 	TArray<TObjectPtr<UFPTargetFilterTask>> Tasks;
 
 	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const;
+
+	bool IsEmpty() const { return Tasks.Num() == 0; }
 };

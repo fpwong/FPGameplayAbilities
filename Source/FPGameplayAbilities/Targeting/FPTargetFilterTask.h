@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FPTargetFilterTaskSet.h"
 #include "FPTargetFilterTypes.h"
 #include "UObject/Object.h"
 #include "FPTargetFilterTask.generated.h"
@@ -19,6 +20,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Default)
 	EFPTargetFilterTaskType TaskType = EFPTargetFilterTaskType::FailureTask;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Default, meta = (
+		EditCondition = "TaskType == EFPTargetFilterTaskType::ConditionalTask",
+		EditConditionHides,
+		ShowOnlyInnerProperties))
+	FFPTargetFilterTaskSet ChildTaskSet;
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const { return false; }
 

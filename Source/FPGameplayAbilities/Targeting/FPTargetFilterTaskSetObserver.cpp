@@ -25,6 +25,15 @@ void FFPTargetFilterTaskSetObserver::Bind(const FFPTargetFilterTaskSet& InTaskSe
 			Binding->OnResultChanged.AddRaw(this, &FFPTargetFilterTaskSetObserver::OnTaskResultChanged);
 			Bindings.Add(MakeShareable(Binding));
 		}
+
+		// check the child taskset
+		if (!Task->ChildTaskSet.IsEmpty())
+		{
+			TSharedRef<FFPTargetFilterTaskSetObserver> TaskSetObserver = MakeShared<FFPTargetFilterTaskSetObserver>();
+			TaskSetObserver->Bind(Task->ChildTaskSet, SourceActor, TargetActor);
+			TaskSetObserver->OnResultChanged.AddRaw(this, &FFPTargetFilterTaskSetObserver::OnTaskResultChanged);
+			TaskSetBindings.Add(TaskSetObserver);
+		}
 	}
 
 	bCurrentResult = TaskSet.DoesFilterPass(SourceActor, TargetActor);

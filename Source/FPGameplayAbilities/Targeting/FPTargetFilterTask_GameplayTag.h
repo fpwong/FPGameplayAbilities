@@ -17,20 +17,14 @@ class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_GameplayTag final : public UFP
 
 public:
 	UPROPERTY(EditAnywhere, Category = Default)
-	FGameplayTagContainer RequiredTags;
+	FGameplayTagRequirements SourceRequirements;
 
 	UPROPERTY(EditAnywhere, Category = Default)
-	FGameplayTagContainer BlockedTags;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Default, meta=(Categories="TagGroup"))
-	FGameplayTagContainer TagGroups;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Default)
-	class UFPTagRelationshipMapping* TagRelationshipMapping;
+	FGameplayTagRequirements TargetRequirements;
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const override;
 
-	FGameplayTagContainer GetAllRelatedTags();
+	// FGameplayTagContainer GetAllRelatedTags();
 
 	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
 };
@@ -44,8 +38,14 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterObserver_GameplayTag : public FFPT
 
 	virtual void Init(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
 
+	void BindToActor(AActor* Actor, const FGameplayTagRequirements& Requirements, TMap<FGameplayTag, FDelegateHandle>& OutDelegateHandles);
+
+	void UnbindDelegates(AActor* Actor, const TMap<FGameplayTag, FDelegateHandle>& DelegateHandles);
+
 	void OnFilterTagChanged(FGameplayTag Tag, int NewCount);
 
 private:
-	TMap<FGameplayTag, FDelegateHandle> TagChangedDelegates;
+	// TMap<FGameplayTag, FDelegateHandle> TagChangedDelegates;
+	TMap<FGameplayTag, FDelegateHandle> SourceDelegateHandles;
+	TMap<FGameplayTag, FDelegateHandle> TargetDelegateHandles;
 };

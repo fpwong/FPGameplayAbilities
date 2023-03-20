@@ -18,6 +18,7 @@
 #include "AbilitySystem/FPGAGlobalTags.h"
 #include "Engine/Engine.h"
 #include "FPGameplayAbilities/Targeting/FPGATargetTypes.h"
+#include "FPGameplayAbilities/Targeting/FPTargetFilterTaskSet.h"
 
 void UFPGAGameplayAbilitiesLibrary::InitGlobalData()
 {
@@ -755,6 +756,11 @@ void UFPGAGameplayAbilitiesLibrary::ApplyGameplayAttributeInitter(FName GroupNam
 			AttributeSetInit->InitAttributeSetDefaults(AbilitySystemComponent, GroupName, 1, true);
 		}
 	}
+}
+
+bool UFPGAGameplayAbilitiesLibrary::EvaluateTargetFilterTaskSet(FFPTargetFilterTaskSet TaskSet, const AActor* SourceActor, const AActor* TargetActor)
+{
+	return TaskSet.DoesFilterPass(SourceActor, TargetActor);
 }
 
 //FGameplayTargetDataFilterHandle UFPGAGameplayAbilitiesLibrary::MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor)

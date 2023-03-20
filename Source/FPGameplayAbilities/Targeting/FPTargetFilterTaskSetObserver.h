@@ -34,6 +34,8 @@ private:
 	bool bCurrentResult = false;
 
 	TArray<TSharedPtr<FFPTargetFilterObserver>> Bindings;
+	
+	TArray<TSharedPtr<FFPTargetFilterTaskSetObserver>> TaskSetBindings;
 
 	UPROPERTY()
 	TWeakObjectPtr<AActor> SourceActorPtr;

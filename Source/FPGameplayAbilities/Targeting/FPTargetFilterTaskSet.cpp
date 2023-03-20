@@ -29,6 +29,11 @@ bool FFPTargetFilterTaskSet::DoesFilterPass(const AActor* SourceActor, const AAc
 				{
 					return true;
 				}
+			case EFPTargetFilterTaskType::ConditionalTask:
+				if (bFilterResult)
+				{
+					return Task->ChildTaskSet.DoesFilterPass(SourceActor, TargetActor);
+				}
 			break;
 			default: ;
 		}
