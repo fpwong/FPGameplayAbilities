@@ -18,6 +18,7 @@ UFPGAAbilityTask_SimpleMoveAndFace::UFPGAAbilityTask_SimpleMoveAndFace(const FOb
 	bSimulatedTask = false;
 	bIsPausable = true;
 	bHasFired = false;
+	bEndOnReachingTarget = true;
 }
 
 UFPGAAbilityTask_SimpleMoveAndFace* UFPGAAbilityTask_SimpleMoveAndFace::SimpleMoveAndFace(
@@ -89,15 +90,17 @@ void UFPGAAbilityTask_SimpleMoveAndFace::TickTask(float DeltaTime)
 
 	if (bInRange && bIsFacing)
 	{
-		if (bEndOnReachingTarget)
-		{
-			EndTask();
-		}
-
 		//if (!bHasFired)
 		{
 			//bHasFired = true;
+			// UE_LOG(LogTemp, Warning, TEXT("Finish!"));
 			OnFinish.Broadcast();
+		}
+
+		if (bEndOnReachingTarget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("End task!"));
+			EndTask();
 		}
 	}
 }

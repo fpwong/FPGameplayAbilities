@@ -41,17 +41,17 @@ UCLASS()
 		FName TaskInstanceName = FName("MovementTask"),
 		float MaxRange = 100.f,
 		FVector Location = FVector(0.f),
-		AActor* Actor = nullptr,
+		AActor* Target = nullptr,
 		bool bEndOnReaching = true);
 
 private:
 	void SetOwnerCharacter();
 
-	void TickTask(float DeltaTime) override;
+	virtual void TickTask(float DeltaTime) override;
 
-	void Activate() override;
+	virtual void Activate() override;
 
-	void OnDestroy(bool AbilityEnding) override;
+	virtual void OnDestroy(bool AbilityEnding) override;
 
-	void InitSimulatedTask(UGameplayTasksComponent& InGameplayTasksComponent) override;
+	virtual void InitSimulatedTask(UGameplayTasksComponent& InGameplayTasksComponent) override;
 };

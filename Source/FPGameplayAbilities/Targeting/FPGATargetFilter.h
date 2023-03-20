@@ -3,61 +3,90 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffect.h"
+#include "FPTargetFilterPreset.h"
 #include "GameplayTagContainer.h"
-#include "AbilitySystem/TargetData/FPGAGameplayTargetDataFilter.h"
 #include "FPGATargetFilter.generated.h"
 
+class UFPTagRelationshipMapping;
+class UFPTargetFilterPreset;
+struct FFPTargetFilterTaskSetObserver;
+
+UENUM()
+enum class EFPFilterValidationEvent : uint8
+{
+	Valid,
+	Invalid
+};
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FFPFilterResultChanged, AActor*, bool);
+
 USTRUCT(BlueprintType)
-struct FPGAMEPLAYABILITIES_API FFPGATargetFilter : public FTableRowBase
+struct FPGAMEPLAYABILITIES_API FFPGATargetFilter
 {
 	GENERATED_BODY()
 
 public:
-	// FFPGATargetFilter();
+	UPROPERTY(EditAnywhere, Category = TargetFilter)
+	TArray<UFPTargetFilterPreset*> TargetingPresets;
+
+	UPROPERTY(EditAnywhere, Category = TargetFilter)
+	FFPTargetFilterTaskSet TargetFilterTaskSet;
+
+	UPROPERTY(EditAnywhere, Category = TargetFilter)
+	FGameplayTagContainer RequiredTags;
+
+	UPROPERTY(EditAnywhere, Category = TargetFilter)
+	FGameplayTagContainer BlockedTags;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter, meta=(Categories="TagGroup"))
+	FGameplayTagContainer TagGroups;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter)
-	FGameplayTagQuery TargetTagQuery = FGameplayTagQuery::EmptyQuery;
+	UFPTagRelationshipMapping* TagRelationshipMapping = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter)
-	FGameplayEffectQuery RequiredEffectQuery;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter)
-	FGameplayEffectQuery BlockedEffectQuery;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TargetFilter)
-	TSet<FGameplayTag> StaticFilters;
-
-	TArray<FFPGATargetFilter*> GetStaticFilters() const;
+	void AddAdditionalTags(const FGameplayTagContainer& AdditionalTags);
 
 	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const;
 
 	void PrintFilter() const;
+
+	FGameplayTagContainer GetAllRelatedTags();
 };
 
-DECLARE_MULTICAST_DELEGATE(FFPOnTargetFilterFailed);
-
-USTRUCT(BlueprintType)
-struct FPGAMEPLAYABILITIES_API FFPGATargetFilterValidation
+USTRUCT()
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterValidation
 {
 	GENERATED_BODY()
+public:
+
+	~FFPTargetFilterValidation() { Clear(); }
 
 	FFPGATargetFilter Filter;
 
 	UPROPERTY()
-	AActor* SourceActor = nullptr;
+	TWeakObjectPtr<AActor> SourceActor;
 
 	UPROPERTY()
-	AActor* TargetActor = nullptr;
+	TWeakObjectPtr<AActor> TargetActor;
 
-	FFPOnTargetFilterFailed OnFilterFailed;
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> TargetsActor;
 
-	void BindToActor(const FFPGATargetFilter& InFilter, AActor* InSourceActor, AActor* InTargetActor);
+	// UPROPERTY()
+	FFPFilterResultChanged OnFilterResultChanged;
 
-	void OnFilterTagChanged(FGameplayTag Tag, int NewCount);
+	TArray<TSharedPtr<FFPTargetFilterTaskSetObserver>> PresetBindings;
+
+	void Bind(const FFPGATargetFilter& InFilter, AActor* InSourceActor, AActor* InTargetActor);
 
 	void Clear();
 
+	bool DoesTargetPass() const { return bCurrentResult; }
+
+	void HandleResultChanged(AActor* Actor, bool bNewResult);
+
+	FFPFilterResultChanged OnResultChanged;
+
 private:
-	TMap<FGameplayTag, FDelegateHandle> TagChangedDelegates;
+	bool bCurrentResult = false;
 };

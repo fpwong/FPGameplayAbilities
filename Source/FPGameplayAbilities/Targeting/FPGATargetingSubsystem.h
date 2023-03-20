@@ -69,10 +69,10 @@ public:
 	UFUNCTION()
 	void UpdateMouseCursor();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	AActor* GetFocusedActor() const { return FocusedActor.Get(); }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	AActor* GetHoveredActor() const { return HoveredActor.Get(); }
 
 	UFUNCTION()

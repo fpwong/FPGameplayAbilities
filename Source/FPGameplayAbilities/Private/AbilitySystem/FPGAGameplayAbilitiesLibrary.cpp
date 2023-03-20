@@ -707,6 +707,15 @@ FName UFPGAGameplayAbilitiesLibrary::GetSimpleTagName(FGameplayTag Tag)
 	return FName();
 }
 
+void UFPGAGameplayAbilitiesLibrary::GetQueryTags(const FGameplayTagQuery& Query, TArray<FGameplayTag>& OutTags)
+{
+	FGameplayTagQueryExpression Expr;
+	Query.GetQueryExpr(Expr);
+
+	TArray<uint8> Tokens;
+	Expr.EmitTokens(Tokens, OutTags);
+}
+
 void UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(UPARAM(ref) FGameplayTagContainer& TagContainer, const AActor* Source, const AActor* Target)
 {
 	if (Source == nullptr || Target == nullptr)

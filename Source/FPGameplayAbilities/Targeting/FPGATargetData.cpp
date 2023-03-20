@@ -110,9 +110,6 @@ FFPGATargetingStage::FFPGATargetingStage()
 	// 	.AddExpr(FGameplayTagQueryExpression().NoTagsMatch()
 	// 										  .AddTag(UFPGAGlobalTags::Status_Changing_Invulnerable()))
 	// );
-
-	TargetFilter = GetDefault<UFPGASettings>()->DefaultStageTargetFilter;
-	SourceFilter = GetDefault<UFPGASettings>()->DefaultStageSourceFilter;
 }
 
 bool FFPGATargetingStage::IsValidLocation(AActor* OrderedActor, const FVector& Location) const

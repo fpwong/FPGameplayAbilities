@@ -217,6 +217,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Tags")
 	static FName GetSimpleTagName(FGameplayTag Tag);
 
+	static void GetQueryTags(const FGameplayTagQuery& Query, UPARAM(ref) TArray<FGameplayTag>& OutTags);
+
 	///** Create a handle for filtering target data, filling out all fields */
 	//UFUNCTION(BlueprintPure, Category = "Filter")
 	//static FGameplayTargetDataFilterHandle MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor);
