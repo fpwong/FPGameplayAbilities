@@ -9,8 +9,18 @@
 #include "FPTargetFilterTask.generated.h"
 
 struct FFPTargetFilterObserver;
+struct FGameplayTagContainer;
 
-UCLASS(EditInlineNew, BlueprintType)
+// USTRUCT(BlueprintType)
+// struct FPGAMEPLAYABILITIES_API FFPTargetFilterTaskContext
+// {
+// 	GENERATED_BODY()
+//
+// 	UPROPERTY()
+// 	FFPTargetFilterContextMapping Context;
+// };
+
+UCLASS(DefaultToInstanced, EditInlineNew, Abstract)
 class FPGAMEPLAYABILITIES_API UFPTargetFilterTask : public UObject
 {
 	GENERATED_BODY()
@@ -27,7 +37,9 @@ public:
 		ShowOnlyInnerProperties))
 	FFPTargetFilterTaskSet ChildTaskSet;
 
-	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const { return false; }
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const { return false; }
+	// virtual bool DoesFilterPass(const FFPTargetFilterContextMapping& Context) const { return false; }
 
 	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) { return nullptr; }
 };
+

@@ -21,8 +21,50 @@ enum class EFPAttributeComparison_ComparisonMethod : uint8
 UENUM()
 enum class EFPAttributeComparison_ValueType : uint8
 {
-	StaticValue,
+	NumericValue,
 	AttributeValue,
+};
+
+USTRUCT()
+struct FFPAttributeComparison_AttributeValue
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	FGameplayAttribute Attribute;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	FScalableFloat Coefficient;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	FScalableFloat PreMultiplyAdditiveValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	FScalableFloat PostMultiplyAdditiveValue;
+
+	float GetValue(UAbilitySystemComponent* AbilitySystem) const;
+};
+
+USTRUCT()
+struct FFPAttributeComparison_Context
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::NumericValue", EditConditionHides))
+	float NumericValue = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
+	FFPAttributeComparison_AttributeValue AttributeValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
+	EFPTargetFilterTaskContext Context = EFPTargetFilterTaskContext::Target;
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::NumericValue;
+
+	float GetValue(UAbilitySystemComponent* AbilitySystem) const;
+
+	bool IsValid(UAbilitySystemComponent* AbilitySystem) const;
 };
 
 UCLASS(Blueprintable)
@@ -35,25 +77,36 @@ public:
 	EFPAttributeComparison_ComparisonMethod ComparisonMethod = EFPAttributeComparison_ComparisonMethod::Equals;
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
-	FGameplayAttribute Attribute;
+	FFPAttributeComparison_Context ContextA;
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
-	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::StaticValue;
-
-	UPROPERTY(EditDefaultsOnly, Category=Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
-	FGameplayEffectModifierMagnitude AttributeValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::StaticValue", EditConditionHides))
-	float StaticValue = 0.0f;
+	FFPAttributeComparison_Context ContextB;
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	bool bInvert = false;
 
-	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const override;
-
-	float GetValue() const;
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
 	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
+};
+
+USTRUCT()
+struct FFPTargetFilterObserverBinding
+{
+	GENERATED_BODY()
+
+	FDelegateHandle Handle;
+
+	UPROPERTY()
+	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
+
+	FGameplayAttribute Attribute;
+
+	void Reset()
+	{
+		Handle.Reset();
+		AbilitySystem.Reset();
+	}
 };
 
 USTRUCT()
@@ -63,14 +116,11 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterObserver_AttributeComparison : pub
 
 	virtual ~FFPTargetFilterObserver_AttributeComparison() override;
 
-	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
-
 	void InitAttributeValue(UFPTargetFilterTask_AttributeComparison* FilterTask, AActor* SourceActor, AActor* TargetActor);
 
 	void OnAttributeChanged(const FOnAttributeChangeData& Data);
 
-	FGameplayAttribute Attribute;
-
 private:
-	FDelegateHandle AttributeChangedHandle;
+	FFPTargetFilterObserverBinding BindingA;
+	FFPTargetFilterObserverBinding BindingB;
 };

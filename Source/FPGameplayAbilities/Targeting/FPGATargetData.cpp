@@ -4,7 +4,10 @@
 #include "FPGAHelperLibrary.h"
 #include "FPGATargetType.h"
 #include "FPGATargetTypes.h"
+#include "FPTargetFilterLibrary.h"
+#include "GameplayTagAssetInterface.h"
 #include "FPGameplayAbilities/FPGASettings.h"
+#include "FPGameplayAbilities/Utils/FPGAMiscUtils.h"
 #include "GameFramework/Actor.h"
 
 FFPGATargetData::FFPGATargetData()
@@ -101,15 +104,6 @@ FFPGATargetingStage::FFPGATargetingStage()
 	: TargetTypeFlags(0)
 // , OrderPreviewData()
 {
-	// TargetFilter.TargetTagQuery = FGameplayTagQuery::BuildQuery(
-	// 	FGameplayTagQueryExpression()
-	// 	.AllExprMatch()
-	// 	.AddExpr(FGameplayTagQueryExpression().AllTagsMatch()
-	// 										  .AddTag(UFPGAGlobalTags::Status_Changing_IsAlive())
-	// 										  .AddTag(UFPGAGlobalTags::Relationship_Visible()))
-	// 	.AddExpr(FGameplayTagQueryExpression().NoTagsMatch()
-	// 										  .AddTag(UFPGAGlobalTags::Status_Changing_Invulnerable()))
-	// );
 }
 
 bool FFPGATargetingStage::IsValidLocation(AActor* OrderedActor, const FVector& Location) const
@@ -164,7 +158,7 @@ bool FFPGATargetingStage::IsValidTargetData(const TArray<FFPGATargetData>& Order
 	return false;
 }
 
-bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGameplayAbilityTargetData* TargetData) const
+bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGameplayAbilityTargetData* TargetData, OUT FGameplayTagContainer* OutFailureTags) const
 {
 	if (!TargetData)
 	{
@@ -183,10 +177,12 @@ bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGamepla
 		{
 			if (AActor* Actor = Actors[0].Get())
 			{
-				if (IsValidActor(OrderedActor, Actor))
+				if (IsValidActor(OrderedActor, Actor, OutFailureTags))
 				{
 					return true;
 				}
+
+				return false;
 			}
 		}
 	}
@@ -195,7 +191,7 @@ bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGamepla
 	{
 		if (TargetData->HasEndPoint())
 		{
-			if (IsValidLocation(OrderedActor, TargetData->GetEndPoint()) && SourceFilter.DoesFilterPass(nullptr, OrderedActor))
+			if (IsValidLocation(OrderedActor, TargetData->GetEndPoint()))// && SourceFilter.DoesFilterPass(nullptr, OrderedActor))
 			{
 				return true;
 			}
@@ -204,6 +200,58 @@ bool FFPGATargetingStage::IsValidTargetData(AActor* OrderedActor, const FGamepla
 
 	return false;
 }
+
+// EFPTargetValidResult FFPGATargetingStage::IsValidTargetDataWithResult(AActor* OrderedActor, const FGameplayAbilityTargetData* TargetData, OUT FGameplayTagContainer* OutFailureTags) const
+// {
+// 	if (!TargetData)
+// 	{
+// 		return EFPTargetValidResult::Invalid;
+// 	}
+//
+// 	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::NONE | EFPGATargetTypeFlags::PASSIVE))
+// 	{
+// 		return EFPTargetValidResult::Valid;
+// 	}
+//
+// 	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
+// 	{
+// 		const TArray<TWeakObjectPtr<AActor>>& Actors = TargetData->GetActors();
+// 		if (Actors.Num())
+// 		{
+// 			if (AActor* Actor = Actors[0].Get())
+// 			{
+// 				if (IsValidActorCore(OrderedActor, Actor))
+// 				{
+// 					if (!IsValidActor(OrderedActor, Actor, OutFailureTags))
+// 					{
+// 						UE_LOG(LogTemp, Warning, TEXT("Target is blocked"));
+// 						return EFPTargetValidResult::Blocked;
+// 					}
+//
+// 					UE_LOG(LogTemp, Warning, TEXT("Target is valid!"));
+// 					return EFPTargetValidResult::Valid;
+// 				}
+// 			}
+// 		}
+// 		else
+// 		{
+// 			UE_LOG(LogTemp, Warning, TEXT("No actors found"));
+// 		}
+// 	}
+//
+// 	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::LOCATION | EFPGATargetTypeFlags::DIRECTION))
+// 	{
+// 		if (TargetData->HasEndPoint())
+// 		{
+// 			if (IsValidLocation(OrderedActor, TargetData->GetEndPoint()) && SourceFilter.DoesFilterPass(nullptr, OrderedActor))
+// 			{
+// 				return EFPTargetValidResult::Valid;
+// 			}
+// 		}
+// 	}
+//
+// 	return EFPTargetValidResult::Valid;
+// }
 
 bool FFPGATargetingStage::IsValidHitResult(AActor* OrderedActor, const FHitResult& HitResult) const
 {
@@ -234,52 +282,16 @@ bool FFPGATargetingStage::IsValidHitResult(AActor* OrderedActor, const FHitResul
 	return false;
 }
 
-bool FFPGATargetingStage::IsValidActor(AActor* SourceActor, AActor* TargetActor) const
+bool FFPGATargetingStage::IsValidActor(AActor* SourceActor, AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
 {
+	// TODO check max range?
+
 	if (TargetActor && UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
 	{
-		return TargetFilter.DoesFilterPass(SourceActor, TargetActor) && SourceFilter.DoesFilterPass(TargetActor, SourceActor);
+		return TargetFilterTaskSet.DoesFilterPass(SourceActor, TargetActor, OutFailureTags);
 	}
 
 	return false;
-
-	// if (TargetActor && UFPGAOrderHelper::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
-	// {
-	// 	auto AbilitySystem = TargetActor->FindComponentByClass<UAbilitySystemComponent>();
-	// 	if (AbilitySystem)
-	// 	{
-	// 		if (MaxRange < 0 || (TargetActor->GetActorLocation() - OrderedActor->GetActorLocation()).SizeSquared() < MaxRange * MaxRange)
-	// 		{
-	// 			FGameplayTagContainer SourceTags;
-	// 			FGameplayTagContainer TargetTags;
-	// 			UFPGAAbilitySystemHelper::GetSourceAndTargetTags(OrderedActor, TargetActor, SourceTags, TargetTags);
-	//
-	// 			FGameplayTagContainer MissingTags;
-	// 			FGameplayTagContainer BlockingTags;
-	//
-	// 			// if (UFPGAAbilitySystemHelper::DoesSatisfyTagRequirements(
-	// 			if (UFPGAAbilitySystemHelper::DoesSatisfyTagRequirementsWithResult(
-	// 				TargetTags, TargetRequiredTags, TargetBlockedTags, MissingTags, BlockingTags))
-	// 			{
-	// 				return true;
-	// 			}
-	//
-	// 			// else
-	// 			// {
-	// 			//     if (MissingTags.Num() > 0)
-	// 			//     {
-	// 			//         UE_LOG(LogTemp, Warning, TEXT("Missing tags %s"), *MissingTags.ToString());
-	// 			//     }
-	// 			//     if (BlockingTags.Num() > 0)
-	// 			//     {
-	// 			//         UE_LOG(LogTemp, Warning, TEXT("Blocked tags %s"), *BlockingTags.ToString());
-	// 			//     }
-	// 			// }
-	// 		}
-	// 	}
-	// }
-	//
-	// return false;
 }
 
 bool FFPGATargetingStage::IsTargetTypeFlagChecked(int32 InFlag) const
@@ -292,33 +304,39 @@ bool FFPGATargetingStage::IsTargetTypeFlagChecked(EFPGATargetTypeFlags InFlag) c
 	return UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, InFlag);
 }
 
-FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult) const
+FGameplayAbilityTargetData* FFPGATargetingStage::MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult, OUT FGameplayTagContainer* OutFailureTags) const
 {
-	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::NONE | EFPGATargetTypeFlags::PASSIVE))
+	FGameplayTagContainer FailureTags;
+	if (IsTargetTypeFlagChecked(EFPGATargetTypeFlags::NONE | EFPGATargetTypeFlags::PASSIVE))
 	{
 		return nullptr;
 	}
 
-	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
+	if (IsTargetTypeFlagChecked(EFPGATargetTypeFlags::ACTOR))
 	{
 		if (AActor* Actor = HitResult.GetActor())
 		{
-			if (IsValidActor(SourceActor, Actor))
+			if (IsValidActor(SourceActor, Actor, &FailureTags))
 			{
 				return FFPGATargetData_SingleActor::MakeSingleActorTargetData(Actor);
 			}
 		}
 	}
 
-	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::LOCATION | EFPGATargetTypeFlags::DIRECTION))
+	if (IsTargetTypeFlagChecked(EFPGATargetTypeFlags::LOCATION | EFPGATargetTypeFlags::DIRECTION))
 	{
 		if (HitResult.IsValidBlockingHit())
 		{
-			if (SourceFilter.DoesFilterPass(nullptr, SourceActor))
-			{
-				return FFPGATargetData_Vector::MakeVectorTargetData(HitResult.Location);
-			}
+			// if (SourceFilter.DoesFilterPass(nullptr, SourceActor))
+			// {
+			return FFPGATargetData_Vector::MakeVectorTargetData(HitResult.Location);
+			// }
 		}
+	}
+
+	if (OutFailureTags)
+	{
+		OutFailureTags->AppendTags(FailureTags);
 	}
 
 	return nullptr;
@@ -361,11 +379,13 @@ bool FFPGATargetingRequirements::IsValidTargetData(AActor* OrderedActor, const F
 		{
 			if (!Stage.IsValidTargetData(OrderedActor, Data))
 			{
+				// UE_LOG(LogTemp, Warning, TEXT("Target invalid for stage %d"), i);
 				return false;
 			}
 		}
 		else
 		{
+			// UE_LOG(LogTemp, Warning, TEXT("Missing data for stage %d"), i);
 			return false;
 		}
 	}

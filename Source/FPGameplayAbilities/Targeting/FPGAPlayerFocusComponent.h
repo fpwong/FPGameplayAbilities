@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPGATargetFilter.h"
-#include "Components/ActorComponent.h"
 #include "FPGAPlayerFocusComponent.generated.h"
 
 // This class does not need to be modified.
@@ -34,47 +32,47 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFPOnActorChanged, AActor*, OldActor, AActor*, NewActor);
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class FPGAMEPLAYABILITIES_API UFPGAPlayerFocusComponent : public UActorComponent
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintAssignable)
-	FFPOnActorChanged OnHoveredActorChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FFPOnActorChanged OnFocusedActorChanged;
-
-	UFPGAPlayerFocusComponent();
-
-	virtual void UpdateStateFromHitResults(const TArray<FHitResult>& HitResults);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetFocus(AActor* NewFocus);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void FocusHoveredActor();
-
-	UFUNCTION(BlueprintCallable)
-	bool IsValidActor(AActor* Actor);
-
-	UFUNCTION(BlueprintCallable)
-	AActor* GetFocusedActor() { return FocusedActor.Get(); }
-
-	UFUNCTION(BlueprintCallable)
-	AActor* GetHoveredActor() { return HoveredActor.Get(); }
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	/** Actor currently focused by the player. */
-	TWeakObjectPtr<AActor> FocusedActor;
-
-	/** Actor currently hovered by the player. */
-	TWeakObjectPtr<AActor> HoveredActor;
-
-	UPROPERTY(EditDefaultsOnly)
-	FFPGATargetFilter TargetFilter;
-};
+// UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+// class FPGAMEPLAYABILITIES_API UFPGAPlayerFocusComponent : public UActorComponent
+// {
+// 	GENERATED_BODY()
+//
+// public:
+// 	UPROPERTY(BlueprintAssignable)
+// 	FFPOnActorChanged OnHoveredActorChanged;
+//
+// 	UPROPERTY(BlueprintAssignable)
+// 	FFPOnActorChanged OnFocusedActorChanged;
+//
+// 	UFPGAPlayerFocusComponent();
+//
+// 	virtual void UpdateStateFromHitResults(const TArray<FHitResult>& HitResults);
+//
+// 	UFUNCTION(BlueprintCallable)
+// 	virtual void SetFocus(AActor* NewFocus);
+//
+// 	UFUNCTION(BlueprintCallable)
+// 	virtual void FocusHoveredActor();
+//
+// 	UFUNCTION(BlueprintCallable)
+// 	bool IsValidActor(AActor* Actor);
+//
+// 	UFUNCTION(BlueprintCallable)
+// 	AActor* GetFocusedActor() { return FocusedActor.Get(); }
+//
+// 	UFUNCTION(BlueprintCallable)
+// 	AActor* GetHoveredActor() { return HoveredActor.Get(); }
+//
+// protected:
+// 	// Called when the game starts
+// 	virtual void BeginPlay() override;
+//
+// 	/** Actor currently focused by the player. */
+// 	TWeakObjectPtr<AActor> FocusedActor;
+//
+// 	/** Actor currently hovered by the player. */
+// 	TWeakObjectPtr<AActor> HoveredActor;
+//
+// 	UPROPERTY(EditDefaultsOnly)
+// 	FFPGATargetFilter TargetFilter;
+// };

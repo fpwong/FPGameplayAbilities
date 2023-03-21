@@ -6,16 +6,19 @@
 #include "FPTargetFilterTaskSet.generated.h"
 
 class UFPTargetFilterTask;
+struct FGameplayTagContainer;
 
 USTRUCT(BlueprintType)
 struct FPGAMEPLAYABILITIES_API FFPTargetFilterTaskSet
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Instanced, Category="TargetFilterPreset")
+	UPROPERTY(EditAnywhere, Instanced, Category=Default, meta=(ShowOnlyInnerProperties))
 	TArray<TObjectPtr<UFPTargetFilterTask>> Tasks;
 
-	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const;
+	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const;
+
+	bool IterateTasks(const AActor* SourceActor, const AActor* TargetActor, TFunctionRef<void(UFPTargetFilterTask* Task, bool bResult)> Func) const;
 
 	bool IsEmpty() const { return Tasks.Num() == 0; }
 };

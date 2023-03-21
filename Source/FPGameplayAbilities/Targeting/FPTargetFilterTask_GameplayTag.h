@@ -22,9 +22,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Default)
 	FGameplayTagRequirements TargetRequirements;
 
-	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const override;
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
 	// FGameplayTagContainer GetAllRelatedTags();
+
+	bool CheckTagRequirements(const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements, OUT FGameplayTagContainer* OutFailureTags) const;
 
 	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
 };

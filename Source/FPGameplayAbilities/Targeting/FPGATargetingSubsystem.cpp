@@ -126,6 +126,7 @@ bool UFPGATargetingSubsystem::GetHitResultsUnderCursor(TArray<FHitResult>& OutHi
 			return FVector::DistSquaredXY(A.Location, GroundHitResult.Location) < FVector::DistSquaredXY(B.Location, GroundHitResult.Location);
 		});
 
+		GroundHitResult.HitObjectHandle = FActorInstanceHandle();
 		OutHitResults.Add(GroundHitResult);
 	}
 
@@ -220,13 +221,10 @@ void UFPGATargetingSubsystem::UpdateMouseCursor()
 	{
 		for (const FFPGAHoveredCursor& HoveredCursor : SettingsData->HoveredCursors)
 		{
-			if (auto PC = GetPlayerController())
+			if (HoveredCursor.FilterTaskSet.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
 			{
-				APawn* ControlledPawn = PC->GetPawn();
-				if (HoveredCursor.Filter.DoesFilterPass(ControlledPawn, HoveredActor.Get()))
-				{
-					HoveredCursorState = EMouseCursor::Hand; 
-				}
+				HoveredCursorState = HoveredCursor.CursorType;
+				break;
 			}
 		}
 	}
@@ -245,11 +243,6 @@ void UFPGATargetingSubsystem::UpdateMouseCursor()
 APlayerController* UFPGATargetingSubsystem::GetPlayerController()
 {
 	return GetLocalPlayer()->PlayerController;
-}
-
-APawn* UFPGATargetingSubsystem::GetControlledPawn()
-{
-	return GetPlayerController() ? GetPlayerController()->GetPawn() : nullptr;
 }
 
 void UFPGATargetingSubsystem::HandleHoveredActorChanged(AActor* OldActor, AActor* NewActor)

@@ -4,5 +4,4 @@
 
 UFPTargetFilterTask::UFPTargetFilterTask()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CreateFilterTask"));
 }

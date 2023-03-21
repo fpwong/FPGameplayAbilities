@@ -28,6 +28,8 @@ public:
 
 	void Bind(const FFPTargetFilterTaskSet& InTaskSet, AActor* SourceActor, AActor* TargetActor);
 
+	void Clear();
+
 private:
 	void OnTaskResultChanged(AActor*, bool) { CheckResultChanged(); }
 

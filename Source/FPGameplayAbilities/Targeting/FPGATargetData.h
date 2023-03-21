@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPGATargetFilter.h"
+#include "FPTargetFilterTaskSet.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "FPGATargetData.generated.h"
@@ -62,6 +62,14 @@ enum class EFPGATargetRangeSource : uint8
 	CUSTOM
 };
 
+UENUM()
+enum class EFPTargetValidResult : uint8
+{
+	Invalid,
+	Valid,
+	Blocked
+};
+
 USTRUCT(BlueprintType)
 struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 {
@@ -70,10 +78,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	FFPGATargetingStage();
 
 	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly)
-	FFPGATargetFilter TargetFilter;
-
-	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly)
-	FFPGATargetFilter SourceFilter;
+	FFPTargetFilterTaskSet TargetFilterTaskSet;
 
 	/**
 	* The target types of this stage.
@@ -92,17 +97,17 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	EFPGATargetRangeSource TargetRangeSource = EFPGATargetRangeSource::UNIT;
 
 	bool IsValidTargetData(const TArray<FFPGATargetData>& OrderData, AActor* OrderedActor, const FFPGATargetData* TargetData) const;
-	bool IsValidTargetData(AActor* OrderedActor, const FGameplayAbilityTargetData* TargetData) const;
+	bool IsValidTargetData(AActor* OrderedActor, const FGameplayAbilityTargetData* TargetData, OUT FGameplayTagContainer* OutFailureTags = nullptr) const;
 
 	bool IsValidHitResult(AActor* OrderedActor, const FHitResult& HitResult) const;
 
 	bool IsValidLocation(AActor* OrderedActor, const FVector& Location) const;
-	bool IsValidActor(AActor* SourceActor, AActor* TargetActor) const;
+	bool IsValidActor(AActor* SourceActor, AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const;
 
 	bool IsTargetTypeFlagChecked(int32 InFlag) const;
 	bool IsTargetTypeFlagChecked(EFPGATargetTypeFlags InFlag) const;
 
-	FGameplayAbilityTargetData* MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult) const;
+	FGameplayAbilityTargetData* MakeTargetDataFromHitResult(AActor* SourceActor, const FHitResult& HitResult, OUT FGameplayTagContainer* OutFailureTags = nullptr) const;
 
 	// FVector GetSourceLocation(const TArray<FFPGATargetData>& OrderData, AActor* OrderedActor) const;
 	FVector GetSourceLocation(AActor* SourceActor) const;

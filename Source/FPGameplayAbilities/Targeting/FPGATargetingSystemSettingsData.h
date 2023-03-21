@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPGATargetFilter.h"
+#include "FPTargetFilterTaskSet.h"
 #include "FPGATargetingSystemSettingsData.generated.h"
 
 USTRUCT()
@@ -12,7 +12,7 @@ struct FFPGAHoveredCursor
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-	FFPGATargetFilter Filter;
+	FFPTargetFilterTaskSet FilterTaskSet;
 
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<EMouseCursor::Type> CursorType = EMouseCursor::Type::Default;
@@ -30,9 +30,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TEnumAsByte<ETraceTypeQuery> GroundTraceChannel;
 
-	// only change hover state for these actors
 	UPROPERTY(EditDefaultsOnly)
-	FFPGATargetFilter HoveredFilter;
+	FFPTargetFilterTaskSet HoveredFilter;
 
 	// change the cursor when the hovered actor matches the filter
 	UPROPERTY(EditDefaultsOnly)

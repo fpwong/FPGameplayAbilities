@@ -79,7 +79,10 @@ public:
 	APlayerController* GetPlayerController();
 
 	UFUNCTION()
-	APawn* GetControlledPawn();
+	void SetSourcePawn(APawn* Pawn) { SourcePawn = Pawn; }
+
+	UPROPERTY()
+	TWeakObjectPtr<APawn> SourcePawn;
 
 protected:
 	void HandleHoveredActorChanged(AActor* OldActor, AActor* NewActor);

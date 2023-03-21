@@ -27,15 +27,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<AActor> TargetActor;
 
-	TWeakObjectPtr<UFPGAPlayerFocusComponent> PlayerFocusComponent;
-
 	virtual void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetActor(AActor* InTargetActor);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void BindToPlayerFocus(UFPGAPlayerFocusComponent* InPlayerFocusComponent);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void BindToTargetingSubsystem();

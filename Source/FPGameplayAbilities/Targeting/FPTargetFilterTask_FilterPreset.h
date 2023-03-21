@@ -21,7 +21,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Default)
 	UFPTargetFilterPreset* Preset;
 
-	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const override;
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
 	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
 };

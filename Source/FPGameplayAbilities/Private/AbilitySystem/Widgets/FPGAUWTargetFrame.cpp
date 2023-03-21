@@ -29,19 +29,6 @@ void UFPGAUWTargetFrame::SetActor_Implementation(AActor* InTargetActor)
 	}
 }
 
-void UFPGAUWTargetFrame::BindToPlayerFocus_Implementation(UFPGAPlayerFocusComponent* InPlayerFocusComponent)
-{
-	if (!InPlayerFocusComponent)
-	{
-		return;
-	}
-
-	InPlayerFocusComponent->OnHoveredActorChanged.AddUniqueDynamic(this, &ThisClass::HandleHoveredActorChanged);
-	InPlayerFocusComponent->OnFocusedActorChanged.AddUniqueDynamic(this, &ThisClass::HandleFocusedActorChanged);
-
-	PlayerFocusComponent = InPlayerFocusComponent;
-}
-
 void UFPGAUWTargetFrame::BindToTargetingSubsystem_Implementation()
 {
 	auto TargetingSystem = UFPGATargetingSubsystem::Get(GetWorld()->GetFirstLocalPlayerFromController());

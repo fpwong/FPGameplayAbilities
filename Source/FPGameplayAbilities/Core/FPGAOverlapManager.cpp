@@ -2,8 +2,6 @@
 
 #include "FPGAOverlapManager.h"
 
-#include "FPGameplayAbilities/Targeting/FPGATargetFilter.h"
-
 FFPGAOverlapInstance::FFPGAOverlapInstance(const FFPTargetFilterTaskSet& Taskset, AActor* Source, AActor* Target)
 {
 	OngoingFilterTaskset.Bind(Taskset, Source, Target);
@@ -18,8 +16,6 @@ UFPGAOverlapManager::UFPGAOverlapManager(const FObjectInitializer& ObjectInitial
 void UFPGAOverlapManager::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("Task set! %d"), FilterTaskset.Tasks.Num());
 
 	AActor* OwnerActor = GetOwner();
 	SourceActorPtr = OwnerActor;
@@ -102,13 +98,9 @@ void UFPGAOverlapManager::HandleBeginOverlap(AActor* OtherActor)
 		if (OverlapInstance->OngoingFilterTaskset.GetCurrentResult())
 		{
 			ValidOverlappingActors.Add(OtherActor);
-			DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Green, false, 1.0f);
 			OnBeginOverlap.Broadcast(OtherActor);
+			// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Green, false, 1.0f);
 		}
-		// else
-		// {
-		// 	DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Cyan, true, 1.0f);
-		// }
 	}
 }
 
@@ -120,12 +112,10 @@ void UFPGAOverlapManager::HandleEndOverlap(AActor* OtherActor)
 		{
 			ValidOverlappingActors.Remove(OtherActor);
 			OnEndOverlap.Broadcast(OtherActor);
-			DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Red, false, 1.0f);
+			// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Red, false, 1.0f);
 		}
 
 		AllOverlappingActors.Remove(OtherActor);
-
-		// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Yellow, true, 1.0f);
 	}
 }
 

@@ -39,24 +39,22 @@ void FFPTargetFilterTaskSetObserver::Bind(const FFPTargetFilterTaskSet& InTaskSe
 	bCurrentResult = TaskSet.DoesFilterPass(SourceActor, TargetActor);
 }
 
+void FFPTargetFilterTaskSetObserver::Clear()
+{
+	SourceActorPtr.Reset();
+	TargetActorPtr.Reset();
+	Bindings.Reset();
+	TaskSetBindings.Reset();
+}
+
 void FFPTargetFilterTaskSetObserver::CheckResultChanged()
 {
-	// bool bResult = true;
-	// for (TSharedPtr<FFPTargetFilterTaskBinding> Binding : Bindings)
-	// {
-	// 	if (!Binding->GetCurrentResult())
-	// 	{
-	// 		bResult = false;
-	// 		break;
-	// 	}
-	// }
-
 	const bool bResult = TaskSet.DoesFilterPass(SourceActorPtr.Get(), TargetActorPtr.Get());
 
-	UE_LOG(LogTemp, Warning, TEXT("Check task set result changed"));
+	// UE_LOG(LogTemp, Warning, TEXT("Check task set result changed"));
 	if (bCurrentResult != bResult)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Result changed %d"), bResult);
+		// UE_LOG(LogTemp, Warning, TEXT("Result changed %d"), bResult);
 		bCurrentResult = bResult;
 		OnResultChanged.Broadcast(TargetActorPtr.Get(), bResult);
 	}

@@ -6,7 +6,7 @@
 #include "FPTargetFilterPreset.h"
 #include "FPTargetFilterTaskSetObserver.h"
 
-bool UFPTargetFilterTask_FilterPreset::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
+bool UFPTargetFilterTask_FilterPreset::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
 {
 	return Preset->DoesFilterPass(SourceActor, TargetActor);
 }

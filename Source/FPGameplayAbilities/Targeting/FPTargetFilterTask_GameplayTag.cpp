@@ -7,8 +7,9 @@
 #include "FPTargetFilterTaskSetObserver.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "FPGameplayAbilities/Core/FPTagRelationshipMapping.h"
+#include "FPGameplayAbilities/Utils/FPGAMiscUtils.h"
 
-bool UFPTargetFilterTask_GameplayTag::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
+bool UFPTargetFilterTask_GameplayTag::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
 {
 	if (!TargetActor)
 	{
@@ -21,32 +22,12 @@ bool UFPTargetFilterTask_GameplayTag::DoesFilterPass(const AActor* SourceActor, 
 		return false;
 	}
 
-	const auto CheckTagRequirements = [](const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements)
-	{
-		if (!Target)
-		{
-			return Requirements.IsEmpty();
-		}
-
-		const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Target);
-		if (!TagInterface)
-		{
-			return false;
-		}
-
-		FGameplayTagContainer TargetTags;
-		TagInterface->GetOwnedGameplayTags(TargetTags);
-		UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(TargetTags, Source, Target);
-
-		return Requirements.RequirementsMet(TargetTags);
-	};
-
-	if (!CheckTagRequirements(SourceActor, TargetActor, TargetRequirements))
+	if (!CheckTagRequirements(SourceActor, TargetActor, TargetRequirements, OutFailureTags))
 	{
 		return false;
 	}
 
-	if (!CheckTagRequirements(TargetActor, SourceActor, SourceRequirements))
+	if (!CheckTagRequirements(TargetActor, SourceActor, SourceRequirements, OutFailureTags))
 	{
 		return false;
 	}
@@ -81,6 +62,45 @@ bool UFPTargetFilterTask_GameplayTag::DoesFilterPass(const AActor* SourceActor, 
 	// }
 	//
 	// return true;
+}
+
+bool UFPTargetFilterTask_GameplayTag::CheckTagRequirements(const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements, FGameplayTagContainer* OutFailureTags) const
+{
+	if (!Target)
+	{
+		return Requirements.IsEmpty();
+	}
+
+	const IGameplayTagAssetInterface* TagInterface = Cast<IGameplayTagAssetInterface>(Target);
+	if (!TagInterface)
+	{
+		return false;
+	}
+
+	FGameplayTagContainer TargetTags;
+	TagInterface->GetOwnedGameplayTags(TargetTags);
+	UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(TargetTags, Source, Target);
+
+	if (!OutFailureTags)
+	{
+		return Requirements.RequirementsMet(TargetTags);
+	}
+
+	const FGameplayTagContainer BlockedTags = TargetTags.Filter(Requirements.IgnoreTags);
+	if (BlockedTags.Num())
+	{
+		OutFailureTags->AppendTags(BlockedTags);
+		return false;
+	}
+
+	const FGameplayTagContainer MissingRequiredTags = UFPGAMiscUtils::GetMissingTags(Requirements.RequireTags, TargetTags);
+	if (MissingRequiredTags.Num())
+	{
+		OutFailureTags->AppendTags(MissingRequiredTags);
+		return false;
+	}
+
+	return true;
 }
 
 FFPTargetFilterObserver* UFPTargetFilterTask_GameplayTag::MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor)
@@ -209,7 +229,7 @@ void FFPTargetFilterObserver_GameplayTag::BindToActor(AActor* Actor, const FGame
 	AllTags.AppendTags(Requirements.RequireTags);
 	AllTags.AppendTags(Requirements.IgnoreTags);
 
-	for (const FGameplayTag& Tag : Requirements.RequireTags)
+	for (const FGameplayTag& Tag : AllTags)
 	{
 		FDelegateHandle Handle = AbilitySystem->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved).AddRaw(this, &FFPTargetFilterObserver_GameplayTag::OnFilterTagChanged);
 		OutDelegateHandles.Add(Tag, Handle);

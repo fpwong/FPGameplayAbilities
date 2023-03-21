@@ -6,7 +6,32 @@
 #include "AbilitySystemGlobals.h"
 #include "GameplayEffect.h"
 
-bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
+float FFPAttributeComparison_AttributeValue::GetValue(UAbilitySystemComponent* AbilitySystem) const
+{
+	return (AbilitySystem->GetNumericAttribute(Attribute) + PreMultiplyAdditiveValue.GetValue() * Coefficient.GetValue()) + PostMultiplyAdditiveValue.GetValue();
+}
+
+float FFPAttributeComparison_Context::GetValue(UAbilitySystemComponent* AbilitySystem) const
+{
+	if (ValueType == EFPAttributeComparison_ValueType::NumericValue)
+	{
+		return NumericValue;
+	}
+
+	return AttributeValue.GetValue(AbilitySystem);
+}
+
+bool FFPAttributeComparison_Context::IsValid(UAbilitySystemComponent* AbilitySystem) const
+{
+	if (ValueType == EFPAttributeComparison_ValueType::AttributeValue)
+	{
+		return AbilitySystem != nullptr;
+	}
+
+	return true;
+}
+
+bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
 {
 	if (!TargetActor)
 	{
@@ -14,18 +39,22 @@ bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* Sourc
 	}
 
 	UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
-	if (!TargetAbilitySystem)
+	UAbilitySystemComponent* SourceAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(SourceActor);
+
+	UAbilitySystemComponent* AbilitySystemA = ContextA.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+	UAbilitySystemComponent* AbilitySystemB = ContextB.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+
+	if (!ContextA.IsValid(AbilitySystemA) || !ContextB.IsValid(AbilitySystemB))
 	{
 		return false;
 	}
 
-	const float ValueA = TargetAbilitySystem->GetNumericAttribute(Attribute);
+	const float ValueA = ContextA.GetValue(AbilitySystemA);
+	const float ValueB = ContextB.GetValue(AbilitySystemB);
+
+	// UE_LOG(LogTemp, Warning, TEXT("Value %f %f"), ValueA, ValueB);
+
 	bool bResult = false;
-
-	const float ValueB = GetValue();
-
-	UE_LOG(LogTemp, Warning, TEXT("Value %f"), ValueB);
-
 	switch (ComparisonMethod)
 	{
 		case EFPAttributeComparison_ComparisonMethod::Equals:
@@ -43,32 +72,6 @@ bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* Sourc
 	return bResult ^ bInvert;
 }
 
-float UFPTargetFilterTask_AttributeComparison::GetValue() const
-{
-	switch (ValueType)
-	{
-		case EFPAttributeComparison_ValueType::StaticValue:
-			return StaticValue;
-		case EFPAttributeComparison_ValueType::AttributeValue:
-		{
-			TArray<FGameplayEffectAttributeCaptureDefinition> CaptureDefs;
-			AttributeValue.GetAttributeCaptureDefinitions(CaptureDefs);
-
-			FGameplayEffectSpec Spec;
-			// FGameplayEffectAttributeCaptureDefinition CaptureDef(AttributeValue.GetAttributeCaptureDefinitions());
-			for (const FGameplayEffectAttributeCaptureDefinition& Def : CaptureDefs)
-			{
-				Spec.CapturedRelevantAttributes.AddCaptureDefinition(Def);
-			}
-			float OutValue;
-			AttributeValue.AttemptCalculateMagnitude(Spec, OutValue);
-			return OutValue;
-		}
-		default:
-			return 0.0f;
-	}
-}
-
 FFPTargetFilterObserver* UFPTargetFilterTask_AttributeComparison::MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor)
 {
 	FFPTargetFilterObserver_AttributeComparison* Binding = new FFPTargetFilterObserver_AttributeComparison();
@@ -78,10 +81,14 @@ FFPTargetFilterObserver* UFPTargetFilterTask_AttributeComparison::MakeBinding(UF
 
 FFPTargetFilterObserver_AttributeComparison::~FFPTargetFilterObserver_AttributeComparison()
 {
-	if (AbilitySystem.IsValid())
+	if (BindingA.AbilitySystem.IsValid())
 	{
-		AbilitySystem->GetGameplayAttributeValueChangeDelegate(Attribute).Remove(AttributeChangedHandle);
-		AttributeChangedHandle.Reset();
+		BindingA.AbilitySystem->GetGameplayAttributeValueChangeDelegate(BindingA.Attribute).Remove(BindingA.Handle);
+	}
+
+	if (BindingB.AbilitySystem.IsValid())
+	{
+		BindingB.AbilitySystem->GetGameplayAttributeValueChangeDelegate(BindingB.Attribute).Remove(BindingB.Handle);
 	}
 }
 
@@ -89,14 +96,34 @@ void FFPTargetFilterObserver_AttributeComparison::InitAttributeValue(UFPTargetFi
 {
 	Init(FilterTask, SourceActor, TargetActor);
 
-	AbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
-	if (!AbilitySystem.IsValid())
+	BindingA.Reset();
+	BindingB.Reset();
+
+	UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
+	UAbilitySystemComponent* SourceAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(SourceActor);
+
+	UAbilitySystemComponent* AbilitySystemA = FilterTask->ContextA.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+	UAbilitySystemComponent* AbilitySystemB = FilterTask->ContextB.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+
+	if (FilterTask->ContextA.IsValid(AbilitySystemA))
 	{
-		return;
+		if (FilterTask->ContextA.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
+		{
+			BindingA.Attribute = FilterTask->ContextA.AttributeValue.Attribute;
+			BindingA.Handle = AbilitySystemA->GetGameplayAttributeValueChangeDelegate(BindingA.Attribute).AddRaw(this, &FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged);
+			BindingA.AbilitySystem = AbilitySystemA;
+		}
 	}
 
-	Attribute = FilterTask->Attribute;
-	AttributeChangedHandle = AbilitySystem->GetGameplayAttributeValueChangeDelegate(FilterTask->Attribute).AddRaw(this, &FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged);
+	if (FilterTask->ContextB.IsValid(AbilitySystemB))
+	{
+		if (FilterTask->ContextB.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
+		{
+			BindingB.Attribute = FilterTask->ContextB.AttributeValue.Attribute;
+			BindingB.Handle = AbilitySystemB->GetGameplayAttributeValueChangeDelegate(BindingB.Attribute).AddRaw(this, &FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged);
+			BindingB.AbilitySystem = AbilitySystemB;
+		}
+	}
 }
 
 void FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged(const FOnAttributeChangeData& Data)
