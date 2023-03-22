@@ -53,8 +53,7 @@ public class FPGameplayAbilities : ModuleRules
 				"DeveloperSettings",
 				"NetCore",
 				"UMG",
-				"DataRegistry",
-				"StructUtils"
+				"DataRegistry"
 			}
 		);
 
