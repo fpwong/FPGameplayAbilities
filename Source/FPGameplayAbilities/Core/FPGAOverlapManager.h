@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BindToActor(AActor* Actor);
 
+	UFUNCTION(BlueprintCallable)
+	void SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilterTaskSet);
+
 protected:
 	UPROPERTY()
 	TWeakObjectPtr<UPrimitiveComponent> CollidingComponent;

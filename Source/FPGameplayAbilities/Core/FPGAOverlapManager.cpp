@@ -86,6 +86,11 @@ void UFPGAOverlapManager::BindToActor(AActor* Actor)
 	Actor->OnActorEndOverlap.AddDynamic(this, &UFPGAOverlapManager::OnActorEndOverlap);
 }
 
+void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilterTaskSet)
+{
+	FilterTaskset = InFilterTaskSet;
+}
+
 void UFPGAOverlapManager::HandleBeginOverlap(AActor* OtherActor)
 {
 	if (SourceActorPtr.IsValid())
