@@ -20,7 +20,7 @@ struct FGameplayTagContainer;
 // 	FFPTargetFilterContextMapping Context;
 // };
 
-UCLASS(DefaultToInstanced, EditInlineNew, Abstract)
+UCLASS(DefaultToInstanced, EditInlineNew, CollapseCategories, Abstract)
 class FPGAMEPLAYABILITIES_API UFPTargetFilterTask : public UObject
 {
 	GENERATED_BODY()

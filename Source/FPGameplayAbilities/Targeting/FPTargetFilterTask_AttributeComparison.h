@@ -25,7 +25,7 @@ enum class EFPAttributeComparison_ValueType : uint8
 	AttributeValue,
 };
 
-USTRUCT()
+USTRUCT(meta=(ShowOnlyInnerProperties))
 struct FFPAttributeComparison_AttributeValue
 {
 	GENERATED_BODY()
@@ -45,7 +45,7 @@ struct FFPAttributeComparison_AttributeValue
 	float GetValue(UAbilitySystemComponent* AbilitySystem) const;
 };
 
-USTRUCT()
+USTRUCT(meta=(ShowOnlyInnerProperties))
 struct FFPAttributeComparison_Context
 {
 	GENERATED_BODY()
@@ -60,7 +60,7 @@ struct FFPAttributeComparison_Context
 	EFPTargetFilterTaskContext Context = EFPTargetFilterTaskContext::Target;
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
-	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::NumericValue;
+	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::AttributeValue;
 
 	float GetValue(UAbilitySystemComponent* AbilitySystem) const;
 

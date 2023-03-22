@@ -8,12 +8,12 @@
 class UFPTargetFilterTask;
 struct FGameplayTagContainer;
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, meta = (ShowOnlyInnerProperties))
 struct FPGAMEPLAYABILITIES_API FFPTargetFilterTaskSet
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Instanced, Category=Default, meta=(ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Instanced, Category=Default)
 	TArray<TObjectPtr<UFPTargetFilterTask>> Tasks;
 
 	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const;
