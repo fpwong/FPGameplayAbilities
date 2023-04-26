@@ -1,4 +1,4 @@
-﻿#include "FPGATypes.h"
+﻿#include "AbilitySystem/FPGATypes.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"

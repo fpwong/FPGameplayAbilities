@@ -114,7 +114,7 @@ void UFPGAAbilityTask_PlayMontageNotify::Activate()
 		UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
 		if (AnimInstance != nullptr)
 		{
-			const float NewSequenceTime = MontageToPlay->SequenceLength / Rate;
+			const float NewSequenceTime = MontageToPlay->GetPlayLength() / Rate;
 
 			if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageToPlay, NewSequenceTime, StartSection) > 0.f)
 			{

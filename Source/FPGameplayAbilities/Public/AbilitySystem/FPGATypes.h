@@ -14,6 +14,7 @@ enum class EFPGACancelLevel : uint8
 	OnlyBackswing,
 	All
 };
+
 USTRUCT(BlueprintType)
 struct FPGAMEPLAYABILITIES_API FFPGAAbilityReadyBinding
 {
@@ -39,4 +40,24 @@ protected:
 
 	TSet<FDelegateHandle> BoundCooldownDelegates;
 	TSet<FActiveGameplayEffectHandle> BoundHandles;
+};
+
+USTRUCT(BlueprintType)
+struct FPGAMEPLAYABILITIES_API FFPSetByCallerMagnitude
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FGameplayTag DataTag;
+
+	UPROPERTY()
+	float Magnitude;
+};
+
+USTRUCT(BlueprintType)
+struct FPGAMEPLAYABILITIES_API FFPGameplayEffectParameters
+{
+	GENERATED_BODY()
+
+	TArray<FFPSetByCallerMagnitude> SetByCallerParameters;
 };
