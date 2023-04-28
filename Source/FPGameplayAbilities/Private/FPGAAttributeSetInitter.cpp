@@ -169,13 +169,12 @@ void FFPGAAttributeSetInitter::InitAttributeSetDefaults(UAbilitySystemComponent*
 			{
 				ABILITY_LOG(Log, TEXT("Initializing Set %s (%s)"), *Set->GetName(), *Class->GetName());
 
-				for (auto& DataPair : DefaultDataList->List)
+				for (auto& DataPair : DefaultDataList->AttributeValues)
 				{
-					check(DataPair.Property);
-
-					if (Set->ShouldInitProperty(bInitialInit, DataPair.Property))
+					check(DataPair.Key);
+					if (Set->ShouldInitProperty(bInitialInit, DataPair.Key))
 					{
-						FGameplayAttribute AttributeToModify(DataPair.Property);
+						FGameplayAttribute AttributeToModify(DataPair.Key);
 						AbilitySystemComponent->SetNumericAttributeBase(AttributeToModify, DataPair.Value);
 					}
 				}
@@ -243,13 +242,12 @@ void FFPGAAttributeSetInitter::ApplyAttributeDefault(UAbilitySystemComponent* Ab
 		{
 			ABILITY_LOG(Log, TEXT("Initializing Set %s"), *Set->GetName());
 
-			for (auto& DataPair : DefaultDataList->List)
+			for (auto& DataPair : DefaultDataList->AttributeValues)
 			{
-				check(DataPair.Property);
-
-				if (DataPair.Property == InAttribute.GetUProperty())
+				check(DataPair.Key);
+				if (DataPair.Key == InAttribute.GetUProperty())
 				{
-					FGameplayAttribute AttributeToModify(DataPair.Property);
+					FGameplayAttribute AttributeToModify(DataPair.Key);
 					AbilitySystemComponent->SetNumericAttributeBase(AttributeToModify, DataPair.Value);
 				}
 			}
@@ -274,10 +272,10 @@ TArray<float> FFPGAAttributeSetInitter::GetAttributeSetValues(UClass* AttributeS
 		const FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(AttributeSetClass);
 		if (DefaultDataList)
 		{
-			for (auto& DataPair : DefaultDataList->List)
+			for (auto& DataPair : DefaultDataList->AttributeValues)
 			{
-				check(DataPair.Property);
-				if (DataPair.Property == AttributeProperty)
+				check(DataPair.Key);
+				if (DataPair.Key == AttributeProperty)
 				{
 					AttributeSetValues.Add(DataPair.Value);
 				}
@@ -286,6 +284,73 @@ TArray<float> FFPGAAttributeSetInitter::GetAttributeSetValues(UClass* AttributeS
 	}
 
 	return AttributeSetValues;
+}
+
+void FFPGAAttributeSetInitter::InitAttributeSetValues(UAttributeSet* Set, const FName& GroupName, int32 Level, bool bInitialInit)
+{
+	if (!Set)
+	{
+		return;
+	}
+
+	const FAttributeDefaultValueList* DefaultDataList = GetDefaultValueList(Set, "Default", Level, bInitialInit);
+	const FAttributeDefaultValueList* GroupDataList = GetDefaultValueList(Set, GroupName, Level, bInitialInit);
+	TSet<FProperty*> AppliedProperties;
+
+	for (const FAttributeDefaultValueList* DataList : { GroupDataList, DefaultDataList })
+	{
+		if (!DataList)
+		{
+			continue;
+		}
+
+		for (auto& DataPair : DataList->AttributeValues)
+		{
+			check(DataPair.Key);
+			if (DataPair.Key)
+			{
+				if (AppliedProperties.Contains(DataPair.Key))
+				{
+					continue;
+				}
+
+				AppliedProperties.Add(DataPair.Key);
+
+				FGameplayAttribute AttributeToModify(DataPair.Key);
+				if (FGameplayAttributeData* Data = AttributeToModify.GetGameplayAttributeData(Set))
+				{
+					Data->SetBaseValue(DataPair.Value);
+					Data->SetCurrentValue(DataPair.Value);
+				}
+			}
+		}
+	}
+}
+
+const FAttributeDefaultValueList* FFPGAAttributeSetInitter::GetDefaultValueList(UAttributeSet* Set, const FName& GroupName, int32 Level, bool bInitialInit)
+{
+	if (!Set)
+	{
+		return nullptr;
+	}
+
+	const FAttributeSetDefaultsCollection* Collection = Defaults.Find(GroupName);
+	if (!Collection)
+	{
+		ABILITY_LOG(Warning, TEXT("Failed to find group collection!"));
+		return nullptr;
+	}
+
+	if (!Collection->LevelData.IsValidIndex(Level - 1))
+	{
+		// We could eventually extrapolate values outside of the max defined levels
+		ABILITY_LOG(Warning, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
+		return nullptr;
+	}
+
+	const FAttributeSetDefaults& SetDefaults = Collection->LevelData[Level - 1];
+
+	return SetDefaults.DataMap.Find(Set->GetClass());
 }
 
 bool FFPGAAttributeSetInitter::IsSupportedProperty(FProperty* Property) const
