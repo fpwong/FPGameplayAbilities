@@ -27,6 +27,12 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 		}
 	}
 
+	// UE_LOG(LogTemp, Warning, TEXT("AttributeSetInitter: NUm attribute set classes %d"), ClassList.Num());
+	// for (TSubclassOf<UAttributeSet> Class : ClassList)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("\t%s"), *Class->GetName());
+	// }
+
 	/**
 	 *	Loop through CurveData table and build sets of Defaults that keyed off of Name + Level
 	 */
@@ -74,34 +80,44 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 			// Check our curve to make sure the keys match the expected format
 			int32 ExpectedLevel = 1;
 			bool bShouldSkip = false;
-			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
-			{
-				const FKeyHandle& KeyHandle = *KeyIter;
-				if (KeyHandle == FKeyHandle::Invalid())
-				{
-					ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Data contains an invalid key handle (row: %s)"), *RowName);
-					bShouldSkip = true;
-					break;
-				}
-
-				int32 Level = Curve->GetKeyTimeValuePair(KeyHandle).Key;
-				if (ExpectedLevel != Level)
-				{
-					ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Keys are expected to start at 1 and increase by 1 for every key (row: %s)"), *RowName);
-					bShouldSkip = true;
-					break;
-				}
-
-				++ExpectedLevel;
-			}
+			// for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			// {
+			// 	const FKeyHandle& KeyHandle = *KeyIter;
+			// 	if (KeyHandle == FKeyHandle::Invalid())
+			// 	{
+			// 		ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Data contains an invalid key handle (row: %s)"), *RowName);
+			// 		bShouldSkip = true;
+			// 		break;
+			// 	}
+			//
+			// 	int32 Level = Curve->GetKeyTimeValuePair(KeyHandle).Key;
+			// 	if (ExpectedLevel != Level)
+			// 	{
+			// 		ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Keys are expected to start at 1 and increase by 1 for every key (row: %s level: %d expected: %d)"), *RowName, Level, ExpectedLevel);
+			// 		bShouldSkip = true;
+			// 		break;
+			// 	}
+			//
+			// 	++ExpectedLevel;
+			// }
 
 			if (bShouldSkip)
 			{
 				continue;
 			}
 
+			int MaxLevel = -1;
+			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			{
+				const FKeyHandle& KeyHandle = *KeyIter;
+
+				TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+				int32 Level = LevelValuePair.Key;
+				MaxLevel = FMath::Max(Level, MaxLevel);
+			}
+
 			int32 LastLevel = Curve->GetKeyTime(Curve->GetLastKeyHandle());
-			DefaultCollection.LevelData.SetNum(FMath::Max(LastLevel, DefaultCollection.LevelData.Num()));
+			DefaultCollection.LevelData.SetNum(MaxLevel);
 
 			//At this point we know the Name of this "class"/"group", the AttributeSet, and the Property Name. Now loop through the values on the curve to get the attribute default value at each level.
 			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
@@ -129,6 +145,23 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 			}
 		}
 	}
+
+	// UE_LOG(LogTemp, Warning, TEXT("Init attribute defaults %d"), Defaults.Num());
+	// for (auto& Default : Defaults)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("\t%s"), *Default.Key.ToString());
+	// 	for (FAttributeSetDefaults& LevelData : Default.Value.LevelData)
+	// 	{
+	// 		for (auto& DataMap : LevelData.DataMap)
+	// 		{
+	// 			UE_LOG(LogTemp, Warning, TEXT("\t\t%s"), *DataMap.Key->GetName());
+	// 			for (TTuple<FProperty*, float>& AttributeValue : DataMap.Value.AttributeValues)
+	// 			{
+	// 				UE_LOG(LogTemp, Warning, TEXT("\t\t\t%s: %f"), *AttributeValue.Key->GetName(), AttributeValue.Value);
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 void FFPGAAttributeSetInitter::InitAttributeSetDefaults(UAbilitySystemComponent* AbilitySystemComponent, FName GroupName, int32 Level, bool bInitialInit) const
