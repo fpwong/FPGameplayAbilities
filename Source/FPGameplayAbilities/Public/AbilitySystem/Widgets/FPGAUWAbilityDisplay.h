@@ -31,6 +31,8 @@ public:
 
 	void OnAbilityEnded(UGameplayAbility* GameplayAbility);
 	void OnAbilityActivate(UGameplayAbility* GameplayAbility);
+
+	UFUNCTION(BlueprintCallable)
 	void InitAbility(UAbilitySystemComponent* InAbilitySystem, UGameplayAbility* InAbility);
 
 	void UpdateAbilityProgress();
