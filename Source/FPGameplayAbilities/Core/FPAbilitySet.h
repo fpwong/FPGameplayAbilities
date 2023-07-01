@@ -30,10 +30,10 @@ struct FFPGrantedAbility
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintType, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UGameplayAbility> Ability;
 
-	UPROPERTY(BlueprintType, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int AbilityLevel;
 };
 
@@ -42,10 +42,10 @@ struct FFPGrantedGameplayEffect
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintType, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UGameplayEffect> GameplayEffect;
 
-	UPROPERTY(BlueprintType, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int EffectLevel;
 };
 
@@ -54,7 +54,7 @@ struct FFPGrantedAttributeSet
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintType, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UAttributeSet> AttributeSet;
 };
 
@@ -102,15 +102,15 @@ public:
 
 protected:
 	// Gameplay abilities to grant when this ability set is granted.
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Gameplay Abilities", meta=(TitleProperty=Ability))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Gameplay Abilities", meta=(TitleProperty=Ability))
 	TArray<FFPGrantedAbility> GrantedGameplayAbilities;
 
 	// Gameplay effects to grant when this ability set is granted.
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Gameplay Effects", meta=(TitleProperty=GameplayEffect))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Gameplay Effects", meta=(TitleProperty=GameplayEffect))
 	TArray<FFPGrantedGameplayEffect> GrantedGameplayEffects;
 
 	// // Attribute sets to grant when this ability set is granted.
-	// UPROPERTY(EditDefaultsOnly, Category = "Attribute Sets", meta=(TitleProperty=AttributeSet))
+	// UPROPERTY(EditAnywhere, Category = "Attribute Sets", meta=(TitleProperty=AttributeSet))
 	// TArray<FFPGrantedAttributeSet> GrantedAttributes;
 };
 
