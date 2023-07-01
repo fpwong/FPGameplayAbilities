@@ -84,9 +84,15 @@ void UFPGAUWAbilityDisplay::UpdateAbilityProgress()
 	if (AbilityProgressBar)
 	{
 		float Progress = TimeRemaining > 0 ? TimeRemaining / CooldownDuration : 0;
+
 		if (bFullProgressWhenOnCooldown && Progress > 0)
 		{
 			Progress = FMath::CeilToInt(Progress);
+		}
+
+		if (bInvertProgress)
+		{
+			Progress = 1.0f - Progress;
 		}
 
 		AbilityProgressBar->SetPercent(Progress);

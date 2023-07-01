@@ -20,7 +20,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	bool bFullProgressWhenOnCooldown = true;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(EditDefaultsOnly)
+	bool bInvertProgress = false;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UCommonTextBlock* CooldownLabel;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
