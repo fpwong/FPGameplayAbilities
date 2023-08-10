@@ -17,6 +17,109 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 	 *	Get list of AttributeSet classes loaded
 	 */
 
+	TArray<TSubclassOf<UAttributeSet> >	ClassList;
+	for (TObjectIterator<UClass> ClassIt; ClassIt; ++ClassIt)
+	{
+		UClass* TestClass = *ClassIt;
+		if (TestClass->IsChildOf(UAttributeSet::StaticClass()))
+		{
+			ClassList.Add(TestClass);
+		}
+	}
+
+	/**
+	 *	Loop through CurveData table and build sets of Defaults that keyed off of Name + Level
+	 */
+	for (const UCurveTable* CurTable : CurveData)
+	{
+		for (const TPair<FName, FRealCurve*>& CurveRow : CurTable->GetRowMap())
+		{
+			FString RowName = CurveRow.Key.ToString();
+			FString ClassName;
+			FString SetName;
+			FString AttributeName;
+			FString Temp;
+
+			RowName.Split(TEXT("."), &ClassName, &Temp);
+			Temp.Split(TEXT("."), &SetName, &AttributeName);
+
+			if (!ensure(!ClassName.IsEmpty() && !SetName.IsEmpty() && !AttributeName.IsEmpty()))
+			{
+				ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Unable to parse row %s in %s"), *RowName, *CurTable->GetName());
+				continue;
+			}
+
+			// Find the AttributeSet
+
+			TSubclassOf<UAttributeSet> Set = FindBestAttributeClass(ClassList, SetName);
+			if (!Set)
+			{
+				// This is ok, we may have rows in here that don't correspond directly to attributes
+				ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Unable to match AttributeSet from %s (row: %s)"), *SetName, *RowName);
+				continue;
+			}
+
+			// Find the FProperty
+			FProperty* Property = FindFProperty<FProperty>(*Set, *AttributeName);
+			if (!IsSupportedProperty(Property))
+			{
+				ABILITY_LOG(Verbose, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData Unable to match Attribute from %s (row: %s)"), *AttributeName, *RowName);
+				continue;
+			}
+
+			FRealCurve* Curve = CurveRow.Value;
+			FName ClassFName = FName(*ClassName);
+			FAttributeSetDefaultsCollection& DefaultCollection = Defaults.FindOrAdd(ClassFName);
+
+			float FirstLevelFloat = 0.f;
+			float LastLevelFloat = 0.f;
+			Curve->GetTimeRange(FirstLevelFloat, LastLevelFloat);
+
+			int32 FirstLevel = FMath::RoundToInt32(FirstLevelFloat);
+			int32 LastLevel = FMath::RoundToInt32(LastLevelFloat);
+
+			// Only log these as warnings, as they're not deal breakers.
+			if (FirstLevel != 1)
+			{
+				ABILITY_LOG(Warning, TEXT("FAttributeSetInitterDiscreteLevels::PreloadAttributeSetData First level should be 1"));
+				continue;
+			}
+
+			DefaultCollection.LevelData.SetNum(FMath::Max(LastLevel, DefaultCollection.LevelData.Num()));
+
+			for (int32 Level = 1; Level <= LastLevel; ++Level)
+			{
+				float Value = Curve->Eval(static_cast<float>(Level));
+
+				FAttributeSetDefaults& SetDefaults = DefaultCollection.LevelData[Level-1];
+
+				FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Set);
+				if (DefaultDataList == nullptr)
+				{
+					ABILITY_LOG(Verbose, TEXT("Initializing new default set for %s[%d]. PropertySize: %d.. DefaultSize: %d"), *Set->GetName(), Level, Set->GetPropertiesSize(), UAttributeSet::StaticClass()->GetPropertiesSize());
+
+					DefaultDataList = &SetDefaults.DataMap.Add(Set);
+				}
+
+				// Import curve value into default data
+
+				check(DefaultDataList);
+				DefaultDataList->AddPair(Property, Value);
+			}
+		}
+	}
+}
+void FFPGAAttributeSetInitter::PreloadAttributeSetData2(const TArray<UCurveTable*>& CurveData)
+{
+	if (!ensure(CurveData.Num() > 0))
+	{
+		return;
+	}
+
+	/**
+	 *	Get list of AttributeSet classes loaded
+	 */
+
 	TArray<TSubclassOf<UAttributeSet>> ClassList;
 	for (TObjectIterator<UClass> ClassIt; ClassIt; ++ClassIt)
 	{
@@ -27,12 +130,56 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 		}
 	}
 
-	// UE_LOG(LogTemp, Warning, TEXT("AttributeSetInitter: NUm attribute set classes %d"), ClassList.Num());
-	// for (TSubclassOf<UAttributeSet> Class : ClassList)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("\t%s"), *Class->GetName());
-	// }
+	UE_LOG(LogTemp, Warning, TEXT("AttributeSetInitter: NUm attribute set classes %d"), ClassList.Num());
+	for (TSubclassOf<UAttributeSet> Class : ClassList)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("\t%s"), *Class->GetName());
+	}
 
+	// UE_LOG(LogTemp, Warning, TEXT("Raw Data"));
+	int NumColumns = 0;
+	TMap<FString, float> CompressedRows; 
+	for (const UCurveTable* CurTable : CurveData)
+	{
+		for (const TPair<FName, FRealCurve*>& CurveRow : CurTable->GetRowMap())
+		{
+			FString RowName = CurveRow.Key.ToString();
+			FRealCurve* Curve = CurveRow.Value;
+			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			{
+				const FKeyHandle& KeyHandle = *KeyIter;
+				TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+				int32 Level = LevelValuePair.Key;
+				NumColumns = FMath::Max(NumColumns, Level);
+				// UE_LOG(LogTemp, Warning, TEXT("%s (%d): %f"), *RowName, Level, LevelValuePair.Value);
+			}
+		}
+
+		for (const TPair<FName, FRealCurve*>& CurveRow : CurTable->GetRowMap())
+		{
+			FString RowName = CurveRow.Key.ToString();
+			FRealCurve* Curve = CurveRow.Value;
+			if (Curve->GetNumKeys() == 2)
+			{
+				float FirstValue = Curve->GetKeyValue(Curve->GetFirstKeyHandle());
+				float LastKeyValue = Curve->GetKeyValue(Curve->GetLastKeyHandle());
+				float Diff = (LastKeyValue - FirstValue);
+				float Step = Diff == 0 ? 0 : (LastKeyValue - FirstValue) / static_cast<float>(NumColumns - 1);
+				CompressedRows.Add(RowName, Step);
+				// UE_LOG(LogTemp, Warning, TEXT("Found compressed row %s: %f (%f, %f)"), *RowName, Step, Diff, Step);
+			}
+			// for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			// {
+			// 	const FKeyHandle& KeyHandle = *KeyIter;
+			// 	TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+			// 	int32 Level = LevelValuePair.Key;
+			// 	NumColumns = FMath::Max(NumColumns, Level);
+			// 	UE_LOG(LogTemp, Warning, TEXT("%s (%d): %f"), *RowName, Level, LevelValuePair.Value);
+			// }
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Filtered Data"));
 	/**
 	 *	Loop through CurveData table and build sets of Defaults that keyed off of Name + Level
 	 */
@@ -106,30 +253,44 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 				continue;
 			}
 
-			int MaxLevel = -1;
-			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
-			{
-				const FKeyHandle& KeyHandle = *KeyIter;
-
-				TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
-				int32 Level = LevelValuePair.Key;
-				MaxLevel = FMath::Max(Level, MaxLevel);
-			}
+			// int MaxLevel = -1;
+			// for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			// {
+			// 	const FKeyHandle& KeyHandle = *KeyIter;
+			//
+			// 	TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+			// 	int32 Level = LevelValuePair.Key;
+			// 	MaxLevel = FMath::Max(Level, MaxLevel);
+			//
+			// 	UE_LOG(LogTemp, Warning, TEXT("%s (%d): %f"), *RowName, Level, LevelValuePair.Value);
+			// }
 
 			int32 LastLevel = Curve->GetKeyTime(Curve->GetLastKeyHandle());
-			DefaultCollection.LevelData.SetNum(MaxLevel);
+			// DefaultCollection.LevelData.SetNum(MaxLevel);
+			DefaultCollection.LevelData.SetNum(NumColumns);
 
-			//At this point we know the Name of this "class"/"group", the AttributeSet, and the Property Name. Now loop through the values on the curve to get the attribute default value at each level.
-			for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			float PreviousValidValue = -1.0f;
+			for (int Level = 1; Level <= NumColumns; ++Level)
 			{
-				const FKeyHandle& KeyHandle = *KeyIter;
-
-				TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
-				int32 Level = LevelValuePair.Key;
-				float Value = LevelValuePair.Value;
+				int Value = 0.0f;
+				
+				if (Curve->KeyExistsAtTime(Level))
+				{
+					const FKeyHandle& KeyHandle = Curve->FindKey(Level);
+					TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+					Value = LevelValuePair.Value;
+					PreviousValidValue = Value;
+				}
+				else
+				{
+					Value = PreviousValidValue;
+					if (auto Step = CompressedRows.Find(RowName))
+					{
+						Value += (*Step) * (Level - 1);
+					}
+				}
 
 				FAttributeSetDefaults& SetDefaults = DefaultCollection.LevelData[Level - 1];
-
 				FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Set);
 				if (DefaultDataList == nullptr)
 				{
@@ -143,6 +304,31 @@ void FFPGAAttributeSetInitter::PreloadAttributeSetData(const TArray<UCurveTable*
 				check(DefaultDataList);
 				DefaultDataList->AddPair(Property, Value);
 			}
+
+			// //At this point we know the Name of this "class"/"group", the AttributeSet, and the Property Name. Now loop through the values on the curve to get the attribute default value at each level.
+			// for (auto KeyIter = Curve->GetKeyHandleIterator(); KeyIter; ++KeyIter)
+			// {
+			// 	const FKeyHandle& KeyHandle = *KeyIter;
+			//
+			// 	TPair<float, float> LevelValuePair = Curve->GetKeyTimeValuePair(KeyHandle);
+			// 	int32 Level = LevelValuePair.Key;
+			// 	float Value = LevelValuePair.Value;
+			//
+			// 	FAttributeSetDefaults& SetDefaults = DefaultCollection.LevelData[Level - 1];
+			//
+			// 	FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.Find(Set);
+			// 	if (DefaultDataList == nullptr)
+			// 	{
+			// 		ABILITY_LOG(Verbose, TEXT("Initializing new default set for %s[%d]. PropertySize: %d.. DefaultSize: %d"), *Set->GetName(), Level, Set->GetPropertiesSize(), UAttributeSet::StaticClass()->GetPropertiesSize());
+			//
+			// 		DefaultDataList = &SetDefaults.DataMap.Add(Set);
+			// 	}
+			//
+			// 	// Import curve value into default data
+			//
+			// 	check(DefaultDataList);
+			// 	DefaultDataList->AddPair(Property, Value);
+			// }
 		}
 	}
 
