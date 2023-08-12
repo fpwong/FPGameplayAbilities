@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "Engine/Texture2D.h"
+#include "GameplayTagContainer.h"
 #include "FPGameplayAbilities/Targeting/FPGATargetType.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "Perception/AISense.h"
 #include "FPGAHelperLibrary.generated.h"
+
+struct FGameplayTagCountContainer;
 
 UCLASS()
 class FPGAMEPLAYABILITIES_API UFPGAHelperLibrary : public UBlueprintFunctionLibrary
@@ -27,4 +29,6 @@ public:
 	{
 		return IsTargetTypeFlagChecked(TargetTypeFlags, StaticCast<int32>(InFlag));
 	}
+
+	static TMap<FGameplayTag, int32> GetTagCountMapping(const FGameplayTagCountContainer& TagCountContainer);
 };
