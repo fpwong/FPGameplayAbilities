@@ -83,8 +83,9 @@ void UFPGAAttributeBar::SetMaxValue(float NewMaxValue)
 
 void UFPGAAttributeBar::UpdatePercent()
 {
-	const bool bIsZero = CurrentValue == 0 || MaxValue == 0;
-	const float NewPercent = bIsZero ? 0 : CurrentValue / MaxValue;
+	const float Max = GetMaxValue();
+	const bool bIsZero = CurrentValue == 0 || Max == 0;
+	const float NewPercent = bIsZero ? 0 : CurrentValue / Max;
 	const float OldPercent = NewPercent;
 
  	SetPercent(NewPercent);
@@ -97,6 +98,11 @@ void UFPGAAttributeBar::BeginDestroy()
 	UnbindAttributes();
 
 	UProgressBar::BeginDestroy();
+}
+
+float UFPGAAttributeBar::GetMaxValue_Implementation()
+{
+	return MaxValue;
 }
 
 #if WITH_EDITOR

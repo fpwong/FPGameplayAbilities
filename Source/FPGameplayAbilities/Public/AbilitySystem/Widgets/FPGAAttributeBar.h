@@ -60,9 +60,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetCurrentValue() const { return CurrentValue; }
 
-	UFUNCTION(BlueprintPure)
-	float GetMaxValue() const { return MaxValue; }
-	
+	UFUNCTION(BlueprintNativeEvent)
+	float GetMaxValue();
 
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory() override;
