@@ -21,5 +21,7 @@ class FPGAMEPLAYABILITIES_API IFPGAGameplayAbilityInterface
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	TSubclassOf<UGameplayAbility> GetAbilityByTag(FGameplayTag GameplayTag); 
+	TSubclassOf<UGameplayAbility> GetAbilityByTag(FGameplayTag GameplayTag);
+
+	virtual int GetInitialLevel() { return 1; }
 };
