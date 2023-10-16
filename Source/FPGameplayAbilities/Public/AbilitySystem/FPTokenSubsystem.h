@@ -17,6 +17,8 @@ class FPGAMEPLAYABILITIES_API UFPTokenSubsystem : public UEngineSubsystem
 	GENERATED_BODY()
 
 public:
+	static UFPTokenSubsystem& Get();
+
 	UFUNCTION(BlueprintCallable)
 	UGameplayEffect* FindOrAddTokenEffect(FGameplayTag Tag, FGameplayAttribute Attribute);
 

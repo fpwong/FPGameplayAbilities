@@ -243,6 +243,17 @@ int32 UFPGAGameplayAbilitiesLibrary::RemoveGameplayEffect(UGameplayEffect* Effec
 	return AbilitySystem->RemoveActiveEffects(Query, StacksToRemove);
 }
 
+int32 UFPGAGameplayAbilitiesLibrary::GetGameplayEffectCount(UAbilitySystemComponent* AbilitySystem, UGameplayEffect* Effect)
+{
+	FGameplayEffectQuery Query;
+	Query.CustomMatchDelegate.BindLambda([EffectDef = Effect](const FActiveGameplayEffect& CurEffect)
+	{
+		return CurEffect.Spec.Def && EffectDef == CurEffect.Spec.Def;
+	});
+
+	return AbilitySystem->GetAggregatedStackCount(Query);
+}
+
 bool UFPGAGameplayAbilitiesLibrary::TryActivateAbility(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle AbilityToActivate, bool bAllowRemoteActivation)
 {
 	if (!AbilitySystem)

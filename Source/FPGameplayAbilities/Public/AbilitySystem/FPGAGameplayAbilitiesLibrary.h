@@ -80,6 +80,8 @@ public:
 		UAbilitySystemComponent* AbilitySystem,
 		int32 StacksToRemove = 1);
 
+	static int32 GetGameplayEffectCount(UAbilitySystemComponent* AbilitySystem, UGameplayEffect* Effect);
+
 	/**
 	* Attempts to activate the given ability, will check costs and requirements before doing so.
 	* Returns true if it thinks it activated, but it may return false positives due to failure later in activation.

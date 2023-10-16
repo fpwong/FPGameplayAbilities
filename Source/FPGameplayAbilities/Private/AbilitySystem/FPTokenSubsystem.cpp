@@ -1,8 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "FPTokenSubsystem.h"
+#include "AbilitySystem/FPTokenSubsystem.h"
 
 #include "GameplayEffect.h"
+
+UFPTokenSubsystem& UFPTokenSubsystem::Get()
+{
+	return *GEngine->GetEngineSubsystem<UFPTokenSubsystem>();
+}
 
 UGameplayEffect* UFPTokenSubsystem::FindOrAddTokenEffect(FGameplayTag Tag, FGameplayAttribute Attribute)
 {
