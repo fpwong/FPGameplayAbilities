@@ -794,11 +794,28 @@ bool UFPGAGameplayAbilitiesLibrary::EvaluateTargetFilterTaskSet(FFPTargetFilterT
 	return TaskSet.DoesFilterPass(SourceActor, TargetActor);
 }
 
-//FGameplayTargetDataFilterHandle UFPGAGameplayAbilitiesLibrary::MakeFPGAFilterHandle(FFPGAGameplayTargetDataFilter Filter, AActor* FilterActor)
-//{
-//	FGameplayTargetDataFilterHandle FilterHandle;
-//	FFPGAGameplayTargetDataFilter* NewFilter = new FFPGAGameplayTargetDataFilter(Filter);
-//	NewFilter->InitializeFilterContext(FilterActor);
-//	FilterHandle.Filter = TSharedPtr<FGameplayTargetDataFilter>(NewFilter);
-//	return FilterHandle;
-//}
+bool UFPGAGameplayAbilitiesLibrary::EvaluateGameplayEffectModifierMagnitude(UAbilitySystemComponent* AbilitySystem, const FGameplayEffectModifierMagnitude& ModifierMagnitude, float& OutValue)
+{
+	if (!AbilitySystem)
+	{
+		return false;
+	}
+
+	TArray<FGameplayEffectAttributeCaptureDefinition> CaptureDefs;
+	ModifierMagnitude.GetAttributeCaptureDefinitions(CaptureDefs);
+	FGameplayEffectSpec Spec;
+
+	for (FGameplayEffectAttributeCaptureDefinition CaptureDef : CaptureDefs)
+	{
+		Spec.CapturedRelevantAttributes.AddCaptureDefinition(CaptureDef);
+	}
+
+	Spec.CapturedRelevantAttributes.CaptureAttributes(AbilitySystem, EGameplayEffectAttributeCaptureSource::Source);
+
+	if (ModifierMagnitude.AttemptCalculateMagnitude(Spec, OutValue))
+	{
+		return true;
+	}
+
+	return false;
+}
