@@ -66,6 +66,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static void ExecuteGameplayCueForAbilitySystem(UAbilitySystemComponent* AbilitySystem, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
 
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
+	static FActiveGameplayEffectHandle ApplyGameplayEffect(
+		UGameplayEffect* Effect, 
+		UAbilitySystemComponent* Source, 
+		UAbilitySystemComponent* Target,
+		float Level,
+		FGameplayEffectContextHandle Context);
+
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
+	static int32 RemoveGameplayEffect(
+		UGameplayEffect* Effect, 
+		UAbilitySystemComponent* AbilitySystem,
+		int32 StacksToRemove = 1);
+
 	/**
 	* Attempts to activate the given ability, will check costs and requirements before doing so.
 	* Returns true if it thinks it activated, but it may return false positives due to failure later in activation.

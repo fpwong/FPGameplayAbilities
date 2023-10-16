@@ -212,6 +212,37 @@ void UFPGAGameplayAbilitiesLibrary::ExecuteGameplayCueForAbilitySystem(UAbilityS
 	AbilitySystem->ExecuteGameplayCue(GameplayCueTag, GameplayCueParameters);
 }
 
+FActiveGameplayEffectHandle UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(
+	UGameplayEffect* Effect, 
+	UAbilitySystemComponent* Source, 
+	UAbilitySystemComponent* Target,
+	float Level,
+	FGameplayEffectContextHandle Context)
+{
+	if (Source && Target && Effect)
+	{
+		return Source->ApplyGameplayEffectToTarget(Effect, Target, Level, Context);
+	}
+
+	return FActiveGameplayEffectHandle();
+}
+
+int32 UFPGAGameplayAbilitiesLibrary::RemoveGameplayEffect(UGameplayEffect* Effect, UAbilitySystemComponent* AbilitySystem, int32 StacksToRemove)
+{
+	if (!Effect || !AbilitySystem)
+	{
+		return 0;
+	}
+
+	FGameplayEffectQuery Query;
+	Query.CustomMatchDelegate.BindLambda([EffectDef = Effect](const FActiveGameplayEffect& CurEffect)
+	{
+		return CurEffect.Spec.Def && EffectDef == CurEffect.Spec.Def;
+	});
+
+	return AbilitySystem->RemoveActiveEffects(Query, StacksToRemove);
+}
+
 bool UFPGAGameplayAbilitiesLibrary::TryActivateAbility(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle AbilityToActivate, bool bAllowRemoteActivation)
 {
 	if (!AbilitySystem)
