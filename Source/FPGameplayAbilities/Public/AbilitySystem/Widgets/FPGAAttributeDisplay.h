@@ -6,6 +6,7 @@
 #include "Components/TextBlock.h"
 #include "AttributeSet.h"
 #include "CommonTextBlock.h"
+#include "GameplayTagContainer.h"
 #include "FPGAAttributeDisplay.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFPGAAttributeDisplayChanged, float, OldValue, float, NewValue);
@@ -26,11 +27,17 @@ public:
 	bool bNeedToUnbind = false;
 
 	/** The attribute */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttribute Attribute;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer AttributeTags;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;
+
+	UPROPERTY()
+	float OldValue = 0.0f;
 
 	UFPGAAttributeDisplay();
 
@@ -43,6 +50,8 @@ public:
 	void UnbindAttribute();
 
 	void OnAttributeChanged(const FOnAttributeChangeData& ChangeData);
+
+	void UpdateAttributeValue(bool bBroadcastChange);
 
 	virtual void BeginDestroy() override;
 

@@ -3,6 +3,7 @@
 #include "AbilitySystem/Widgets/FPGAAttributeDisplayMax.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 
 void UFPGAAttributeDisplayMax::BindToAbilitySystem(UAbilitySystemComponent* AbilitySystem)
 {
@@ -32,8 +33,8 @@ void UFPGAAttributeDisplayMax::UpdateText()
 {
 	if (CurrentAttribute.IsValid() && MaxAttribute.IsValid())
 	{
-		const int Current = FMath::CeilToInt(BoundAbilitySystem->GetNumericAttribute(CurrentAttribute));
-		const int Max = FMath::CeilToInt(BoundAbilitySystem->GetNumericAttribute(MaxAttribute));
+		const int Current = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), CurrentAttribute, CurrentAttributeTags));
+		const int Max = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), MaxAttribute, MaxAttributeTags));
 		SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), Current, Max)));
 	}
 }

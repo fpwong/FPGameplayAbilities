@@ -250,4 +250,7 @@ public:
 	static bool EvaluateTargetFilterTaskSet(struct FFPTargetFilterTaskSet TaskSet, const AActor* SourceActor, const AActor* TargetActor);
 
 	static bool EvaluateGameplayEffectModifierMagnitude(UAbilitySystemComponent* AbilitySystem, const FGameplayEffectModifierMagnitude& ModifierMagnitude, float& OutValue);
+
+	UFUNCTION(BlueprintCallable, Category = TargetFilter)
+	static float GetAttributeValueWithTags(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, const FGameplayTagContainer& Tags);
 };

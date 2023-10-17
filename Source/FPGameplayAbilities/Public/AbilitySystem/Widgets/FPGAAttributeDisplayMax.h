@@ -14,11 +14,17 @@ class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplayMax : public UCommonTextBlock
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttribute CurrentAttribute;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer CurrentAttributeTags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttribute MaxAttribute;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer MaxAttributeTags;
 
 	UFUNCTION(BlueprintCallable)
 	void BindToAbilitySystem(UAbilitySystemComponent* AbilitySystem);

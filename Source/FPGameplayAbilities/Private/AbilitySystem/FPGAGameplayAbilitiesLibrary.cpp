@@ -830,3 +830,29 @@ bool UFPGAGameplayAbilitiesLibrary::EvaluateGameplayEffectModifierMagnitude(UAbi
 
 	return false;
 }
+
+float UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, const FGameplayTagContainer& Tags)
+{
+	if (!AbilitySystem)
+	{
+		return 0;
+	}
+
+	if (Tags.IsEmpty())
+	{
+		return AbilitySystem->GetNumericAttribute(Attribute);
+	}
+
+	FGameplayEffectAttributeCaptureDefinition Capture(Attribute, EGameplayEffectAttributeCaptureSource::Source, true);
+
+	FGameplayEffectAttributeCaptureSpec CaptureSpec(Capture);
+	AbilitySystem->CaptureAttributeForGameplayEffect(CaptureSpec);
+
+	FAggregatorEvaluateParameters EvalParams;
+
+	EvalParams.SourceTags = &Tags;
+
+	float RetVal = 0;
+	CaptureSpec.AttemptCalculateAttributeMagnitude(EvalParams, RetVal);
+	return RetVal;
+}

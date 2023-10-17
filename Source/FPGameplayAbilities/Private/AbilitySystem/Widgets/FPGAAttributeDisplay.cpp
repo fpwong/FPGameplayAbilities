@@ -2,10 +2,10 @@
 
 #include "AbilitySystem/Widgets/FPGAAttributeDisplay.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 
 UFPGAAttributeDisplay::UFPGAAttributeDisplay()
 {
-	Text = FText::FromString("0");
 }
 
 void UFPGAAttributeDisplay::BindAttribute(UAbilitySystemComponent* AbilitySystem)
@@ -19,18 +19,7 @@ void UFPGAAttributeDisplay::BindAttribute(UAbilitySystemComponent* AbilitySystem
 		DelegateHandle = AbilitySystemPtr->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(this, &UFPGAAttributeDisplay::OnAttributeChanged);
 		bNeedToUnbind = true;
 
-		const float AttributeValue = AbilitySystemPtr->GetNumericAttribute(Attribute);
-		// const int Ceil = FMath::CeilToInt(AttributeValue);
-		// const FText AttributeText = FText::FromString(FString::Printf(TEXT("%.1f"), AttributeValue));
-
-		static const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions()
-															 .SetMinimumFractionalDigits(0)
-															 .SetMaximumFractionalDigits(3);
-
-		const FText AttributeText = FText::AsNumber(AttributeValue, &NumberFormat);
-
-		SetText(AttributeText);
-		OnAttributeDisplayChanged.Broadcast(0.f, AttributeValue);
+		UpdateAttributeValue(false);
 	}
 	else
 	{
@@ -81,17 +70,25 @@ void UFPGAAttributeDisplay::UnbindAttribute()
 
 void UFPGAAttributeDisplay::OnAttributeChanged(const FOnAttributeChangeData& ChangeData)
 {
-	// const FText AttributeText = FText::FromString(FString::Printf(TEXT("%f"), ChangeData.NewValue));
+	UpdateAttributeValue(true);
+}
 
-	static const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions()
-														 .SetMinimumFractionalDigits(0)
-														 .SetMaximumFractionalDigits(3);
+void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
+{
+	const float AttributeValue = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags));
 
-	const FText AttributeText = FText::AsNumber(ChangeData.NewValue, &NumberFormat);
+	static const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions().SetMinimumFractionalDigits(0).SetMaximumFractionalDigits(3);
 
-	const float OldValue = ChangeData.OldValue;
+	const FText AttributeText = FText::AsNumber(AttributeValue, &NumberFormat);
+
 	SetText(AttributeText);
-	OnAttributeDisplayChanged.Broadcast(ChangeData.OldValue, ChangeData.NewValue);
+
+	if (bBroadcastChange)
+	{
+		OnAttributeDisplayChanged.Broadcast(OldValue, AttributeValue);
+	}
+
+	OldValue = AttributeValue;
 }
 
 void UFPGAAttributeDisplay::BeginDestroy()
