@@ -23,5 +23,5 @@ public:
 	UGameplayEffect* FindOrAddTokenEffect(FGameplayTag Tag, FGameplayAttribute Attribute);
 
 	UPROPERTY()
-	TMap<FGameplayTag, UGameplayEffect*> TokenMap;
+	TMap<int32, UGameplayEffect*> TokenMap;
 };

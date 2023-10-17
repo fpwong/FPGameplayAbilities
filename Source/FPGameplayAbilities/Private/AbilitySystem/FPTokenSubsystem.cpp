@@ -11,12 +11,14 @@ UFPTokenSubsystem& UFPTokenSubsystem::Get()
 
 UGameplayEffect* UFPTokenSubsystem::FindOrAddTokenEffect(FGameplayTag Tag, FGameplayAttribute Attribute)
 {
-	if (TokenMap.Contains(Tag))
+	const int32 Hash = HashCombine(GetTypeHash(Tag), GetTypeHash(Attribute));
+
+	if (TokenMap.Contains(Hash))
 	{
-		return TokenMap[Tag];
+		return TokenMap[Hash];
 	}
 
-	FString Name = Tag.GetTagName().ToString() + "_Token";
+	FString Name = Tag.GetTagName().ToString() + "_" + Attribute.AttributeName;
 
 	UGameplayEffect* TokenEffect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(Name));
 	TokenEffect->DurationPolicy = EGameplayEffectDurationType::Infinite;
@@ -28,6 +30,8 @@ UGameplayEffect* UFPTokenSubsystem::FindOrAddTokenEffect(FGameplayTag Tag, FGame
 	ModInfo.SourceTags.RequireTags.AddTag(Tag);
 	TokenEffect->Modifiers.Add(ModInfo);
 
-	TokenMap.Add(Tag, TokenEffect);
+	UE_LOG(LogTemp, Display, TEXT("Added new GE %d %s"), Hash, *Name);
+
+	TokenMap.Add(Hash, TokenEffect);
 	return TokenEffect;
 }
