@@ -54,16 +54,18 @@ void UFPGAOverlapManager::BindToPrimitiveComponent(UPrimitiveComponent* Componen
 		return;
 	}
 
-	TArray<AActor*> InitialOverlappingActors;
-	Component->GetOverlappingActors(InitialOverlappingActors);
-
-	for (AActor* InitialOverlapping : InitialOverlappingActors)
-	{
-		HandleBeginOverlap(InitialOverlapping);
-	}
+	// TArray<AActor*> InitialOverlappingActors;
+	// Component->GetOverlappingActors(InitialOverlappingActors);
+	//
+	// for (AActor* InitialOverlapping : InitialOverlappingActors)
+	// {
+	// 	HandleBeginOverlap(InitialOverlapping);
+	// }
 
 	Component->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnPrimitiveBeginOverlap);
 	Component->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnPrimitiveEndOverlap);
+
+	Component->UpdateOverlaps();
 }
 
 void UFPGAOverlapManager::BindToActor(AActor* Actor)
@@ -74,16 +76,18 @@ void UFPGAOverlapManager::BindToActor(AActor* Actor)
 		return;
 	}
 
-	TArray<AActor*> InitialOverlappingActors;
-	Actor->GetOverlappingActors(InitialOverlappingActors);
-
-	for (AActor* InitialOverlapping : InitialOverlappingActors)
-	{
-		HandleBeginOverlap(InitialOverlapping);
-	}
+	// TArray<AActor*> InitialOverlappingActors;
+	// Actor->GetOverlappingActors(InitialOverlappingActors);
+	//
+	// for (AActor* InitialOverlapping : InitialOverlappingActors)
+	// {
+	// 	HandleBeginOverlap(InitialOverlapping);
+	// }
 
 	Actor->OnActorBeginOverlap.AddDynamic(this, &UFPGAOverlapManager::OnActorBeginOverlap);
 	Actor->OnActorEndOverlap.AddDynamic(this, &UFPGAOverlapManager::OnActorEndOverlap);
+
+	Actor->UpdateOverlaps(true);
 }
 
 void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilterTaskSet)
@@ -93,7 +97,7 @@ void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilte
 
 void UFPGAOverlapManager::HandleBeginOverlap(AActor* OtherActor)
 {
-	if (SourceActorPtr.IsValid())
+	// if (SourceActorPtr.IsValid())
 	{
 		TSharedRef<FFPGAOverlapInstance> OverlapInstance = MakeShared<FFPGAOverlapInstance>(FilterTaskset, SourceActorPtr.Get(), OtherActor);
 		OverlapInstance->OngoingFilterTaskset.OnResultChanged.AddUObject(this, &ThisClass::OnFilterResultChanged);
@@ -117,11 +121,13 @@ void UFPGAOverlapManager::HandleEndOverlap(AActor* OtherActor)
 		{
 			ValidOverlappingActors.Remove(OtherActor);
 			OnEndOverlap.Broadcast(OtherActor);
-			// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Red, false, 1.0f);
+			// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 400.0f, 8, FColor::Red, false, 1.0f);
 		}
 
 		AllOverlappingActors.Remove(OtherActor);
 	}
+
+	// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Red, false, 1.0f);
 }
 
 void UFPGAOverlapManager::OnActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
