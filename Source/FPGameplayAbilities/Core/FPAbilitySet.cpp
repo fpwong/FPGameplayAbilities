@@ -12,7 +12,7 @@ namespace FPAbilitySetHandle_Impl
 	static int32 GetNextQueuedHandleIdForUse() { return ++LastHandleId; }
 }
 
-bool FFPAbilitySetHandle::IsValid()
+bool FFPAbilitySetHandle::IsValid() const
 {
 	return HandleId > 0;
 }
@@ -72,11 +72,14 @@ FFPAbilitySetHandle FFPAbilitySet::GiveAbilitySetTo(UAbilitySystemComponent* ASC
 
 FFPAbilitySetHandle FFPAbilitySet::GiveAbilityWithParameters(UAbilitySystemComponent* ASC, const FFPAbilitySetParameters& Parameters, UObject* OverrideSourceObject) const
 {
-	check(ASC);
-
-	if (!ASC->IsOwnerActorAuthoritative())
+	if (!ASC || !ASC->IsOwnerActorAuthoritative())
 	{
 		// Must be authoritative to give or take ability sets.
+		return FFPAbilitySetHandle();
+	}
+
+	if (GrantedGameplayAbilities.Num() == 0 && GrantedGameplayEffects.Num() == 0)
+	{
 		return FFPAbilitySetHandle();
 	}
 
@@ -196,4 +199,9 @@ void UFPAbilitySetLibrary::RemoveAbilitySet(FFPAbilitySetHandle& AbilitySetHandl
 FFPAbilitySetHandle UFPAbilitySetLibrary::GiveAbilitySet(const FFPAbilitySet& AbilitySet, UAbilitySystemComponent* AbilitySystem, UObject* OverrideSourceObject)
 {
 	return AbilitySet.GiveAbilitySetTo(AbilitySystem, OverrideSourceObject);
+}
+
+FFPAbilitySetHandle UFPAbilitySetLibrary::GiveAbilitySetWithParams(UAbilitySystemComponent* ASC, const FFPAbilitySet& AbilitySet, const FFPAbilitySetParameters& Parameters, UObject* OverrideSourceObject)
+{
+	return AbilitySet.GiveAbilityWithParameters(ASC, Parameters, OverrideSourceObject);
 }

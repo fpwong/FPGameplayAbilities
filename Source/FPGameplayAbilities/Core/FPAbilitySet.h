@@ -21,7 +21,7 @@ struct FPGAMEPLAYABILITIES_API FFPAbilitySetParameters
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FFPSetByCallerMagnitude> SetByCallerMagnitudes;
 };
 
@@ -79,7 +79,7 @@ public:
 	// UPROPERTY(Transient)
 	// TArray<TWeakObjectPtr<UAttributeSet>> GrantedAttributeSets;
 
-	bool IsValid();
+	bool IsValid() const;
 
 	void Reset();
 
@@ -121,8 +121,14 @@ class FPGAMEPLAYABILITIES_API UFPAbilitySetLibrary final : public UBlueprintFunc
 
 public:
 	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
-	static void RemoveAbilitySet(FFPAbilitySetHandle& AbilitySetHandle);
+	static void RemoveAbilitySet(UPARAM(ref) FFPAbilitySetHandle& AbilitySetHandle);
 
 	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
 	static FFPAbilitySetHandle GiveAbilitySet(const FFPAbilitySet& AbilitySet, UAbilitySystemComponent* AbilitySystem, UObject* OverrideSourceObject);
+
+	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
+	static FFPAbilitySetHandle GiveAbilitySetWithParams(UAbilitySystemComponent* ASC, const FFPAbilitySet& AbilitySet, const FFPAbilitySetParameters& Parameters, UObject* OverrideSourceObject);
+
+	UFUNCTION(BlueprintCallable, Category = FPAbilitySet, meta=(DisplayName="IsValid"))
+	static bool IsAbilitySetHandleValid(const FFPAbilitySetHandle& Handle) { return Handle.IsValid(); }
 };

@@ -47,10 +47,10 @@ struct FPGAMEPLAYABILITIES_API FFPSetByCallerMagnitude
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGameplayTag DataTag;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Magnitude;
 };
 
