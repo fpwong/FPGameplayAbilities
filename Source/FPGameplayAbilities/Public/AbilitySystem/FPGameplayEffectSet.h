@@ -42,7 +42,19 @@ public:
 	TArray<FGameplayEffectSpecHandle> EffectSpecs;
 
 public:
-	FFPGameplayEffectSetHandle ApplyGameplayEffectSet(UAbilitySystemComponent* TargetASC) const;
+	FFPGameplayEffectSetHandle ApplyGameplayEffectSet(UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC) const;
+};
+
+USTRUCT(BlueprintType)
+struct FPGAMEPLAYABILITIES_API FFPGameplayEffectSetList
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<TWeakObjectPtr<AActor>, FFPGameplayEffectSetHandle> ActiveSets;
+
+	FFPGameplayEffectSetHandle ApplyEffectSetToActor(const FFPGameplayEffectSet& EffectSet, UAbilitySystemComponent* SourceASC, AActor* Actor);
+	bool RemoveActor(AActor* Actor);
 };
 
 UCLASS()
@@ -55,7 +67,19 @@ public:
 	static FFPGameplayEffectSet MakeGameplayEffectSetFromClass(UAbilitySystemComponent* ASC, TArray<FFPGrantedGameplayEffect> GameplayEffects);
 
 	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
-	static FFPGameplayEffectSetHandle ApplyGameplayEffectSet(const FFPGameplayEffectSet& AbilitySet, UAbilitySystemComponent* TargetASC);
+	static FFPGameplayEffectSetHandle ApplyGameplayEffectSet(const FFPGameplayEffectSet& AbilitySet, UAbilitySystemComponent* SourceASC, UAbilitySystemComponent* TargetASC);
+
+	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
+	static FFPGameplayEffectSetHandle AddToGameplayEffectSetList(UPARAM(ref) FFPGameplayEffectSetList& List, const FFPGameplayEffectSet& EffectSet, UAbilitySystemComponent* SourceASC, AActor* Actor)
+	{
+		return List.ApplyEffectSetToActor(EffectSet, SourceASC, Actor);
+	}
+
+	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
+	static bool RemoveFromGameplayEffectSetList(UPARAM(ref) FFPGameplayEffectSetList& List, AActor* Actor)
+	{
+		return List.RemoveActor(Actor);
+	}
 
 	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
 	static void RemoveGameplayEffectSet(UPARAM(ref) FFPGameplayEffectSetHandle& EffectSetHandle);
