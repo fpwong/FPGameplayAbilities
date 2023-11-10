@@ -4,38 +4,27 @@
 
 UFPGAAsyncTask_AttributeChanged* UFPGAAsyncTask_AttributeChanged::ListenForAttributeChange(UAbilitySystemComponent* AbilitySystemComponent, FGameplayAttribute Attribute)
 {
-	UFPGAAsyncTask_AttributeChanged* WaitForAttributeChangedTask = NewObject<UFPGAAsyncTask_AttributeChanged>();
-	WaitForAttributeChangedTask->ASC = AbilitySystemComponent;
-	WaitForAttributeChangedTask->AttributeToListenFor = Attribute;
-
 	if (!IsValid(AbilitySystemComponent) || !Attribute.IsValid())
 	{
-		WaitForAttributeChangedTask->RemoveFromRoot();
 		return nullptr;
 	}
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(WaitForAttributeChangedTask, &UFPGAAsyncTask_AttributeChanged::AttributeChanged);
-
+	UFPGAAsyncTask_AttributeChanged* WaitForAttributeChangedTask = NewObject<UFPGAAsyncTask_AttributeChanged>();
+	WaitForAttributeChangedTask->Init(AbilitySystemComponent, Attribute);
+	WaitForAttributeChangedTask->BindAttributeChanged();
 	return WaitForAttributeChangedTask;
 }
 
-UFPGAAsyncTask_AttributeChanged * UFPGAAsyncTask_AttributeChanged::ListenForAttributesChange(UAbilitySystemComponent * AbilitySystemComponent, TArray<FGameplayAttribute> Attributes)
+UFPGAAsyncTask_AttributeChanged* UFPGAAsyncTask_AttributeChanged::ListenForAttributeChangeWithTags(UAbilitySystemComponent* AbilitySystemComponent, FGameplayAttribute Attribute, FGameplayTagContainer Tags)
 {
-	UFPGAAsyncTask_AttributeChanged* WaitForAttributeChangedTask = NewObject<UFPGAAsyncTask_AttributeChanged>();
-	WaitForAttributeChangedTask->ASC = AbilitySystemComponent;
-	WaitForAttributeChangedTask->AttributesToListenFor = Attributes;
-
-	if (!IsValid(AbilitySystemComponent) || Attributes.Num() < 1)
+	if (!IsValid(AbilitySystemComponent) || !Attribute.IsValid())
 	{
-		WaitForAttributeChangedTask->RemoveFromRoot();
 		return nullptr;
 	}
 
-	for (FGameplayAttribute Attribute : Attributes)
-	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute).AddUObject(WaitForAttributeChangedTask, &UFPGAAsyncTask_AttributeChanged::AttributeChanged);
-	}
-
+	UFPGAAsyncTask_AttributeChanged* WaitForAttributeChangedTask = NewObject<UFPGAAsyncTask_AttributeChanged>();
+	WaitForAttributeChangedTask->Init(AbilitySystemComponent, Attribute);
+	WaitForAttributeChangedTask->BindAttributeChangedWithTags(Tags);
 	return WaitForAttributeChangedTask;
 }
 
@@ -43,19 +32,74 @@ void UFPGAAsyncTask_AttributeChanged::EndTask()
 {
 	if (IsValid(ASC))
 	{
-		ASC->GetGameplayAttributeValueChangeDelegate(AttributeToListenFor).RemoveAll(this);
-
-		for (FGameplayAttribute Attribute : AttributesToListenFor)
+		if (IsValid(ASC->GetOwner()))
 		{
-			ASC->GetGameplayAttributeValueChangeDelegate(Attribute).RemoveAll(this);
+			ASC->GetOwner()->OnDestroyed.RemoveAll(this);
 		}
+
+		ASC->GetGameplayAttributeValueChangeDelegate(AttributeToListenFor).RemoveAll(this);
 	}
 
 	SetReadyToDestroy();
-	MarkPendingKill();
+	MarkAsGarbage();
+}
+
+void UFPGAAsyncTask_AttributeChanged::Init(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayAttribute& Attribute)
+{
+	ASC = AbilitySystemComponent;
+	AttributeToListenFor = Attribute;
+	ASC->GetOwner()->OnDestroyed.AddDynamic(this, &UFPGAAsyncTask_AttributeChanged::OnActorDestroyed);
+}
+
+void UFPGAAsyncTask_AttributeChanged::BindAttributeChanged()
+{
+	ASC->GetGameplayAttributeValueChangeDelegate(AttributeToListenFor).AddUObject(this, &UFPGAAsyncTask_AttributeChanged::AttributeChanged);
+}
+
+void UFPGAAsyncTask_AttributeChanged::BindAttributeChangedWithTags(const FGameplayTagContainer& Tags)
+{
+	const FGameplayEffectAttributeCaptureDefinition Capture(AttributeToListenFor, EGameplayEffectAttributeCaptureSource::Source, false);
+	CaptureSpec = FGameplayEffectAttributeCaptureSpec(Capture);
+	ASC->CaptureAttributeForGameplayEffect(CaptureSpec);
+
+	EvalTags = Tags;
+	EvalParams.SourceTags = &EvalTags;
+
+	ASC->GetGameplayAttributeValueChangeDelegate(AttributeToListenFor).AddUObject(this, &UFPGAAsyncTask_AttributeChanged::AttributeChangedWithTags);
+
+	OldCalculatedValue = CalculateAttributeValue();
 }
 
 void UFPGAAsyncTask_AttributeChanged::AttributeChanged(const FOnAttributeChangeData & Data)
 {
 	OnAttributeChanged.Broadcast(Data.Attribute, Data.NewValue, Data.OldValue);
+}
+
+void UFPGAAsyncTask_AttributeChanged::AttributeChangedWithTags(const FOnAttributeChangeData& Data)
+{
+	const float NewValue = CalculateAttributeValue();
+	if (NewValue != OldCalculatedValue)
+	{
+		OnAttributeChanged.Broadcast(Data.Attribute, NewValue, OldCalculatedValue);
+		OldCalculatedValue = NewValue;
+	}
+}
+
+float UFPGAAsyncTask_AttributeChanged::CalculateAttributeValue()
+{
+	if (EvalTags.IsEmpty())
+	{
+		return ASC->GetNumericAttribute(AttributeToListenFor);
+	}
+	else
+	{
+		float RetVal = 0;
+		CaptureSpec.AttemptCalculateAttributeMagnitude(EvalParams, RetVal);
+		return RetVal;
+	}
+}
+
+void UFPGAAsyncTask_AttributeChanged::OnActorDestroyed(AActor* DestroyedActor)
+{
+	EndTask();
 }
