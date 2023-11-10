@@ -75,7 +75,7 @@ void UFPGAAttributeDisplay::OnAttributeChanged(const FOnAttributeChangeData& Cha
 
 void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 {
-	const float AttributeValue = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags));
+	const float AttributeValue = UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags);
 
 	static const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions().SetMinimumFractionalDigits(0).SetMaximumFractionalDigits(3);
 
@@ -83,12 +83,15 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 
 	SetText(AttributeText);
 
-	if (bBroadcastChange)
+	if (OldValue != AttributeValue)
 	{
-		OnAttributeDisplayChanged.Broadcast(OldValue, AttributeValue);
-	}
+		if (bBroadcastChange)
+		{
+			OnAttributeDisplayChanged.Broadcast(OldValue, AttributeValue);
+		}
 
-	OldValue = AttributeValue;
+		OldValue = AttributeValue;
+	}
 }
 
 void UFPGAAttributeDisplay::BeginDestroy()
