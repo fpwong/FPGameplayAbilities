@@ -156,7 +156,7 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::FindInstancedAbilityFromClass(
 	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
 	{
 		UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
-		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability;
+		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability.Get();
 		return Ability;
 	}
 
@@ -337,7 +337,7 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 	if (AbilitySystem->TriggerAbilityFromGameplayEvent(Spec->Handle, AbilitySystem->AbilityActorInfo.Get(), EventTag, &EventData, *AbilitySystem))
 	{
 		UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
-		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability;
+		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability.Get();
 		if (Ability)
 		{
 			if (OnGameplayAbilityEndedDelegate)
