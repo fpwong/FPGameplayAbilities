@@ -37,12 +37,21 @@ void UFPGAUWAbilityDisplay::HandleAbilityActivate(UGameplayAbility* GameplayAbil
 	}
 }
 
+void UFPGAUWAbilityDisplay::HandleAbilityCommitted(UGameplayAbility* GameplayAbility)
+{
+	if (ActiveAbility == GameplayAbility)
+	{
+		OnAbilityCommited.Broadcast(this);
+	}
+}
+
 void UFPGAUWAbilityDisplay::InitAbility(UAbilitySystemComponent* InAbilitySystem, UGameplayAbility* InAbility)
 {
 	Ability = InAbility;
 	AbilitySystem = InAbilitySystem;
 
 	AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivate);
+	AbilitySystem->AbilityCommittedCallbacks.AddUObject(this, &ThisClass::HandleAbilityCommitted);
 
 	if (Ability && AbilityNameLabel)
 	{
@@ -57,6 +66,7 @@ void UFPGAUWAbilityDisplay::ClearAbility()
 	if (AbilitySystem)
 	{
 		AbilitySystem->AbilityActivatedCallbacks.RemoveAll(this);
+		AbilitySystem->AbilityCommittedCallbacks.RemoveAll(this);
 	}
 
 	Ability = nullptr;

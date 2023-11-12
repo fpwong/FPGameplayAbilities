@@ -34,11 +34,15 @@ public:
 
 	void HandleAbilityEnded(UGameplayAbility* GameplayAbility);
 	void HandleAbilityActivate(UGameplayAbility* GameplayAbility);
+	void HandleAbilityCommitted(UGameplayAbility* GameplayAbility);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPAbilityDisplayEvent, UFPGAUWAbilityDisplay*, AbilityDisplay);
 
 	UPROPERTY(BlueprintAssignable)
 	FFPAbilityDisplayEvent OnAbilityActivated;
+
+	UPROPERTY(BlueprintAssignable)
+	FFPAbilityDisplayEvent OnAbilityCommited;
 
 	UPROPERTY(BlueprintAssignable)
 	FFPAbilityDisplayEvent OnAbilityEnded;
