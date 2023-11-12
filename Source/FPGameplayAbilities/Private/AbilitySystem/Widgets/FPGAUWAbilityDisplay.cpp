@@ -9,18 +9,19 @@
 
 // TODO this doesn't work for non-instanced abilities?
 
-void UFPGAUWAbilityDisplay::OnAbilityEnded(UGameplayAbility* GameplayAbility)
+void UFPGAUWAbilityDisplay::HandleAbilityEnded(UGameplayAbility* GameplayAbility)
 {
-		// UE_LOG(LogTemp, Warning, TEXT("Ability ended too"));
+	// UE_LOG(LogTemp, Warning, TEXT("Ability ended too"));
 	GameplayAbility->OnGameplayAbilityEnded.RemoveAll(this);
 
 	if (ActiveAbility == GameplayAbility)
 	{
 		ActiveAbility = nullptr;
+		OnAbilityEnded.Broadcast(this);
 	}
 }
 
-void UFPGAUWAbilityDisplay::OnAbilityActivate(UGameplayAbility* GameplayAbility)
+void UFPGAUWAbilityDisplay::HandleAbilityActivate(UGameplayAbility* GameplayAbility)
 {
 	if (!Ability || !GameplayAbility)
 	{
@@ -31,7 +32,8 @@ void UFPGAUWAbilityDisplay::OnAbilityActivate(UGameplayAbility* GameplayAbility)
 	{
 		ActiveAbility = GameplayAbility;
 		// UE_LOG(LogTemp, Warning, TEXT("This is correct?"));
-		GameplayAbility->OnGameplayAbilityEnded.AddUObject(this, &ThisClass::OnAbilityEnded);
+		GameplayAbility->OnGameplayAbilityEnded.AddUObject(this, &ThisClass::HandleAbilityEnded);
+		OnAbilityActivated.Broadcast(this);
 	}
 }
 
@@ -40,10 +42,7 @@ void UFPGAUWAbilityDisplay::InitAbility(UAbilitySystemComponent* InAbilitySystem
 	Ability = InAbility;
 	AbilitySystem = InAbilitySystem;
 
-	AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::OnAbilityActivate);
-
-	// auto ASC = Ability->GetAbilitySystemComponentFromActorInfo();
-	// Ability->OnGameplayAbilityEnded;
+	AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivate);
 
 	if (Ability && AbilityNameLabel)
 	{

@@ -32,8 +32,16 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UCommonTextBlock* AbilityNameLabel;
 
-	void OnAbilityEnded(UGameplayAbility* GameplayAbility);
-	void OnAbilityActivate(UGameplayAbility* GameplayAbility);
+	void HandleAbilityEnded(UGameplayAbility* GameplayAbility);
+	void HandleAbilityActivate(UGameplayAbility* GameplayAbility);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPAbilityDisplayEvent, UFPGAUWAbilityDisplay*, AbilityDisplay);
+
+	UPROPERTY(BlueprintAssignable)
+	FFPAbilityDisplayEvent OnAbilityActivated;
+
+	UPROPERTY(BlueprintAssignable)
+	FFPAbilityDisplayEvent OnAbilityEnded;
 
 	UFUNCTION(BlueprintCallable)
 	void InitAbility(UAbilitySystemComponent* InAbilitySystem, UGameplayAbility* InAbility);
@@ -46,7 +54,13 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	FGameplayAbilitySpecHandle AbilitySpecHandle;
+
+	UPROPERTY()
 	UGameplayAbility* Ability;
+
+	UPROPERTY()
 	UGameplayAbility* ActiveAbility;
+
+	UPROPERTY()
 	UAbilitySystemComponent* AbilitySystem;
 };
