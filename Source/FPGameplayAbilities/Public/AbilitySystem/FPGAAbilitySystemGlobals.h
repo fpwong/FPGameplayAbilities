@@ -11,7 +11,16 @@ class FPGAMEPLAYABILITIES_API UFPGAAbilitySystemGlobals : public UAbilitySystemG
 {
 	GENERATED_BODY()
 
+public:
+	static UFPGAAbilitySystemGlobals* GetFPPtr();
+
+	bool bBoundToCurveTables = false;
+
+	virtual void InitAttributeDefaults() override;
+
 	virtual void AllocAttributeSetInitter() override;
 
 	virtual void InitGlobalTags() override;
+
+	virtual void OnCurveTableChanged();
 };

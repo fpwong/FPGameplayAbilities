@@ -556,14 +556,14 @@ const FAttributeDefaultValueList* FFPGAAttributeSetInitter::GetDefaultValueList(
 	const FAttributeSetDefaultsCollection* Collection = Defaults.Find(GroupName);
 	if (!Collection)
 	{
-		ABILITY_LOG(Warning, TEXT("Failed to find group collection!"));
+		ABILITY_LOG(Verbose, TEXT("Failed to find group collection! %s"), *GroupName.ToString());
 		return nullptr;
 	}
 
 	if (!Collection->LevelData.IsValidIndex(Level - 1))
 	{
 		// We could eventually extrapolate values outside of the max defined levels
-		ABILITY_LOG(Warning, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
+		ABILITY_LOG(Log, TEXT("Attribute defaults for Level %d are not defined! Skipping"), Level);
 		return nullptr;
 	}
 
