@@ -309,6 +309,21 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 	return nullptr;
 }
 
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle Handle, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate)
+{
+	if (!AbilitySystem)
+	{
+		return nullptr;
+	}
+
+	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromHandle(Handle))
+	{
+		return ActivateAbilityWithEvent(AbilitySystem, Spec, EventData, OnGameplayAbilityEndedDelegate);
+	}
+
+	return nullptr;
+}
+
 UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayAbilityTargetDataHandle TargetData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate)
 {
 	FGameplayEventData EventData;
@@ -855,4 +870,9 @@ float UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(UAbilitySystemCom
 	float RetVal = 0;
 	CaptureSpec.AttemptCalculateAttributeMagnitude(EvalParams, RetVal);
 	return RetVal;
+}
+
+UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorASCFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle)
+{
+	return GameplayEffectContextHandle.GetInstigatorAbilitySystemComponent();
 }

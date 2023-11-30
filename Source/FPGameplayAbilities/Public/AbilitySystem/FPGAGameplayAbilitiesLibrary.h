@@ -95,6 +95,8 @@ public:
 
 	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> AbilityClass, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
 
+	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpecHandle Handle, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
+
 	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayAbilityTargetDataHandle TargetData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
 
 	static UGameplayAbility* ActivateAbilityWithEvent(UAbilitySystemComponent* AbilitySystem, FGameplayAbilitySpec* Spec, FGameplayEventData EventData, FOnGameplayAbilityEnded::FDelegate* OnGameplayAbilityEndedDelegate = nullptr);
@@ -253,4 +255,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = TargetFilter)
 	static float GetAttributeValueWithTags(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, const FGameplayTagContainer& Tags);
+
+	/////////////////////////////////
+	/// GameplayEffectContextHandle
+	/////////////////////////////////
+
+	UFUNCTION(BlueprintCallable, Category = GameplayEffectContextHandle)
+	static UAbilitySystemComponent* GetInstigatorASCFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle);
 };
