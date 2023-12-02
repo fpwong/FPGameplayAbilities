@@ -32,7 +32,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FPGAMEPLAYABILITIES_API FFPUIData
+struct FPGAMEPLAYABILITIES_API FFPUIData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -51,6 +51,16 @@ struct FPGAMEPLAYABILITIES_API FFPUIData
 
 UCLASS(Blueprintable, EditInlineNew, CollapseCategories)
 class FPGAMEPLAYABILITIES_API UFPGameplayEffectUIData : public UGameplayEffectUIData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FFPUIData Data;
+};
+
+UCLASS(BlueprintType, CollapseCategories)
+class FPGAMEPLAYABILITIES_API UFPUIDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 
