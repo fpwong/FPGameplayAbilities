@@ -10,6 +10,8 @@ UFPGAAttributeDisplay::UFPGAAttributeDisplay()
 
 void UFPGAAttributeDisplay::BindAttribute(UAbilitySystemComponent* AbilitySystem)
 {
+	NumberFormat.SetMinimumFractionalDigits(MinNumDecimals).SetMaximumFractionalDigits(MaxNumDecimals).SetRoundingMode(FromZero);
+
 	UnbindAttribute();
 
 	AbilitySystemPtr = AbilitySystem;
@@ -76,8 +78,6 @@ void UFPGAAttributeDisplay::OnAttributeChanged(const FOnAttributeChangeData& Cha
 void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 {
 	const float AttributeValue = UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags);
-
-	static const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions().SetMinimumFractionalDigits(0).SetMaximumFractionalDigits(3);
 
 	const FText AttributeText = FText::AsNumber(AttributeValue, &NumberFormat);
 

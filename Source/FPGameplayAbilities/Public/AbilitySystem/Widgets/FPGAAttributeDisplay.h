@@ -33,11 +33,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer AttributeTags;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MinNumDecimals = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MaxNumDecimals = 1;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;
 
 	UPROPERTY()
 	float OldValue = 0.0f;
+
+	FNumberFormattingOptions NumberFormat;
 
 	UFPGAAttributeDisplay();
 
