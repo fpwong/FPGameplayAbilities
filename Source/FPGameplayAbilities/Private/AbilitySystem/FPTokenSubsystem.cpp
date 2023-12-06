@@ -2,7 +2,45 @@
 
 #include "AbilitySystem/FPTokenSubsystem.h"
 
+#include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
+
+bool FFPTokenCostList::CanAfford(UAbilitySystemComponent* ASC) const
+{
+	if (!ASC)
+	{
+		return false;
+	}
+
+	for (const FFPTokenCost& Cost : Costs)
+	{
+		// FFPTokenCost NewCost = EditCost(Cost);
+		int32 CurrentAmount = UFPTokenSubsystem::Get().GetAttributeTokenCount(ASC, Cost.TokenTag, Cost.Attribute);
+
+		if (Cost.Cost > CurrentAmount)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool FFPTokenCostList::SpendCosts(UAbilitySystemComponent* ASC) const
+{
+	if (!CanAfford(ASC))
+	{
+		return false;
+	}
+
+	for (const FFPTokenCost& Cost : Costs)
+	{
+		UFPTokenSubsystem::Get().SpendAttributeToken(ASC, Cost.TokenTag, Cost.Attribute, Cost.Cost);
+	}
+
+	return true;
+}
 
 UFPTokenSubsystem& UFPTokenSubsystem::Get()
 {
@@ -34,4 +72,44 @@ UGameplayEffect* UFPTokenSubsystem::FindOrAddTokenEffect(FGameplayTag Tag, FGame
 
 	TokenMap.Add(Hash, TokenEffect);
 	return TokenEffect;
+}
+
+int32 UFPTokenSubsystem::GetAttributeTokenCount(UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayAttribute Attribute)
+{
+	return UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(ASC, Attribute, FGameplayTagContainer(Tag));
+}
+
+void UFPTokenSubsystem::SpendAttributeToken(UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayAttribute Attribute, int Count)
+{
+	if (ASC)
+	{
+		if (UGameplayEffect* TokenEffect = FindOrAddTokenEffect(Tag, Attribute))
+		{
+			for (int i = 0; i < Count; ++i)
+			{
+				UFPGAGameplayAbilitiesLibrary::RemoveGameplayEffect(TokenEffect, ASC, Count);
+			}
+		}
+	}
+}
+
+void UFPTokenSubsystem::GainAttributeToken(UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayAttribute Attribute, int Count)
+{
+	if (ASC)
+	{
+		if (UGameplayEffect* TokenEffect = FindOrAddTokenEffect(Tag, Attribute))
+		{
+			UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(TokenEffect, ASC, ASC, 1, FGameplayEffectContextHandle());
+		}
+	}
+}
+
+bool UFPTokenSubsystem::CanAffordCostList(const FFPTokenCostList& TokenCostList, UAbilitySystemComponent* ASC)
+{
+	return TokenCostList.CanAfford(ASC);
+}
+
+bool UFPTokenSubsystem::SpendCostList(const FFPTokenCostList& TokenCostList, UAbilitySystemComponent* ASC)
+{
+	return TokenCostList.SpendCosts(ASC);
 }
