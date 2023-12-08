@@ -141,6 +141,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "FPGAAbility|EffectContext", Meta = (DisplayName = "GetActors"))
     static TArray<AActor*> EffectContectGetActors(FGameplayEffectContextHandle EffectContext);
 
+	UFUNCTION(BlueprintPure, Category = "FPGAAbility|EffectContext")
+	static const UGameplayAbility* EffectContextGetSourceAbility(FGameplayEffectContextHandle EffectContext);
+
 	// CALCULATIONS ----------------------------------------------------
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility|Calculation")

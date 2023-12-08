@@ -39,7 +39,7 @@ struct FPGAMEPLAYABILITIES_API FFPUIData : public FTableRowBase
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FText Name;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(MultiLine=true))
 	FText Description;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

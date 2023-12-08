@@ -495,6 +495,11 @@ TArray<AActor*> UFPGAGameplayAbilitiesLibrary::EffectContectGetActors(FGameplayE
 	return Actors;
 }
 
+const UGameplayAbility* UFPGAGameplayAbilitiesLibrary::EffectContextGetSourceAbility(FGameplayEffectContextHandle EffectContext)
+{
+	return EffectContext.GetAbility();
+}
+
 // CALCULATIONS ----------------------------------------------------
 
 UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetTargetAbilitySystemComponent(FGameplayEffectCustomExecutionParameters ExecutionParams)
