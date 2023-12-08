@@ -36,7 +36,14 @@ bool FFPTokenCostList::SpendCosts(UAbilitySystemComponent* ASC) const
 
 	for (const FFPTokenCost& Cost : Costs)
 	{
-		UFPTokenSubsystem::Get().SpendAttributeToken(ASC, Cost.TokenTag, Cost.Attribute, Cost.Cost);
+		if (Cost.Cost >= 0)
+		{
+			UFPTokenSubsystem::Get().SpendAttributeToken(ASC, Cost.TokenTag, Cost.Attribute, Cost.Cost);
+		}
+		else // negative values give us tokens!
+		{
+			UFPTokenSubsystem::Get().GainAttributeToken(ASC, Cost.TokenTag, Cost.Attribute, FMath::Abs(Cost.Cost));
+		}
 	}
 
 	return true;
@@ -99,7 +106,10 @@ void UFPTokenSubsystem::GainAttributeToken(UAbilitySystemComponent* ASC, FGamepl
 	{
 		if (UGameplayEffect* TokenEffect = FindOrAddTokenEffect(Tag, Attribute))
 		{
-			UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(TokenEffect, ASC, ASC, 1, FGameplayEffectContextHandle());
+			for (int i = 0; i < Count; ++i)
+			{
+				UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(TokenEffect, ASC, ASC, 1, FGameplayEffectContextHandle());
+			}
 		}
 	}
 }
