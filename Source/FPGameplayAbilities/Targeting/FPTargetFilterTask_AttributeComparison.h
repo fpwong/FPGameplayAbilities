@@ -14,8 +14,10 @@ UENUM()
 enum class EFPAttributeComparison_ComparisonMethod : uint8
 {
 	Equals,
+	Less,
 	LessEquals,
-	GreaterEquals,
+	Greater,
+	GreaterEquals
 };
 
 UENUM()

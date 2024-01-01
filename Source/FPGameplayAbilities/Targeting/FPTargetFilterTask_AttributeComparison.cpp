@@ -60,8 +60,14 @@ bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* Sourc
 		case EFPAttributeComparison_ComparisonMethod::Equals:
 			bResult = ValueA == ValueB;
 			break;
+		case EFPAttributeComparison_ComparisonMethod::Less:
+			bResult = ValueA < ValueB;
+			break;
 		case EFPAttributeComparison_ComparisonMethod::LessEquals:
 			bResult = ValueA <= ValueB;
+			break;
+		case EFPAttributeComparison_ComparisonMethod::Greater:
+			bResult = ValueA > ValueB;
 			break;
 		case EFPAttributeComparison_ComparisonMethod::GreaterEquals:
 			bResult = ValueA >= ValueB;
