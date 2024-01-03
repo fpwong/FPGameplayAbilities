@@ -34,7 +34,7 @@ struct FFPGrantedAbility
 	TSubclassOf<UGameplayAbility> Ability;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int AbilityLevel;
+	int AbilityLevel = 1;
 };
 
 USTRUCT(BlueprintType)
@@ -46,7 +46,7 @@ struct FFPGrantedGameplayEffect
 	TSubclassOf<UGameplayEffect> GameplayEffect;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int EffectLevel;
+	int EffectLevel = 1;
 };
 
 USTRUCT(BlueprintType)
