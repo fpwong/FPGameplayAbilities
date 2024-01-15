@@ -92,10 +92,7 @@ void UFPTokenSubsystem::SpendAttributeToken(UAbilitySystemComponent* ASC, FGamep
 	{
 		if (UGameplayEffect* TokenEffect = FindOrAddTokenEffect(Tag, Attribute))
 		{
-			for (int i = 0; i < Count; ++i)
-			{
-				UFPGAGameplayAbilitiesLibrary::RemoveGameplayEffect(TokenEffect, ASC, Count);
-			}
+			UFPGAGameplayAbilitiesLibrary::RemoveGameplayEffect(TokenEffect, ASC, Count);
 		}
 	}
 }
