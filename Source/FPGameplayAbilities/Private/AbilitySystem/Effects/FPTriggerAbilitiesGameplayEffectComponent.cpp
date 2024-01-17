@@ -24,15 +24,42 @@ bool UFPTriggerAbilitiesGameplayEffectComponent::OnActiveGameplayEffectAdded(FAc
 		}
 
 		FGameplayEventData EventData;
+		EventData.EventTag = FFPGAGlobalTags::Get().Misc_Dummy;
 		EventData.ContextHandle = ActiveGE.Spec.GetContext();
 
-		FGameplayAbilitySpecHandle Handle = UFPGAGameplayAbilitiesLibrary::GiveAbilityAndActivateOnce(ASC, Ability, EventData);
-		if (Handle.IsValid())
-		{
-			ActiveGE.GrantedAbilityHandles.Add(Handle);
+		// FGameplayAbilitySpecHandle Handle = UFPGAGameplayAbilitiesLibrary::GiveAbilityAndActivateOnce(ASC, Ability, EventData);
+		// if (Handle.IsValid())
+		// {
+		// 	UE_LOG(LogTemp, Warning, TEXT("Saving granted effect %s"), *Handle.ToString());
+		// 	ActiveGE.GrantedAbilityHandles.Add(Handle);
+		//
+		// 	ASC->SetRemoveAbilityOnEnd(Handle);
+		// }
 
-			ASC->SetRemoveAbilityOnEnd(Handle);
-		}
+
+		// FGameplayAbilitySpecHandle Handle = UFPGAGameplayAbilitiesLibrary::GiveAbility(ASC, Ability);
+		FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
+		Spec.bActivateOnce = true;
+		Spec.GameplayEffectHandle = ActiveGE.Handle;
+		ASC->GiveAbilityAndActivateOnce(Spec, &EventData);
+
+		// FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(Spec);
+		//
+		// if (Handle.IsValid())
+		// {
+		// 	// ActiveGE.GrantedAbilityHandles.Add(Handle);
+		//
+		// 	FGameplayEventData EventData;
+		// 	EventData.ContextHandle = ActiveGE.Spec.GetContext();
+		//
+		//
+		// 	// ASC->SetRemoveAbilityOnEnd(Handle);
+		//
+		// 	// if (UGameplayAbility* GrantedAbility = UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(ASC, Handle, EventData))
+		// 	// {
+		// 	// 	ASC->SetRemoveAbilityOnEnd(GrantedAbility->GetCurrentAbilitySpecHandle());
+		// 	// }
+		// }
 	}
 
 	return true;
