@@ -23,18 +23,15 @@ bool UFPTriggerAbilitiesGameplayEffectComponent::OnActiveGameplayEffectAdded(FAc
 			continue;
 		}
 
-		FGameplayAbilitySpecHandle Handle = UFPGAGameplayAbilitiesLibrary::GiveAbility(ASC, Ability);
+		FGameplayEventData EventData;
+		EventData.ContextHandle = ActiveGE.Spec.GetContext();
+
+		FGameplayAbilitySpecHandle Handle = UFPGAGameplayAbilitiesLibrary::GiveAbilityAndActivateOnce(ASC, Ability, EventData);
 		if (Handle.IsValid())
 		{
 			ActiveGE.GrantedAbilityHandles.Add(Handle);
 
-			FGameplayEventData EventData;
-			EventData.ContextHandle = ActiveGE.Spec.GetContext();
-
-			if (UGameplayAbility* GrantedAbility = UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(ASC, Handle, EventData))
-			{
-				ASC->SetRemoveAbilityOnEnd(GrantedAbility->GetCurrentAbilitySpecHandle());
-			}
+			ASC->SetRemoveAbilityOnEnd(Handle);
 		}
 	}
 

@@ -94,8 +94,13 @@ FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GiveAbility(UAbilitySy
 
 FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GiveAbilityAndActivateOnce(UAbilitySystemComponent* AbilitySystem, TSubclassOf<UGameplayAbility> Ability, const FGameplayEventData& EventData)
 {
-	FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
-	return AbilitySystem->GiveAbilityAndActivateOnce(Spec, &EventData);
+	if (AbilitySystem && AbilitySystem->GetOwner()->HasAuthority() && Ability)
+	{
+		FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Ability.GetDefaultObject(), 1, -1);
+		return AbilitySystem->GiveAbilityAndActivateOnce(Spec, &EventData);
+	}
+
+	return FGameplayAbilitySpecHandle();
 	// if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(Ability))
 	// {
 	// 	return AbilitySystem->GiveAbilityAndActivateOnce(*Spec, &EventData);
