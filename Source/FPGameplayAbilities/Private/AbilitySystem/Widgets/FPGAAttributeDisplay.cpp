@@ -10,7 +10,7 @@ UFPGAAttributeDisplay::UFPGAAttributeDisplay()
 
 void UFPGAAttributeDisplay::BindAttribute(UAbilitySystemComponent* AbilitySystem)
 {
-	NumberFormat.SetMinimumFractionalDigits(MinNumDecimals).SetMaximumFractionalDigits(MaxNumDecimals).SetRoundingMode(FromZero);
+	NumberFormat.SetMinimumFractionalDigits(MinNumDecimals).SetMaximumFractionalDigits(MaxNumDecimals).SetRoundingMode(ToZero);
 
 	UnbindAttribute();
 
