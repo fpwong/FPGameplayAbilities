@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
+#include "Misc/FPGameplayValueRow.h"
 
 void FFPGAAbilityReadyBinding::Clear()
 {
@@ -90,5 +91,43 @@ void FFPGAAbilityReadyBinding::OnAbilityEnded(UGameplayAbility* GameplayAbility)
 	{
 		GameplayAbility->OnGameplayAbilityEnded.RemoveAll(this);
 		CheckAbilityReady();
+	}
+}
+
+void FFPGameplayEffectParameters::ApplyToGameplayEffectSpec(UAbilitySystemComponent* ASC, TSharedPtr<FGameplayEffectSpec> Spec) const
+{
+	// apply static set by caller magnitudes
+	for (const FFPSetByCallerMagnitude& Elem : SetByCallerParameters)
+	{
+		Spec->SetSetByCallerMagnitude(Elem.DataTag, Elem.Magnitude);
+	}
+
+	for (const FFPTableGameplayEffectParameters& Param : TableParameters)
+	{
+		// grab gameplay tags from GameplayEffect
+		TArray<FGameplayTag> SetByCallerTags = UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffect(Spec->Def);
+
+		const FGameplayTagContainer& EffectTags = Spec->CapturedSourceTags.GetSpecTags();
+
+		// look for the tag in the data table
+		for (const FGameplayTag& Tag : SetByCallerTags)
+		{
+			float TransformedValue = 0.0f;
+			if (UFPGameplayValueHelpers::GetTransformedValueFromTable(Param.DataTable, ASC, Tag, EffectTags, TransformedValue))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Set %s to %f"), *Tag.GetTagName().ToString(), TransformedValue);
+				Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
+			}
+		}
+
+		// apply effect period if it is set
+		if (Param.EffectPeriodTag.IsValid())
+		{
+			float TransformedValue = 0.0f;
+			if (UFPGameplayValueHelpers::GetTransformedValueFromTable(Param.DataTable, ASC, Param.EffectPeriodTag, EffectTags, TransformedValue))
+			{
+				Spec->Period = TransformedValue;
+			}
+		}
 	}
 }

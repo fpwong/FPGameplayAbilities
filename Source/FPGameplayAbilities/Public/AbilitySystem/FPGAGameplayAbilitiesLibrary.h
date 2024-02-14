@@ -268,4 +268,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static FGameplayCueParameters MakeLocationGameplayCueParams(FVector Location, FRotator Rotation);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FGameplayTag> GetSetByCallerTagsFromGameplayEffectClass(TSubclassOf<UGameplayEffect> Effect);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FGameplayTag> GetSetByCallerTagsFromGameplayEffect(const UGameplayEffect* Effect);
 };

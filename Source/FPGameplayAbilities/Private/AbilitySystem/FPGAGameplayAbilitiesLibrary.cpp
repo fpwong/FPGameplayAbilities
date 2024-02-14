@@ -900,3 +900,50 @@ FGameplayCueParameters UFPGAGameplayAbilitiesLibrary::MakeLocationGameplayCuePar
 	Params.EffectContext.AddHitResult(DummyHitResult);
 	return Params;
 }
+
+TArray<FGameplayTag> UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffectClass(TSubclassOf<UGameplayEffect> Effect)
+{
+	if (Effect)
+	{
+		return GetSetByCallerTagsFromGameplayEffect(Effect.GetDefaultObject());
+	}
+
+	return TArray<FGameplayTag>();
+}
+
+TArray<FGameplayTag> UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffect(const UGameplayEffect* Effect)
+{
+	TArray<FGameplayTag> AllSetByCallerTags;
+	if (!Effect)
+	{
+		return AllSetByCallerTags;
+	}
+
+	for (const FGameplayEffectExecutionDefinition& Execution : Effect->Executions)
+	{
+		for (const FGameplayEffectExecutionScopedModifierInfo& CalculationModifier : Execution.CalculationModifiers)
+		{
+			const FGameplayTag& DataTag = CalculationModifier.ModifierMagnitude.GetSetByCallerFloat().DataTag;
+			if (DataTag.IsValid())
+			{
+				AllSetByCallerTags.Add(DataTag);
+			}
+		}
+	}
+
+	for (const auto& Mod : Effect->Modifiers)
+	{
+		const FGameplayTag& DataTag = Mod.ModifierMagnitude.GetSetByCallerFloat().DataTag;
+		if (DataTag.IsValid())
+		{
+			AllSetByCallerTags.Add(DataTag);
+		}
+	}
+
+	if (Effect->DurationMagnitude.GetSetByCallerFloat().DataTag.IsValid())
+	{
+		AllSetByCallerTags.Add(Effect->DurationMagnitude.GetSetByCallerFloat().DataTag);
+	}
+
+	return AllSetByCallerTags;
+}

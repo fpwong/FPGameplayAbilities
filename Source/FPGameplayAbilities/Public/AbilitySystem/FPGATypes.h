@@ -42,7 +42,7 @@ protected:
 	TSet<FActiveGameplayEffectHandle> BoundHandles;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, meta=(ShowOnlyInnerProperties))
 struct FPGAMEPLAYABILITIES_API FFPSetByCallerMagnitude
 {
 	GENERATED_BODY()
@@ -54,10 +54,28 @@ struct FPGAMEPLAYABILITIES_API FFPSetByCallerMagnitude
 	float Magnitude = 0;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType, meta=(ShowOnlyInnerProperties))
+struct FPGAMEPLAYABILITIES_API FFPTableGameplayEffectParameters
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UDataTable* DataTable;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FGameplayTag EffectPeriodTag;
+};
+
+USTRUCT(BlueprintType, meta=(ShowOnlyInnerProperties))
 struct FPGAMEPLAYABILITIES_API FFPGameplayEffectParameters
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(ShowOnlyInnerProperties))
 	TArray<FFPSetByCallerMagnitude> SetByCallerParameters;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(ShowOnlyInnerProperties))
+	TArray<FFPTableGameplayEffectParameters> TableParameters;
+
+	void ApplyToGameplayEffectSpec(UAbilitySystemComponent* ASC, TSharedPtr<FGameplayEffectSpec> Spec) const;
 };

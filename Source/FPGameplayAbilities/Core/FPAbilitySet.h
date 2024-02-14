@@ -47,6 +47,9 @@ struct FFPGrantedGameplayEffect
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int EffectLevel = 1;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FFPGameplayEffectParameters EffectParameters;
 };
 
 USTRUCT(BlueprintType)
