@@ -124,10 +124,10 @@ FFPAbilitySetHandle FFPAbilitySet::GiveAbilityWithParameters(UAbilitySystemCompo
 		FGameplayEffectSpecHandle GESpec = ASC->MakeOutgoingSpec(EffectToGrant.GameplayEffect, EffectToGrant.EffectLevel, ASC->MakeEffectContext());
 		EffectToGrant.EffectParameters.ApplyToGameplayEffectSpec(ASC, GESpec.Data);
 
-		// for (const FFPSetByCallerMagnitude& Elem : Parameters.SetByCallerMagnitudes)
-		// {
-		// 	GESpec.Data->SetSetByCallerMagnitude(Elem.DataTag, Elem.Magnitude);
-		// }
+		for (const FFPSetByCallerMagnitude& Elem : Parameters.SetByCallerMagnitudes)
+		{
+			GESpec.Data->SetSetByCallerMagnitude(Elem.DataTag, Elem.Magnitude);
+		}
 
 		// const FActiveGameplayEffectHandle GameplayEffectHandle = ASC->ApplyGameplayEffectToSelf(GameplayEffect, EffectToGrant.EffectLevel, ASC->MakeEffectContext());
 		const FActiveGameplayEffectHandle GameplayEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*GESpec.Data.Get());
