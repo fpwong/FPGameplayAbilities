@@ -5,11 +5,6 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 
-float UFPValueCalculation::Calculate(UAbilitySystemComponent* ASC, float BaseValue, const FGameplayTagContainer& Tags)
-{
-	return BaseValue;
-}
-
 bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGameplayTag Tag, float& Value)
 {
 	if (DataTable)
@@ -39,6 +34,29 @@ bool UFPGameplayValueHelpers::GetTransformedValueFromTable(UDataTable* DataTable
 			else
 			{
 				OutTransformedValue = BaseValue;
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, FString& OutString)
+{
+	if (DataTable)
+	{
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		{
+			if (Row->ValueDisplayMethod)
+			{
+				OutString = Row->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Row->Value);
+			}
+			else
+			{
+				OutString = FString::SanitizeFloat(Row->Value, 0);
+				// UE_LOG(LogTemp, Warning, TEXT("%f %s"), Row->Value, *OutString);
 			}
 
 			return true;

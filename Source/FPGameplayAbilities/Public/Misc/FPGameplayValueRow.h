@@ -17,7 +17,17 @@ class FPGAMEPLAYABILITIES_API UFPValueCalculation : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual float Calculate(UAbilitySystemComponent* ASC, float BaseValue, const FGameplayTagContainer& Tags);
+	virtual float Calculate(UAbilitySystemComponent* ASC, float BaseValue, const FGameplayTagContainer& Tags) { return BaseValue; }
+};
+
+UCLASS(BlueprintType, Abstract)
+class FPGAMEPLAYABILITIES_API UFPValueDisplay : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable)
+	virtual FString GetDisplayString(float Value) { return FString::SanitizeFloat(Value, 0); }
 };
 
 USTRUCT(BlueprintType)
@@ -30,6 +40,9 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UFPValueCalculation> ValueCalculation;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
 };
 
 UCLASS(BlueprintType, DefaultToInstanced)
@@ -43,4 +56,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
 	static bool GetTransformedValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayTagContainer EffectTags, float& OutTransformedValue);
+
+	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
+	static bool GetDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, FString& OutString);
 };
