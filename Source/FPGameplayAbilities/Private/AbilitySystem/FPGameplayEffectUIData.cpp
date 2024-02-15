@@ -65,7 +65,7 @@ FText UFPGameplayUIHelpers::GenerateGameplayEffectModifiersDescription(TSubclass
 				{
 					PrefixSign = OutValue > 0 ? "+" : "-"; 
 				}
-				ValueString = PrefixSign + FString::SanitizeFloat(OutValue, 0);
+				ValueString = PrefixSign + FString::SanitizeFloat(FMath::Abs(OutValue), 0);
 			}
 		}
 
