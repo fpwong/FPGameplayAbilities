@@ -32,7 +32,7 @@ FText UFPGameplayUIHelpers::GenerateGameplayEffectModifiersDescription(TSubclass
 {
 	if (!GameplayEffectClass)
 	{
-		return INVTEXT("No Gameplay Effect");
+		return INVTEXT("");
 	}
 
 	TArray<FText> Lines;
@@ -40,7 +40,7 @@ FText UFPGameplayUIHelpers::GenerateGameplayEffectModifiersDescription(TSubclass
 	UGameplayEffect* GameplayEffect = GameplayEffectClass->GetDefaultObject<UGameplayEffect>();
 		if (!GameplayEffect)
     	{
-    		return INVTEXT("No Gameplay Effect");
+    		return INVTEXT("");
     	}
 
 	for (const FGameplayModifierInfo& Modifier : GameplayEffect->Modifiers)
