@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Object.h"
 #include "FPGameplayValueRow.generated.h"
 
+struct FGameplayEffectSpecHandle;
 struct FGameplayTagContainer;
 class UAbilitySystemComponent;
 struct FGameplayTag;
@@ -59,4 +61,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
 	static bool GetDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, FString& OutString);
+
+	UFUNCTION(BlueprintCallable)
+	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
 };

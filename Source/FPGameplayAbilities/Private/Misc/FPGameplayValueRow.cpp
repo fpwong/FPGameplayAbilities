@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 
 bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGameplayTag Tag, float& Value)
 {
@@ -64,4 +65,33 @@ bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FG
 	}
 
 	return false;
+}
+
+void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable)
+{
+	TSharedPtr<FGameplayEffectSpec> Spec = SpecHandle.Data;
+	if (!Spec)
+	{
+		return;
+	}
+
+	// grab gameplay tags from GameplayEffect
+	TArray<FGameplayTag> SetByCallerTags = UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffect(Spec->Def);
+
+	const FGameplayTagContainer& EffectTags = Spec->CapturedSourceTags.GetSpecTags();
+
+	// look for the tag in the data table
+	for (const FGameplayTag& Tag : SetByCallerTags)
+	{
+		float TransformedValue = 0.0f;
+		if (GetTransformedValueFromTable(DataTable, ASC, Tag, EffectTags, TransformedValue))
+		{
+			// UE_LOG(LogTemp, Warning, TEXT("Set %s to %f"), *Tag.GetTagName().ToString(), TransformedValue);
+			Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
+		}
+	}
 }

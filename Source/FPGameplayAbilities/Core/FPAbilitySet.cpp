@@ -3,6 +3,7 @@
 #include "FPAbilitySet.h"
 
 #include "AbilitySystemComponent.h"
+#include "Misc/FPGameplayValueRow.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(FPAbilitySet)
 
@@ -122,7 +123,12 @@ FFPAbilitySetHandle FFPAbilitySet::GiveAbilityWithParameters(UAbilitySystemCompo
 		// const UGameplayEffect* GameplayEffect = EffectToGrant.GameplayEffect->GetDefaultObject<UGameplayEffect>();
 
 		FGameplayEffectSpecHandle GESpec = ASC->MakeOutgoingSpec(EffectToGrant.GameplayEffect, EffectToGrant.EffectLevel, ASC->MakeEffectContext());
-		EffectToGrant.EffectParameters.ApplyToGameplayEffectSpec(ASC, GESpec.Data);
+		// EffectToGrant.EffectParameters.ApplyToGameplayEffectSpec(ASC, GESpec.Data);
+
+		for (UDataTable* DataTable : Parameters.SetByCallerDataTables)
+		{
+			UFPGameplayValueHelpers::ApplyGameValueTableToSpec(ASC, GESpec, DataTable);
+		}
 
 		for (const FFPSetByCallerMagnitude& Elem : Parameters.SetByCallerMagnitudes)
 		{
