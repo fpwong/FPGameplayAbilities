@@ -7,7 +7,6 @@
 #include "UObject/Object.h"
 #include "FPGameplayEffectUIData.generated.h"
 
-struct FGameplayAttribute;
 class UMantisAttributeUIDataAsset;
 struct FGameplayTag;
 
@@ -105,7 +104,4 @@ class FPGAMEPLAYABILITIES_API UFPGameplayUIHelpers : public UBlueprintFunctionLi
 public:
 	UFUNCTION(BlueprintCallable)
 	static FText EvaluateDynamicDescription(const FFPDynamicValueDescription& Description);
-
-	UFUNCTION(BlueprintCallable)
-	static FText GenerateGameplayEffectModifiersDescription(TSubclassOf<UGameplayEffect> GameplayEffectClass, UDataTable* ValueTable, const TMap<FGameplayAttribute, FFPUIData>& AttributeUIDataMapping);
 };
