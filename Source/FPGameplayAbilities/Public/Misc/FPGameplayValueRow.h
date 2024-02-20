@@ -64,4 +64,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
+
+	UFUNCTION(BlueprintCallable)
+	static FString ApplyValueDisplayMethod(TSubclassOf<UFPValueDisplay> ValueDisplayMethod, float Value);
 };

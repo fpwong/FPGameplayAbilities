@@ -95,3 +95,13 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 		}
 	}
 }
+
+FString UFPGameplayValueHelpers::ApplyValueDisplayMethod(TSubclassOf<UFPValueDisplay> ValueDisplayMethod, float Value)
+{
+	if (ValueDisplayMethod)
+	{
+		return ValueDisplayMethod.GetDefaultObject()->GetDisplayString(Value);
+	}
+
+	return "";
+}
