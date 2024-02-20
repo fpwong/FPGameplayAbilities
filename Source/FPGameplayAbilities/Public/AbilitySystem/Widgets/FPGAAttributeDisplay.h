@@ -7,6 +7,7 @@
 #include "AttributeSet.h"
 #include "CommonTextBlock.h"
 #include "GameplayTagContainer.h"
+#include "Misc/FPGameplayValueRow.h"
 #include "FPGAAttributeDisplay.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFPGAAttributeDisplayChanged, float, OldValue, float, NewValue);
@@ -32,6 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer AttributeTags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MinNumDecimals = 0;
