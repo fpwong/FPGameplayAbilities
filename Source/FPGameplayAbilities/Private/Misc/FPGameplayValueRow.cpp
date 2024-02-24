@@ -28,9 +28,9 @@ bool UFPGameplayValueHelpers::GetTransformedValueFromTable(UDataTable* DataTable
 		{
 			const float BaseValue = Row->Value;
 
-			if (Row->ValueCalculation && ASC)
+			if (Row->Settings && Row->Settings->ValueCalculation && ASC)
 			{
-				OutTransformedValue = Row->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, EffectTags);
+				OutTransformedValue = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, EffectTags);
 			}
 			else
 			{
@@ -50,9 +50,9 @@ bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FG
 	{
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
 		{
-			if (Row->ValueDisplayMethod)
+			if (Row->Settings && Row->Settings->ValueDisplayMethod)
 			{
-				OutString = Row->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Row->Value);
+				OutString = Row->Settings->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Row->Value);
 			}
 			else
 			{
@@ -74,14 +74,14 @@ bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* Da
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
 		{
 			float Value = Row->Value;
-			if (ASC && Row->ValueCalculation)
+			if (ASC && Row->Settings && Row->Settings->ValueCalculation)
 			{
-				Value = Row->ValueCalculation.GetDefaultObject()->Calculate(ASC, Row->Value, EffectTags);
+				Value = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, Row->Value, EffectTags);
 			}
 
-			if (Row->ValueDisplayMethod)
+			if (Row->Settings && Row->Settings->ValueDisplayMethod)
 			{
-				OutString = Row->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Value);
+				OutString = Row->Settings->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Value);
 			}
 			else
 			{
@@ -130,9 +130,9 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 
 			const float BaseValue = Row->Value;
 
-			if (!Row->bValueCalculationOnlyForDisplayValue && Row->ValueCalculation && ASC)
+			if (Row->Settings && !Row->Settings->bUseCalculationOnlyForDisplayValue && Row->Settings->ValueCalculation && ASC)
 			{
-				const float TransformedValue = Row->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, EffectTags);
+				const float TransformedValue = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, EffectTags);
 				Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
 			}
 			else

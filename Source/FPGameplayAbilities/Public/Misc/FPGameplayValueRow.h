@@ -32,6 +32,22 @@ public:
 	virtual FString GetDisplayString(float Value) { return FString::SanitizeFloat(Value, 0); }
 };
 
+UCLASS(BlueprintType)
+class FPGAMEPLAYABILITIES_API UFPValueSettings : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UFPValueCalculation> ValueCalculation;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bUseCalculationOnlyForDisplayValue = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
+};
+
 USTRUCT(BlueprintType)
 struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 {
@@ -41,13 +57,16 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	float Value = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TSubclassOf<UFPValueCalculation> ValueCalculation;
+	UFPValueSettings* Settings;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bValueCalculationOnlyForDisplayValue = false;
+	// UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// TSubclassOf<UFPValueCalculation> ValueCalculation;
+	//
+	// UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
+	//
+	// UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// bool bValueCalculationOnlyForDisplayValue = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FGameplayTag> Tags;
