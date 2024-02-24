@@ -45,6 +45,12 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bValueCalculationOnlyForDisplayValue = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<FGameplayTag> Tags;
 };
 
 UCLASS(BlueprintType, DefaultToInstanced)
@@ -61,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
 	static bool GetDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, FString& OutString);
+
+	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
+	static bool GetTransformedDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, UAbilitySystemComponent* ASC, FGameplayTagContainer EffectTags, FString& OutString);
 
 	UFUNCTION(BlueprintCallable)
 	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
