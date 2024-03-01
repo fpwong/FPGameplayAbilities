@@ -26,4 +26,22 @@ public:
 	{
 		return TargetFilterPreset ? TargetFilterPreset->DoesFilterPass(SourceActor, TargetActor) : false;
 	}
+
+	UFUNCTION(BlueprintCallable, Category = TargetFilter)
+	static TArray<AActor*> ApplyTargetFilterToArray(UFPTargetFilterPreset* TargetFilterPreset, const AActor* SourceActor, TArray<AActor*> TargetArray)
+	{
+		TArray<AActor*> OutActors;
+		if (TargetFilterPreset)
+		{
+			for (AActor* TargetActor : TargetArray)
+			{
+				if (EvaluateTargetFilter(TargetFilterPreset, SourceActor, TargetActor))
+				{
+					OutActors.Add(TargetActor);
+				}
+			}
+		}
+
+		return OutActors;
+	}
 };
