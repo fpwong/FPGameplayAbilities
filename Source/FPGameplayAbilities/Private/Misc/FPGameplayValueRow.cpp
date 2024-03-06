@@ -69,7 +69,7 @@ bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FG
 	return false;
 }
 
-bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, UAbilitySystemComponent* ASC, FGameplayTagContainer EffectTags, FString& OutString)
+bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, UAbilitySystemComponent* ASC, FGameplayTagContainer EffectTags, FString& OutString, FFPGameplayValueRow& OutRow)
 {
 	if (DataTable)
 	{
@@ -89,6 +89,8 @@ bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* Da
 			{
 				OutString = FString::SanitizeFloat(Value, 0);
 			}
+
+			OutRow = *Row;
 
 			return true;
 		}
