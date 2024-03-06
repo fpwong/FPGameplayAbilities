@@ -115,7 +115,7 @@ void FFPGameplayEffectParameters::ApplyToGameplayEffectSpec(UAbilitySystemCompon
 			float TransformedValue = 0.0f;
 			if (UFPGameplayValueHelpers::GetTransformedValueFromTable(Param.DataTable, ASC, Tag, EffectTags, TransformedValue))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Set %s to %f"), *Tag.GetTagName().ToString(), TransformedValue);
+				// UE_LOG(LogTemp, Warning, TEXT("Set %s to %f"), *Tag.GetTagName().ToString(), TransformedValue);
 				Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
 			}
 		}

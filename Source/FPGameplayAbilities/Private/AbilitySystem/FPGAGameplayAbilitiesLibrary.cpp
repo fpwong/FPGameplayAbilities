@@ -887,6 +887,11 @@ UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorASCFromGECo
 	return GameplayEffectContextHandle.GetInstigatorAbilitySystemComponent();
 }
 
+UGameplayAbility* UFPGAGameplayAbilitiesLibrary::GetInstigatorAbilityFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle)
+{
+	return const_cast<UGameplayAbility*>(GameplayEffectContextHandle.GetAbility());
+}
+
 FGameplayCueParameters UFPGAGameplayAbilitiesLibrary::MakeLocationGameplayCueParams(FVector Location, FRotator Rotation)
 {
 	// this is so dumb...

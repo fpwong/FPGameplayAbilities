@@ -5,6 +5,8 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
+#include "AbilitySystem/FPGAGameplayAbilityInterface.h"
+#include "AbilitySystem/FPGATypes.h"
 
 bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGameplayTag Tag, float& Value)
 {
@@ -106,6 +108,8 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 	// grab gameplay tags from GameplayEffect
 	TArray<FGameplayTag> SetByCallerTags = UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffect(Spec->Def);
 
+	FGameplayTagContainer EffectTags;
+	Spec->GetAllAssetTags(EffectTags);
 
 	// look for the tag in the data table
 	for (const FGameplayTag& Tag : SetByCallerTags)
@@ -114,25 +118,23 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 		{
 			// FGameplayTagContainer& EffectTags = Spec->CapturedSourceTags.GetSpecTags();
 			// FGameplayTagContainer& EffectTags;
-			FGameplayTagContainer EffectTags;
-			Spec->GetAllAssetTags(EffectTags);
 
 			// make a container from array
-			FGameplayTagContainer RowTags = FGameplayTagContainer::CreateFromArray(Row->Tags);
-			EffectTags.AppendTags(RowTags);
+			FGameplayTagContainer LocalTags = MoveTempIfPossible(EffectTags);
+			LocalTags.AppendTags(FGameplayTagContainer::CreateFromArray(Row->Tags));
 
 			// UE_LOG(LogTemp, Warning, TEXT("HUH Tags %s"), *EffectTags.ToStringSimple());
 
 			// UFPGameplayValueHelpers::MantisGetTagsFromAbilityAndTable();
 
 			// append row tags to the spec
-			Spec->AppendDynamicAssetTags(EffectTags);
+			Spec->AppendDynamicAssetTags(LocalTags);
 
 			const float BaseValue = Row->Value;
 
 			if (Row->Settings && !Row->Settings->bUseCalculationOnlyForDisplayValue && Row->Settings->ValueCalculation && ASC)
 			{
-				const float TransformedValue = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, EffectTags);
+				const float TransformedValue = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, LocalTags);
 				Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
 			}
 			else
@@ -140,11 +142,37 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 				Spec->SetSetByCallerMagnitude(Tag, BaseValue);
 			}
 		}
-		else
+		// else
+		// {
+		// 	FMessageLog PIELogger = FMessageLog(FName("PIE"));
+		// 	PIELogger.Error(FText::Format(INVTEXT("Failed to find tag from table {0}"), FText::FromName(Tag.GetTagName())));
+		// 	// UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
+		// }
+
+		// set period
+		if (Spec->Def)
 		{
-			FMessageLog PIELogger = FMessageLog(FName("PIE"));
-			PIELogger.Error(FText::Format(INVTEXT("Failed to find tag from table {0}"), FText::FromName(Tag.GetTagName())));
-			// UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
+			if (Spec->Def->Implements<UFPGameplayEffectInterface>())
+			{
+				if (UGameplayEffect* MutGE = const_cast<UGameplayEffect*>(Spec->Def.Get()))
+				{
+					FGameplayTag PeriodTag = IFPGameplayEffectInterface::Execute_GetPeriodValueTag(MutGE, ASC);
+					if (PeriodTag.IsValid())
+					{
+						if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(PeriodTag.GetTagName(), nullptr))
+						{
+							float Period = Row->Value;
+
+							if (Row->Settings && !Row->Settings->bUseCalculationOnlyForDisplayValue && Row->Settings->ValueCalculation && ASC)
+							{
+								Period = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, Period, EffectTags);
+							}
+
+							Spec->Period = Period;
+						}
+					}
+				}
+			}
 		}
 
 		// float TransformedValue = 0.0f;
@@ -160,6 +188,27 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 	}
 }
 
+FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable)
+{
+	FGameplayTagContainer Tags;
+	if (GameplayAbility->Implements<UFPAbilityInterface>())
+	{
+		if (IFPAbilityInterface* AsInterface = Cast<IFPAbilityInterface>(GameplayAbility))
+		{
+			Tags = AsInterface->GetAbilityTypeTags();
+		}
+	}
+
+	if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(GameValueTag.GetTagName(), nullptr))
+	{
+		// make a container from array
+		FGameplayTagContainer RowTags = FGameplayTagContainer::CreateFromArray(Row->Tags);
+		Tags.AppendTags(RowTags);
+	}
+
+	return Tags;
+}
+
 FString UFPGameplayValueHelpers::ApplyValueDisplayMethod(TSubclassOf<UFPValueDisplay> ValueDisplayMethod, float Value)
 {
 	if (ValueDisplayMethod)
@@ -168,4 +217,9 @@ FString UFPGameplayValueHelpers::ApplyValueDisplayMethod(TSubclassOf<UFPValueDis
 	}
 
 	return "";
+}
+
+bool UFPGameplayValueHelpers::DoesGameValueTableHaveTag(FGameplayTag GameValueTag, UDataTable* DataTable)
+{
+	return DataTable->FindRowUnchecked(GameValueTag.GetTagName()) != nullptr;
 }

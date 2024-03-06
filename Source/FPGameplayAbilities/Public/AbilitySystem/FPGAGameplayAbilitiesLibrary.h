@@ -266,6 +266,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = GameplayEffectContextHandle)
 	static UAbilitySystemComponent* GetInstigatorASCFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle);
 
+	UFUNCTION(BlueprintCallable, Category = GameplayEffectContextHandle)
+	static UGameplayAbility* GetInstigatorAbilityFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle);
+
 	UFUNCTION(BlueprintCallable)
 	static FGameplayCueParameters MakeLocationGameplayCueParams(FVector Location, FRotator Rotation);
 

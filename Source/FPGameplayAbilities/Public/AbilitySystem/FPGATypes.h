@@ -7,6 +7,37 @@ class UGameplayAbility;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FFPOnAbilityReady, UGameplayAbility*);
 
+UINTERFACE()
+class UFPAbilityInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class IFPAbilityInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual FGameplayTagContainer GetAbilityTypeTags() { return FGameplayTagContainer(); }
+};
+
+UINTERFACE()
+class UFPGameplayEffectInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+
+class IFPGameplayEffectInterface
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="FPCommon")
+	FGameplayTag GetPeriodValueTag(UAbilitySystemComponent* ASC);
+};
+
+
 UENUM(BlueprintType)
 enum class EFPGACancelLevel : uint8
 {

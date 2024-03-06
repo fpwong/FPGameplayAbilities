@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "FPGameplayValueRow.generated.h"
 
+class UGameplayAbility;
 struct FGameplayEffectSpecHandle;
 struct FGameplayTagContainer;
 class UAbilitySystemComponent;
@@ -94,5 +95,11 @@ public:
 	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
 
 	UFUNCTION(BlueprintCallable)
+	static FGameplayTagContainer GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable);
+
+	UFUNCTION(BlueprintCallable)
 	static FString ApplyValueDisplayMethod(TSubclassOf<UFPValueDisplay> ValueDisplayMethod, float Value);
+
+	UFUNCTION(BlueprintCallable)
+	static bool DoesGameValueTableHaveTag(FGameplayTag GameValueTag, UDataTable* DataTable);
 };
