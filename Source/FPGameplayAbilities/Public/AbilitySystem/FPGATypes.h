@@ -8,12 +8,27 @@ class UGameplayAbility;
 DECLARE_MULTICAST_DELEGATE_OneParam(FFPOnAbilityReady, UGameplayAbility*);
 
 UINTERFACE()
-class UFPAbilityInterface : public UInterface
+class FPGAMEPLAYABILITIES_API UFPGameplayInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class IFPAbilityInterface
+class FPGAMEPLAYABILITIES_API IFPGameplayInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual bool CanMove(UAbilitySystemComponent* ASC) { return true; }
+	virtual bool CanRotate(UAbilitySystemComponent* ASC) { return true; }
+};
+
+UINTERFACE()
+class FPGAMEPLAYABILITIES_API UFPAbilityInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class FPGAMEPLAYABILITIES_API IFPAbilityInterface
 {
 	GENERATED_BODY()
 
@@ -22,13 +37,13 @@ public:
 };
 
 UINTERFACE()
-class UFPGameplayEffectInterface : public UInterface
+class FPGAMEPLAYABILITIES_API UFPGameplayEffectInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
 
-class IFPGameplayEffectInterface
+class FPGAMEPLAYABILITIES_API IFPGameplayEffectInterface
 {
 	GENERATED_BODY()
 
