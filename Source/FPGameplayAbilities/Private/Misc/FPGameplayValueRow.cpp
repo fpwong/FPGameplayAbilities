@@ -125,6 +125,8 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 			FGameplayTagContainer LocalTags = MoveTempIfPossible(EffectTags);
 			LocalTags.AppendTags(FGameplayTagContainer::CreateFromArray(Row->Tags));
 
+			LocalTags.AddTagFast(Tag);
+
 			// UE_LOG(LogTemp, Warning, TEXT("HUH Tags %s"), *EffectTags.ToStringSimple());
 
 			// UFPGameplayValueHelpers::MantisGetTagsFromAbilityAndTable();
