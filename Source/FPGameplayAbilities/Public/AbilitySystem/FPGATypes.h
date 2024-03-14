@@ -20,6 +20,7 @@ class FPGAMEPLAYABILITIES_API IFPGameplayInterface
 public:
 	virtual bool CanMove(UAbilitySystemComponent* ASC) { return true; }
 	virtual bool CanRotate(UAbilitySystemComponent* ASC) { return true; }
+	virtual float GetAttackRange(UAbilitySystemComponent* ASC) { return 300.0f; }
 };
 
 UINTERFACE()
@@ -34,6 +35,9 @@ class FPGAMEPLAYABILITIES_API IFPAbilityInterface
 
 public:
 	virtual FGameplayTagContainer GetAbilityTypeTags() { return FGameplayTagContainer(); }
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="FPCommon")
+	float GetAbilityRange(UAbilitySystemComponent* ASC);
 };
 
 UINTERFACE()
