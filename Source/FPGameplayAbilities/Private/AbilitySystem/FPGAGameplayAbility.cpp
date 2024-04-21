@@ -103,18 +103,18 @@ void UFPGAGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	// 	return;
 	// }
 
-	if (ActorInfo->IsLocallyControlledPlayer())
-	{
-		ActivateLocalPlayerAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	}
-	else if (ActorInfo->IsNetAuthority())
-	{
-		ActivateServerAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	}
-	else
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-	}
+	// if (ActorInfo->IsLocallyControlledPlayer())
+	// {
+	// 	ActivateLocalPlayerAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	// }
+	// else if (ActorInfo->IsNetAuthority())
+	// {
+	// 	ActivateServerAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	// }
+	// else
+	// {
+	// 	EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+	// }
 }
 
 void UFPGAGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -122,13 +122,13 @@ void UFPGAGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, c
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	return;
 
-	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
-	check(ASC);
-
-	// clean up the mess we made in ASC
-	ASC->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).Remove(NotifyTargetDataReadyDelegateHandle);
-	ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
-
-	// run base class cleanup operations too
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	// UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
+	// check(ASC);
+	//
+	// // clean up the mess we made in ASC
+	// ASC->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).Remove(NotifyTargetDataReadyDelegateHandle);
+	// ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
+	//
+	// // run base class cleanup operations too
+	// Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

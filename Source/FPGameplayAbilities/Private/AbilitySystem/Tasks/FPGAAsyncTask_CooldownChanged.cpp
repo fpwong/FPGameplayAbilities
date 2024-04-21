@@ -60,7 +60,6 @@ void UFPGAAsyncTask_CooldownChanged::EndTask()
 	}
 
 	SetReadyToDestroy();
-	MarkPendingKill();
 }
 
 void UFPGAAsyncTask_CooldownChanged::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent * Target, const FGameplayEffectSpec & SpecApplied, FActiveGameplayEffectHandle ActiveHandle)

@@ -31,7 +31,6 @@ void UFPGAAsyncTask_EffectStackChanged::EndTask()
 	}
 
 	SetReadyToDestroy();
-	MarkPendingKill();
 }
 
 void UFPGAAsyncTask_EffectStackChanged::GameplayEffectStackChanged(FActiveGameplayEffectHandle EffectHandle, int32 NewStackCount, int32 PreviousStackCount)

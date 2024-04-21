@@ -25,7 +25,6 @@ void UFPGAAsyncTask_TagChanged::EndTask()
 	}
 
 	SetReadyToDestroy();
-	MarkPendingKill();
 }
 
 void UFPGAAsyncTask_TagChanged::TagChanged(const FGameplayTag TagChanged, int32 NewCount)
