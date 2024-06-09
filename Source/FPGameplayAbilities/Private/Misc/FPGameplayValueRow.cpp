@@ -5,8 +5,19 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
-#include "AbilitySystem/FPGAGameplayAbilityInterface.h"
 #include "AbilitySystem/FPGATypes.h"
+
+float FFPGameplayValueRow::GetValueAtLevel(int Level) const
+{
+	if (Level >= 0 && !ScalingCurve.IsNull())
+	{
+		FString Out;
+		const float CurveValue = ScalingCurve.Eval(Level, Out);
+		return CurveValue;
+	}
+
+	return Value;
+}
 
 bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGameplayTag Tag, float& Value)
 {
@@ -134,7 +145,8 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 			// append row tags to the spec
 			Spec->AppendDynamicAssetTags(LocalTags);
 
-			const float BaseValue = Row->Value;
+			const float BaseValue = Row->GetValueAtLevel(GetScalingLevelForRow(ASC, Row));
+			// UE_LOG(LogTemp, Warning, TEXT("Eval Level %d %f %s %s"), GetScalingLevelForRow(ASC, Row), BaseValue, *GetScalingTagFromRow(Row).ToString(), *Row->ScalingTag.ToString());
 
 			if (Row->Settings && !Row->Settings->bUseCalculationOnlyForDisplayValue && Row->Settings->ValueCalculation && ASC)
 			{
@@ -190,6 +202,23 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 		// 	UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
 		// }
 	}
+}
+
+FGameplayTag UFPGameplayValueHelpers::TransformScalingTag(FGameplayTag BaseTag)
+{
+	return BaseTag;
+}
+
+FGameplayTag UFPGameplayValueHelpers::GetScalingTagFromRow(const FFPGameplayValueRow* Row)
+{
+	return TransformScalingTag(Row->ScalingTag);
+}
+
+int UFPGameplayValueHelpers::GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row)
+{
+	// skills start at base level 0
+	const FGameplayTag ScalingTag = GetScalingTagFromRow(Row);
+	return ASC->GetGameplayTagCount(ScalingTag);
 }
 
 FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable)

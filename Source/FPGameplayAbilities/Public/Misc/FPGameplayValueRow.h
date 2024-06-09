@@ -74,6 +74,14 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FGameplayTag> Tags;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGameplayTag ScalingTag;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FCurveTableRowHandle ScalingCurve;
+
+	float GetValueAtLevel(int Level = -1) const;
 };
 
 UCLASS(BlueprintType, DefaultToInstanced)
@@ -105,4 +113,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static bool DoesGameValueTableHaveTag(FGameplayTag GameValueTag, UDataTable* DataTable);
+
+	// helper functions to calculate the level of a row in the table 
+	static FGameplayTag TransformScalingTag(FGameplayTag BaseTag);
+	static FGameplayTag GetScalingTagFromRow(const FFPGameplayValueRow* Row);
+	static int GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row);
 };
