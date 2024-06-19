@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AttributeSet.h"
 #include "GameplayTagContainer.h"
 #include "UObject/Object.h"
 #include "FPGameplayValueRow.generated.h"
@@ -76,7 +77,7 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	TArray<FGameplayTag> Tags;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FGameplayTag ScalingTag;
+	FGameplayTagContainer ScalingTags;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FCurveTableRowHandle ScalingCurve;

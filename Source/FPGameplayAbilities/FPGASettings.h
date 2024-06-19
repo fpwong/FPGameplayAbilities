@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "Engine/DeveloperSettings.h"
+#include "AttributeSet.h"
 #include "FPGASettings.generated.h"
 
 /**
@@ -16,4 +17,7 @@ class FPGAMEPLAYABILITIES_API UFPGASettings : public UDeveloperSettings
 public:
 	UPROPERTY(config, EditAnywhere, Category = "Targeting")
 	TSoftObjectPtr<UDataAsset> TargetingSettingsData;
+
+	UPROPERTY(config, EditAnywhere)
+	FGameplayAttribute SkillLevelAttribute;
 };

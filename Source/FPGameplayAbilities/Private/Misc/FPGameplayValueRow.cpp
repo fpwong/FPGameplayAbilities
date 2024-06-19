@@ -2,10 +2,12 @@
 
 #include "Misc/FPGameplayValueRow.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 #include "AbilitySystem/FPGATypes.h"
+#include "FPGameplayAbilities/FPGASettings.h"
 
 float FFPGameplayValueRow::GetValueAtLevel(int Level) const
 {
@@ -211,14 +213,30 @@ FGameplayTag UFPGameplayValueHelpers::TransformScalingTag(FGameplayTag BaseTag)
 
 FGameplayTag UFPGameplayValueHelpers::GetScalingTagFromRow(const FFPGameplayValueRow* Row)
 {
-	return TransformScalingTag(Row->ScalingTag);
+	// TODO
+	check(false);
+	return FGameplayTag::EmptyTag;
+	// return TransformScalingTag(Row->ScalingTags);
 }
 
 int UFPGameplayValueHelpers::GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row)
 {
 	// skills start at base level 0
-	const FGameplayTag ScalingTag = GetScalingTagFromRow(Row);
-	return ASC->GetGameplayTagCount(ScalingTag);
+	FGameplayTagContainer TargetTags;
+	bool bSuccess = false;
+	const FGameplayAttribute& ScalingAttribute = GetDefault<UFPGASettings>()->SkillLevelAttribute;
+
+	TArray<FGameplayTag> TagArray;
+	Row->ScalingTags.GetGameplayTagArray(TagArray);
+
+	// in our game we decide the level by the max of lvl of any scaling tags
+	int Level = 0;
+	for (const FGameplayTag& Tag : TagArray)
+	{
+		Level = FMath::Max(Level, FMath::RoundToInt32(UAbilitySystemBlueprintLibrary::EvaluateAttributeValueWithTags(ASC, ScalingAttribute, FGameplayTagContainer(Tag), TargetTags, bSuccess)));
+	}
+
+	return Level;
 }
 
 FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable)
