@@ -106,7 +106,7 @@ public:
 	FFPAbilitySetHandle GiveAbilityWithParameters(UAbilitySystemComponent* ASC, const FFPAbilitySetParameters& Parameters, UObject* OverrideSourceObject = nullptr) const;
 	void RemoveAbilitySet(FFPAbilitySetHandle& AbilitySetHandle);
 
-protected:
+// protected:
 	// Gameplay abilities to grant when this ability set is granted.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Gameplay Abilities", meta=(TitleProperty=Ability))
 	TArray<FFPGrantedAbility> GrantedGameplayAbilities;
