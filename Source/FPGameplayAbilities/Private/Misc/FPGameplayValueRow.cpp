@@ -25,7 +25,7 @@ bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGame
 {
 	if (DataTable)
 	{
-		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
 			Value = Row->Value;
 			return true;
@@ -39,7 +39,7 @@ bool UFPGameplayValueHelpers::GetTransformedValueFromTable(UDataTable* DataTable
 {
 	if (DataTable)
 	{
-		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
 			const float BaseValue = Row->Value;
 
@@ -63,7 +63,7 @@ bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FG
 {
 	if (DataTable)
 	{
-		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
 			if (Row->Settings && Row->Settings->ValueDisplayMethod)
 			{
@@ -86,7 +86,7 @@ bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* Da
 {
 	if (DataTable)
 	{
-		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
 			float Value = Row->Value;
 			if (ASC && Row->Settings && Row->Settings->ValueCalculation)
@@ -129,7 +129,7 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 	// look for the tag in the data table
 	for (const FGameplayTag& Tag : SetByCallerTags)
 	{
-		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr))
+		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
 			// FGameplayTagContainer& EffectTags = Spec->CapturedSourceTags.GetSpecTags();
 			// FGameplayTagContainer& EffectTags;
@@ -177,7 +177,7 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 					FGameplayTag PeriodTag = IFPGameplayEffectInterface::Execute_GetPeriodValueTag(MutGE, ASC);
 					if (PeriodTag.IsValid())
 					{
-						if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(PeriodTag.GetTagName(), nullptr))
+						if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(PeriodTag.GetTagName(), nullptr, false))
 						{
 							float Period = Row->Value;
 
@@ -221,18 +221,23 @@ FGameplayTag UFPGameplayValueHelpers::GetScalingTagFromRow(const FFPGameplayValu
 
 int UFPGameplayValueHelpers::GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row)
 {
+	if (!Row)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Row nullptr"));
+		return 0;
+	}
+
 	// skills start at base level 0
-	FGameplayTagContainer TargetTags;
 	bool bSuccess = false;
 	const FGameplayAttribute& ScalingAttribute = GetDefault<UFPGASettings>()->SkillLevelAttribute;
 
-	TArray<FGameplayTag> TagArray;
-	Row->ScalingTags.GetGameplayTagArray(TagArray);
-
 	// in our game we decide the level by the max of lvl of any scaling tags
 	int Level = 0;
-	for (const FGameplayTag& Tag : TagArray)
+	for (const FGameplayTag& Tag : Row->ScalingTags)
 	{
+		FGameplayTagContainer TargetTags;
+		TargetTags.AddTagFast(Tag);
+
 		Level = FMath::Max(Level, FMath::RoundToInt32(UAbilitySystemBlueprintLibrary::EvaluateAttributeValueWithTags(ASC, ScalingAttribute, FGameplayTagContainer(Tag), TargetTags, bSuccess)));
 	}
 
@@ -250,7 +255,7 @@ FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(UGa
 		}
 	}
 
-	if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(GameValueTag.GetTagName(), nullptr))
+	if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(GameValueTag.GetTagName(), nullptr, false))
 	{
 		// make a container from array
 		FGameplayTagContainer RowTags = FGameplayTagContainer::CreateFromArray(Row->Tags);

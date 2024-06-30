@@ -77,7 +77,7 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	TArray<FGameplayTag> Tags;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FGameplayTagContainer ScalingTags;
+	TArray<FGameplayTag> ScalingTags;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FCurveTableRowHandle ScalingCurve;
