@@ -21,13 +21,42 @@ float FFPGameplayValueRow::GetValueAtLevel(int Level) const
 	return Value;
 }
 
-bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, FGameplayTag Tag, float& Value)
+float FFPGameplayValueRow::GetBaseValue(UAbilitySystemComponent* ASC) const
+{
+	return GetValueAtLevel(GetScalingLevel(ASC));
+}
+
+int FFPGameplayValueRow::GetScalingLevel(UAbilitySystemComponent* ASC) const
+{
+	if (!ASC)
+	{
+		return 0;
+	}
+
+	// skills start at base level 0
+	bool bSuccess = false;
+	const FGameplayAttribute& ScalingAttribute = GetDefault<UFPGASettings>()->SkillLevelAttribute;
+
+	// in our game we decide the level by the max of lvl of any scaling tags
+	int Level = 0;
+	for (const FGameplayTag& Tag : ScalingTags)
+	{
+		FGameplayTagContainer TargetTags;
+		TargetTags.AddTagFast(Tag);
+
+		Level = FMath::Max(Level, FMath::RoundToInt32(UAbilitySystemBlueprintLibrary::EvaluateAttributeValueWithTags(ASC, ScalingAttribute, FGameplayTagContainer(Tag), TargetTags, bSuccess)));
+	}
+
+	return Level;
+}
+
+bool UFPGameplayValueHelpers::GetBaseValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, float& Value)
 {
 	if (DataTable)
 	{
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
-			Value = Row->Value;
+			Value = Row->GetBaseValue(ASC);
 			return true;
 		}
 	}
@@ -41,7 +70,7 @@ bool UFPGameplayValueHelpers::GetTransformedValueFromTable(UDataTable* DataTable
 	{
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
-			const float BaseValue = Row->Value;
+			const float BaseValue = Row->GetBaseValue(ASC);
 
 			if (Row->Settings && Row->Settings->ValueCalculation && ASC)
 			{
@@ -59,19 +88,21 @@ bool UFPGameplayValueHelpers::GetTransformedValueFromTable(UDataTable* DataTable
 	return false;
 }
 
-bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, FString& OutString)
+bool UFPGameplayValueHelpers::GetDisplayValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FString& OutString)
 {
 	if (DataTable)
 	{
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
+			float BaseValue = Row->GetBaseValue(ASC);
+
 			if (Row->Settings && Row->Settings->ValueDisplayMethod)
 			{
-				OutString = Row->Settings->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(Row->Value);
+				OutString = Row->Settings->ValueDisplayMethod->GetDefaultObject<UFPValueDisplay>()->GetDisplayString(BaseValue);
 			}
 			else
 			{
-				OutString = FString::SanitizeFloat(Row->Value, 0);
+				OutString = FString::SanitizeFloat(BaseValue, 0);
 				// UE_LOG(LogTemp, Warning, TEXT("%f %s"), Row->Value, *OutString);
 			}
 
@@ -88,10 +119,10 @@ bool UFPGameplayValueHelpers::GetTransformedDisplayValueFromTable(UDataTable* Da
 	{
 		if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
 		{
-			float Value = Row->Value;
+			float Value = Row->GetBaseValue(ASC);
 			if (ASC && Row->Settings && Row->Settings->ValueCalculation)
 			{
-				Value = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, Row->Value, EffectTags);
+				Value = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, Value, EffectTags);
 			}
 
 			if (Row->Settings && Row->Settings->ValueDisplayMethod)
@@ -179,7 +210,7 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 					{
 						if (const FFPGameplayValueRow* Row = DataTable->FindRow<FFPGameplayValueRow>(PeriodTag.GetTagName(), nullptr, false))
 						{
-							float Period = Row->Value;
+							float Period = Row->GetBaseValue(ASC);
 
 							if (Row->Settings && !Row->Settings->bUseCalculationOnlyForDisplayValue && Row->Settings->ValueCalculation && ASC)
 							{

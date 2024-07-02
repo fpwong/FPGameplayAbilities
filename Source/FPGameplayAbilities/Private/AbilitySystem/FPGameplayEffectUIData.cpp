@@ -8,15 +8,18 @@
 
 FText FFPDynamicValueDescription::GetText() const
 {
+	// TODO this does not work!
 	FFormatOrderedArguments Args;
 
 	for (const FGameplayTag& Tag : DescriptionArguments)
 	{
-		FString DisplayValue;
-		if (UFPGameplayValueHelpers::GetDisplayValueFromTable(DataTable, Tag, DisplayValue))
-		{
-			Args.Add(FText::FromString(DisplayValue));
-		}
+		// TODO not using this anymore - maybe delete this class?
+		check(false);
+		// FString DisplayValue;
+		// if (UFPGameplayValueHelpers::GetDisplayValueFromTable(DataTable, Tag, DisplayValue))
+		// {
+		// 	Args.Add(FText::FromString(DisplayValue));
+		// }
 	}
 
 
