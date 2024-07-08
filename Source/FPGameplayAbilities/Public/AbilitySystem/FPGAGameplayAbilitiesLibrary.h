@@ -236,6 +236,9 @@ public:
 	static int32 GetTagCount(UAbilitySystemComponent* AbilitySystem, FGameplayTag Tag);
 
 	UFUNCTION(BlueprintCallable, Category = "Tags")
+	static FGameplayTag GetGameplayTagFromName(FName Name);
+
+	UFUNCTION(BlueprintCallable, Category = "Tags")
 	static FName GetSimpleTagName(FGameplayTag Tag);
 
 	static void GetQueryTags(const FGameplayTagQuery& Query, UPARAM(ref) TArray<FGameplayTag>& OutTags);

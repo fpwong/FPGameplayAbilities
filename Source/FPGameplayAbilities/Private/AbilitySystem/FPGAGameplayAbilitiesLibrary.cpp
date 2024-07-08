@@ -765,6 +765,11 @@ int32 UFPGAGameplayAbilitiesLibrary::GetTagCount(UAbilitySystemComponent* Abilit
 	return (AbilitySystem == nullptr) ? -1 : AbilitySystem->GetTagCount(Tag);
 }
 
+FGameplayTag UFPGAGameplayAbilitiesLibrary::GetGameplayTagFromName(FName Name)
+{
+	return FGameplayTag::RequestGameplayTag(Name, false);
+}
+
 FName UFPGAGameplayAbilitiesLibrary::GetSimpleTagName(FGameplayTag Tag)
 {
 	if (TSharedPtr<FGameplayTagNode> TagNode = UGameplayTagsManager::Get().FindTagNode(Tag))
