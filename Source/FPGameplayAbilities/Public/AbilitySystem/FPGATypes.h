@@ -34,7 +34,7 @@ class FPGAMEPLAYABILITIES_API IFPAbilityInterface
 	GENERATED_BODY()
 
 public:
-	virtual FGameplayTagContainer GetAbilityTypeTags() { return FGameplayTagContainer(); }
+	virtual FGameplayTagContainer GetAbilityTypeTags() const { return FGameplayTagContainer(); }
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="FPCommon")
 	float GetAbilityRange(UAbilitySystemComponent* ASC);

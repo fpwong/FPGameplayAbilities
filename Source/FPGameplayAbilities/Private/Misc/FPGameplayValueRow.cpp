@@ -275,12 +275,12 @@ int UFPGameplayValueHelpers::GetScalingLevelForRow(UAbilitySystemComponent* ASC,
 	return Level;
 }
 
-FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable)
+FGameplayTagContainer UFPGameplayValueHelpers::GatherTagsFromGameplayAbility(const UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable)
 {
 	FGameplayTagContainer Tags;
 	if (GameplayAbility->Implements<UFPAbilityInterface>())
 	{
-		if (IFPAbilityInterface* AsInterface = Cast<IFPAbilityInterface>(GameplayAbility))
+		if (const IFPAbilityInterface* AsInterface = Cast<IFPAbilityInterface>(GameplayAbility))
 		{
 			Tags = AsInterface->GetAbilityTypeTags();
 		}

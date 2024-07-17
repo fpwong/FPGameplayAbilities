@@ -109,7 +109,7 @@ public:
 	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
 
 	UFUNCTION(BlueprintCallable)
-	static FGameplayTagContainer GatherTagsFromGameplayAbility(UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable);
+	static FGameplayTagContainer GatherTagsFromGameplayAbility(const UGameplayAbility* GameplayAbility, FGameplayTag GameValueTag, UDataTable* DataTable);
 
 	UFUNCTION(BlueprintCallable)
 	static FString ApplyValueDisplayMethod(TSubclassOf<UFPValueDisplay> ValueDisplayMethod, float Value);
