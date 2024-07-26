@@ -83,7 +83,7 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	FCurveTableRowHandle ScalingCurve;
 
 	float GetValueAtLevel(int Level = -1) const;
-	float GetBaseValue(UAbilitySystemComponent* ASC) const;
+	float GetBaseValue(UAbilitySystemComponent* ASC, int Level = 1) const;
 	int GetScalingLevel(UAbilitySystemComponent* ASC) const;
 };
 
@@ -94,16 +94,16 @@ class FPGAMEPLAYABILITIES_API UFPGameplayValueHelpers : public UBlueprintFunctio
 
 public:
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
-	static bool GetBaseValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, float& Value);
+	static bool GetBaseValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, float& Value, int Level = 1);
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
-	static bool GetTransformedValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayTagContainer EffectTags, float& OutTransformedValue);
+	static bool GetTransformedValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FGameplayTagContainer EffectTags, float& OutTransformedValue, int Level = 1);
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
-	static bool GetDisplayValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FString& OutString);
+	static bool GetDisplayValueFromTable(UDataTable* DataTable, UAbilitySystemComponent* ASC, FGameplayTag Tag, FString& OutString, int Level = 1);
 
 	UFUNCTION(BlueprintCallable, meta=(ExpandBoolAsExecs="ReturnValue"))
-	static bool GetTransformedDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, UAbilitySystemComponent* ASC, FGameplayTagContainer EffectTags, FString& OutString, FFPGameplayValueRow& OutRow);
+	static bool GetTransformedDisplayValueFromTable(UDataTable* DataTable, FGameplayTag Tag, UAbilitySystemComponent* ASC, FGameplayTagContainer EffectTags, FString& OutString, FFPGameplayValueRow& OutRow, int Level = 1);
 
 	UFUNCTION(BlueprintCallable)
 	static void ApplyGameValueTableToSpec(UAbilitySystemComponent* ASC, FGameplayEffectSpecHandle SpecHandle, UDataTable* DataTable);
@@ -119,6 +119,6 @@ public:
 
 	// helper functions to calculate the level of a row in the table 
 	static FGameplayTag TransformScalingTag(FGameplayTag BaseTag);
-	static FGameplayTag GetScalingTagFromRow(const FFPGameplayValueRow* Row);
-	static int GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row);
+	// static FGameplayTag GetScalingTagFromRow(const FFPGameplayValueRow* Row);
+	// static int GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row);
 };

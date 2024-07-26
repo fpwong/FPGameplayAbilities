@@ -259,7 +259,7 @@ public:
 
 	static bool EvaluateGameplayEffectModifierMagnitude(UAbilitySystemComponent* AbilitySystem, const FGameplayEffectModifierMagnitude& ModifierMagnitude, float& OutValue);
 
-	UFUNCTION(BlueprintCallable, Category = TargetFilter)
+	UFUNCTION(BlueprintCallable)
 	static float GetAttributeValueWithTags(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, const FGameplayTagContainer& Tags);
 
 	/////////////////////////////////
