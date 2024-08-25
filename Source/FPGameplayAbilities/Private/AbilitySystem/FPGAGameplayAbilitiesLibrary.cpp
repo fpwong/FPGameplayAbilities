@@ -222,11 +222,25 @@ FActiveGameplayEffectHandle UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(
 	UAbilitySystemComponent* Source, 
 	UAbilitySystemComponent* Target,
 	float Level,
-	FGameplayEffectContextHandle Context)
+	FGameplayEffectContextHandle Context,
+	int StackCount)
 {
 	if (Source && Target && Effect)
 	{
-		return Source->ApplyGameplayEffectToTarget(Effect, Target, Level, Context);
+		FPredictionKey PredictionKey = FPredictionKey();
+		if (Source->IsOwnerActorAuthoritative() || PredictionKey.IsValidForMorePrediction())
+		{
+			if (!Context.IsValid())
+			{
+				Context = Source->MakeEffectContext();
+			}
+
+			FGameplayEffectSpec	Spec(Effect, Context, Level);
+			Spec.SetStackCount(StackCount);
+			return Source->ApplyGameplayEffectSpecToTarget(Spec, Target, PredictionKey);
+		}
+
+		// return FActiveGameplayEffectHandle();
 	}
 
 	return FActiveGameplayEffectHandle();
@@ -606,14 +620,14 @@ UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetAbilitySystemFromEffe
 class UGameplayEffectUIData* UFPGAGameplayAbilitiesLibrary::GetGameplayEffectUIData(FActiveGameplayEffectHandle Handle)
 {
 	UAbilitySystemComponent* ASC = Handle.GetOwningAbilitySystemComponent();
-	if (ASC != nullptr)
-	{
-		const UGameplayEffect* Effect = ASC->GetGameplayEffectDefForHandle(Handle);
-		if (Effect != nullptr)
-		{
-			return Effect->UIData;
-		}
-	}
+	// if (ASC != nullptr)
+	// {
+	// 	const UGameplayEffect* Effect = ASC->GetGameplayEffectDefForHandle(Handle);
+	// 	if (Effect != nullptr)
+	// 	{
+	// 		return Effect->UIData;
+	// 	}
+	// }
 
 	return nullptr;
 }

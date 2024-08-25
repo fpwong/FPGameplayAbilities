@@ -103,10 +103,7 @@ void UFPTokenSubsystem::GainAttributeToken(UAbilitySystemComponent* ASC, FGamepl
 	{
 		if (UGameplayEffect* TokenEffect = FindOrAddTokenEffect(Tag, Attribute))
 		{
-			for (int i = 0; i < Count; ++i)
-			{
-				UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(TokenEffect, ASC, ASC, 1, FGameplayEffectContextHandle());
-			}
+			UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(TokenEffect, ASC, ASC, 1, FGameplayEffectContextHandle(), Count);
 		}
 	}
 }

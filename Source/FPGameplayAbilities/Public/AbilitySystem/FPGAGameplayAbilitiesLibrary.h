@@ -72,7 +72,8 @@ public:
 		UAbilitySystemComponent* Source, 
 		UAbilitySystemComponent* Target,
 		float Level,
-		FGameplayEffectContextHandle Context);
+		FGameplayEffectContextHandle Context,
+		int StackCount = 1);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static int32 RemoveGameplayEffect(
