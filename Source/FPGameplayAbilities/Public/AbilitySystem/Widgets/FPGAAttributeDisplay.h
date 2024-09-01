@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BindAndSetAttribute(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute NewAttribute);
 
+	UFUNCTION(BlueprintCallable)
+	void BindAndSetAttributeWithTag(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute NewAttribute, FGameplayTagContainer NewAttributeTags);
+
 	void UnbindAttribute();
 
 	void OnAttributeChanged(const FOnAttributeChangeData& ChangeData);

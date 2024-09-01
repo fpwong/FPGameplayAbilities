@@ -14,7 +14,7 @@ struct FGameplayTagContainer;
 class UAbilitySystemComponent;
 struct FGameplayTag;
 
-UCLASS(BlueprintType, Abstract)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class FPGAMEPLAYABILITIES_API UFPValueCalculation : public UObject
 {
 	GENERATED_BODY()
@@ -24,7 +24,7 @@ public:
 	virtual float Calculate(UAbilitySystemComponent* ASC, float BaseValue, const FGameplayTagContainer& Tags) { return BaseValue; }
 };
 
-UCLASS(BlueprintType, Abstract)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class FPGAMEPLAYABILITIES_API UFPValueDisplay : public UObject
 {
 	GENERATED_BODY()

@@ -35,6 +35,12 @@ void UFPGAAttributeDisplay::BindAndSetAttribute(UAbilitySystemComponent* Ability
 	BindAttribute(AbilitySystem);
 }
 
+void UFPGAAttributeDisplay::BindAndSetAttributeWithTag(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute NewAttribute, FGameplayTagContainer NewAttributeTags)
+{
+	AttributeTags = NewAttributeTags;
+	BindAndSetAttribute(AbilitySystem, NewAttribute);
+}
+
 void UFPGAAttributeDisplay::UnbindAttribute()
 {
 	//if (!bNeedToUnbind)
