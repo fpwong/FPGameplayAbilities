@@ -96,7 +96,7 @@ void UFPGAUWAbilityDisplay::UpdateAbilityProgress()
 
 		if (bFullProgressWhenOnCooldown && Progress > 0)
 		{
-			Progress = FMath::CeilToInt(Progress);
+			Progress = 1.0;
 		}
 
 		if (bInvertProgress)

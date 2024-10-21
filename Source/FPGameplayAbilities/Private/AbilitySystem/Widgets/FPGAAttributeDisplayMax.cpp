@@ -35,7 +35,7 @@ void UFPGAAttributeDisplayMax::UpdateText()
 	{
 		const int Current = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), CurrentAttribute, CurrentAttributeTags));
 		const int Max = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), MaxAttribute, MaxAttributeTags));
-		SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), Current, Max)));
+		SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), Current, Max)));
 	}
 }
 
