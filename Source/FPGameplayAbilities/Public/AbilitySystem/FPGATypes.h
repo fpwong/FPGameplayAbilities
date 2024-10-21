@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include "CoreMinimal.h"
 #include "GameplayEffectTypes.h"
 
 #include "FPGATypes.generated.h"
@@ -6,6 +8,7 @@
 class UGameplayAbility;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FFPOnAbilityReady, UGameplayAbility*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FPPlayerStateDelegate, APlayerState*);
 
 UINTERFACE()
 class FPGAMEPLAYABILITIES_API UFPGameplayInterface : public UInterface
@@ -128,4 +131,35 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayEffectParameters
 	TArray<FFPTableGameplayEffectParameters> TableParameters;
 
 	void ApplyToGameplayEffectSpec(UAbilitySystemComponent* ASC, TSharedPtr<FGameplayEffectSpec> Spec) const;
+};
+
+UINTERFACE()
+class FPGAMEPLAYABILITIES_API UFPPlayerStateInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class FPGAMEPLAYABILITIES_API IFPPlayerStateInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual FSimpleMulticastDelegate& GetPlayerNameChangeDelegate() = 0;
+};
+
+ 
+
+UINTERFACE()
+class FPGAMEPLAYABILITIES_API UFPGameStateInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class FPGAMEPLAYABILITIES_API IFPGameStateInterface
+{
+	GENERATED_BODY()
+
+public:
+	virtual FPPlayerStateDelegate& GetPlayerLoginDelegate() = 0;
+	virtual FPPlayerStateDelegate& GetPlayerLogoutDelegate() = 0;
 };

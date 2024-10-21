@@ -3,15 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonButtonBase.h"
 #include "Blueprint/UserWidget.h"
 #include "FPGAUWPartyFrameItem.generated.h"
 
 class UCommonTextBlock;
 
-/**
- * 
- */
 UCLASS()
 class FPGAMEPLAYABILITIES_API UFPGAUWPartyFrameItem : public UUserWidget
 {
@@ -26,10 +22,11 @@ public:
 
 	virtual void NativeOnInitialized() override;
 
-	void SetPlayerState(TObjectPtr<APlayerState> InPlayerState);
+	virtual void SetPlayerState(TObjectPtr<APlayerState> InPlayerState);
 
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="SetPlayerState"))
 	void BP_SetPlayerState(APlayerState* InPlayerState);
 
-	void HandlePlayerNameChanged(const FString& PlayerName);
+	UFUNCTION()
+	void ReadPlayerName();
 };

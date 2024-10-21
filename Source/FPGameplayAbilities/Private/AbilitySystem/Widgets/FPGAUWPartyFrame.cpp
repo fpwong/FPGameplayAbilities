@@ -1,6 +1,7 @@
 ﻿#include "FPGAUWPartyFrame.h"
 
 #include "FPGAUWPartyFrameItem.h"
+#include "AbilitySystem/FPGATypes.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/PanelWidget.h"
 #include "GameFramework/GameStateBase.h"
@@ -11,6 +12,15 @@ void UFPGAUWPartyFrame::NativeConstruct()
 	Super::NativeConstruct();
 
 	RefreshPlayers();
+
+	if (AGameStateBase* GameState = GetWorld()->GetGameState())
+	{
+		if (auto Interface = Cast<IFPGameStateInterface>(GameState))
+		{
+			Interface->GetPlayerLoginDelegate().AddUObject(this, &UFPGAUWPartyFrame::HandlePlayerLoginOrLogout);
+			Interface->GetPlayerLogoutDelegate().AddUObject(this, &UFPGAUWPartyFrame::HandlePlayerLoginOrLogout);
+		}
+	}
 }
 
 void UFPGAUWPartyFrame::RefreshPlayers()
@@ -29,7 +39,7 @@ void UFPGAUWPartyFrame::RefreshPlayers()
 
 	PartyFramePanel->ClearChildren();
 
-	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(GetWorld()))
+	if (AGameStateBase* GameState = GetWorld()->GetGameState())
 	{
 		for (TObjectPtr<APlayerState> PlayerState : GameState->PlayerArray)
 		{
@@ -47,7 +57,7 @@ void UFPGAUWPartyFrame::RefreshPlayers()
 	}
 }
 
-void UFPGAUWPartyFrame::HandleAddOrRemovePlayerState(APlayerState* PlayerState)
+void UFPGAUWPartyFrame::HandlePlayerLoginOrLogout(APlayerState* PlayerState)
 {
 	RefreshPlayers();
 }

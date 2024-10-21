@@ -1,6 +1,7 @@
 ﻿#include "FPGAUWPartyFrameItem.h"
 
 #include "CommonTextBlock.h"
+#include "AbilitySystem/FPGATypes.h"
 #include "GameFramework/PlayerState.h"
 
 void UFPGAUWPartyFrameItem::NativeOnInitialized()
@@ -17,18 +18,21 @@ void UFPGAUWPartyFrameItem::SetPlayerState(TObjectPtr<APlayerState> InPlayerStat
 	// 	LobbyPlayerState->OnPlayerNameChanged.AddUObject(this, &UFPUWPartyFrameItem::HandlePlayerNameChanged);
 	// }
 
-	if (PlayerNameLabel && InPlayerState)
+	if (IFPPlayerStateInterface* PartyInterface = Cast<IFPPlayerStateInterface>(InPlayerState))
 	{
-		FString PlayerName = InPlayerState->GetPlayerName();
-
-		PlayerNameLabel->SetText(FText::FromString(PlayerName.IsEmpty() ? "Unnamed" : PlayerName));
+		PartyInterface->GetPlayerNameChangeDelegate().AddUObject(this, &UFPGAUWPartyFrameItem::ReadPlayerName);
 	}
+
+	ReadPlayerName();
+
+	BP_SetPlayerState(InPlayerState);
 }
 
-void UFPGAUWPartyFrameItem::HandlePlayerNameChanged(const FString& PlayerName)
+void UFPGAUWPartyFrameItem::ReadPlayerName()
 {
-	if (PlayerNameLabel)
+	if (PlayerNameLabel && PlayerState)
 	{
-		PlayerNameLabel->SetText(FText::FromString(PlayerName));
+		FString PlayerName = PlayerState->GetPlayerName();
+		PlayerNameLabel->SetText(FText::FromString(PlayerName.IsEmpty() ? "Unnamed" : PlayerName));
 	}
 }

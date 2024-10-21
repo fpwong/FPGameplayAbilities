@@ -21,7 +21,7 @@ public:
 	virtual void RefreshPlayers();
 
 	UFUNCTION()
-	void HandleAddOrRemovePlayerState(APlayerState* PlayerState);
+	void HandlePlayerLoginOrLogout(APlayerState* PlayerState);
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFPGAUWPartyFrameItem> LobbyItemType;
