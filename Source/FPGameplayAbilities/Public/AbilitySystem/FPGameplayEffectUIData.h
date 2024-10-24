@@ -10,23 +10,6 @@
 class UMantisAttributeUIDataAsset;
 struct FGameplayTag;
 
-USTRUCT(BlueprintType)
-struct FPGAMEPLAYABILITIES_API FFPDynamicValueDescription
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(MultiLine=true))
-	FText DynamicDescription;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<FGameplayTag> DescriptionArguments;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UDataTable* DataTable;
-
-	FText GetText() const;
-};
-
 UINTERFACE(BlueprintType, Blueprintable)
 class UFPUIInterface : public UInterface
 {
@@ -45,9 +28,6 @@ public:
 	FText GetFPDisplayDescription();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	FFPDynamicValueDescription GetFPDynamicDescription();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TSoftObjectPtr<UTexture2D> GetFPDisplayTexture();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -64,9 +44,6 @@ struct FPGAMEPLAYABILITIES_API FFPUIData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(MultiLine=true))
 	FText Description;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FFPDynamicValueDescription DynamicDescription;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSoftObjectPtr<UTexture2D> Texture;
@@ -93,15 +70,4 @@ class FPGAMEPLAYABILITIES_API UFPUIDataAsset : public UDataAsset
 public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FFPUIData Data;
-};
-
-
-UCLASS(BlueprintType)
-class FPGAMEPLAYABILITIES_API UFPGameplayUIHelpers : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable)
-	static FText EvaluateDynamicDescription(const FFPDynamicValueDescription& Description);
 };
