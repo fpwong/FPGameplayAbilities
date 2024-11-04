@@ -189,18 +189,20 @@ void UFPGameplayValueHelpers::ApplyGameValueTableToSpec(UAbilitySystemComponent*
 			{
 				const float TransformedValue = Row->Settings->ValueCalculation.GetDefaultObject()->Calculate(ASC, BaseValue, LocalTags);
 				Spec->SetSetByCallerMagnitude(Tag, TransformedValue);
+				// UE_LOG(LogTemp, Warning, TEXT("Found value %s %f"), *Tag.GetTagName().ToString(), TransformedValue);
 			}
 			else
 			{
 				Spec->SetSetByCallerMagnitude(Tag, BaseValue);
+				// UE_LOG(LogTemp, Warning, TEXT("Found value %s %f"), *Tag.GetTagName().ToString(), BaseValue);
 			}
 		}
-		// else
-		// {
-		// 	FMessageLog PIELogger = FMessageLog(FName("PIE"));
-		// 	PIELogger.Error(FText::Format(INVTEXT("Failed to find tag from table {0}"), FText::FromName(Tag.GetTagName())));
-		// 	// UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
-		// }
+		else
+		{
+			FMessageLog PIELogger = FMessageLog(FName("PIE"));
+			PIELogger.Error(FText::Format(INVTEXT("Failed to find tag from table {0}"), FText::FromName(Tag.GetTagName())));
+			UE_LOG(LogTemp, Warning, TEXT("Failed to find tag from table %s"), *Tag.GetTagName().ToString());
+		}
 
 		// set period
 		if (Spec->Def)

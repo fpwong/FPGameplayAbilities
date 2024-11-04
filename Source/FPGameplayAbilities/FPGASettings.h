@@ -20,4 +20,20 @@ public:
 
 	UPROPERTY(config, EditAnywhere)
 	FGameplayAttribute SkillLevelAttribute;
+
+	UPROPERTY(config, EditAnywhere)
+	TSoftObjectPtr<UDataTable> GameValues;
+
+	static const UFPGASettings& Get()
+	{
+		return *GetDefault<UFPGASettings>();
+	}
+
+	static UFPGASettings& GetMutable()
+	{
+		return *GetMutableDefault<UFPGASettings>();
+	}
+
+	UFUNCTION(BlueprintCallable)
+	UDataTable* GetGameValuesTable();
 };
