@@ -48,7 +48,7 @@ public:
 	FFPGAActorOverlapEvent OnEndOverlap;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool bBindToOwner = false;
+	bool bBindToOwner = true;
 
 	UFUNCTION(BlueprintCallable)
 	void SetSourceActor(AActor* Actor);

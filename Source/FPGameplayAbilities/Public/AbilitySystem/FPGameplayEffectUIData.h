@@ -49,7 +49,7 @@ struct FPGAMEPLAYABILITIES_API FFPUIData : public FTableRowBase
 	TSoftObjectPtr<UTexture2D> Texture;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FSlateColor Color;
+	FSlateColor Color = FLinearColor::White;
 };
 
 UCLASS(Blueprintable, EditInlineNew, CollapseCategories)
