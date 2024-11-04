@@ -1,4 +1,4 @@
-// Copyright 2020 Dan Kestranek.
+
 
 #include "AbilitySystem/Tasks/FPGAAsyncTask_EffectAddedOrRemoved.h"
 

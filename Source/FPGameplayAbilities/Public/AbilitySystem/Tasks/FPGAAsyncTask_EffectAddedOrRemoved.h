@@ -1,4 +1,4 @@
-// Copyright 2020 Dan Kestranek.
+
 
 #pragma once
 
