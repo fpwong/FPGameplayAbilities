@@ -22,7 +22,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetData
 
 	/** The target actor. */
 	UPROPERTY(Category = FPGA, EditDefaultsOnly, BlueprintReadWrite)
-	AActor* Actor;
+	TWeakObjectPtr<AActor> Actor;
 
 	/** The target location. */
 	UPROPERTY(Category = FPGA, EditDefaultsOnly, BlueprintReadWrite)
@@ -46,7 +46,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetData
 
 	bool IsValid() const { return HasLocation() || HasActor(); }
 	bool HasLocation() const { return bUseLocation; }
-	bool HasActor() const { return Actor != nullptr; }
+	bool HasActor() const { return Actor.IsValid(); }
 
 	FVector GetTargetLocation() const;
 

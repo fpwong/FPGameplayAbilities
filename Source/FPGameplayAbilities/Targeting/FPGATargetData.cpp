@@ -132,9 +132,9 @@ bool FFPGATargetingStage::IsValidTargetData(const TArray<FFPGATargetData>& Order
 
 	if (UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
 	{
-		if (TargetData->Actor)
+		if (TargetData->HasActor())
 		{
-			if (IsValidActor(OrderedActor, TargetData->Actor))
+			if (IsValidActor(OrderedActor, TargetData->Actor.Get()))
 			{
 				return true;
 			}
