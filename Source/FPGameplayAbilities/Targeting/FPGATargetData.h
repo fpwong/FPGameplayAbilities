@@ -52,6 +52,8 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetData
 
 	bool operator==(const FFPGATargetData& Other) const;
 	bool operator!=(const FFPGATargetData& Other) const;
+
+	void Reset();
 };
 
 UENUM()

@@ -100,6 +100,14 @@ bool FFPGATargetData::operator!=(const FFPGATargetData& Other) const
 	return !(*this == Other);
 }
 
+void FFPGATargetData::Reset()
+{
+	Actor = nullptr;
+	bUseLocation = 1;
+	TargetTags.Reset();
+	Location = FVector2D::ZeroVector;
+}
+
 FFPGATargetingStage::FFPGATargetingStage()
 	: TargetTypeFlags(0)
 // , OrderPreviewData()
