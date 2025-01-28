@@ -5,6 +5,8 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemLog.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
+#include "FPGameplayAbilities/AbilitySystem/FPOffsetRootMotionNotifyState.h"
 
 UFPGAAbilityTask_PlayMontageNotify::UFPGAAbilityTask_PlayMontageNotify(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -172,6 +174,26 @@ void UFPGAAbilityTask_PlayMontageNotify::Activate()
 
 void UFPGAAbilityTask_PlayMontageNotify::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
 {
+	if (UFPOffsetRootMotionNotifyState* RootMotionState = Cast<UFPOffsetRootMotionNotifyState>(BranchingPointNotifyPayload.NotifyEvent->NotifyStateClass))
+	{
+		const FVector RelativeOffset = GetOwnerActor()->GetActorRotation().RotateVector(RootMotionState->RelativeOffset);
+		const FVector Dest = GetOwnerActor()->GetActorLocation() + RelativeOffset;
+
+		UAbilityTask_ApplyRootMotionMoveToForce::ApplyRootMotionMoveToForce(
+			Ability,
+			FName("RootMotionTask"),
+			Dest,
+			BranchingPointNotifyPayload.NotifyEvent->GetDuration(),
+			RootMotionState->bSetMovementMode,
+			RootMotionState->MovementMode,
+			RootMotionState->bRestrictSpeed,
+			RootMotionState->PathOffsetCurve,
+			RootMotionState->FinishVelocityMode,
+			RootMotionState->FinishSetVelocity,
+			RootMotionState->FinishClampVelocity);
+		// DrawDebugSphere(GetWorld(), Dest, 10.0f, 12, FColor::Red, true);
+	}
+
 	OnNotifyBegin.Broadcast(NotifyName);
 }
 
