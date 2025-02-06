@@ -26,8 +26,14 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTagContainer DebugTags;
 
+	UPROPERTY(Transient)
+	TArray<UFPGameplayValueWidget*> ItemWidgets;
+
 	UFUNCTION(BlueprintNativeEvent)
-	void InitWidgets(FGameplayTagContainer InTags, UAbilitySystemComponent* InASC);
+	void InitWidgets(FGameplayTagContainer InTags, UAbilitySystemComponent* InASC, int Level = 1);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateLevel(int NewLevel);
 
 	virtual void NativePreConstruct() override;
 };

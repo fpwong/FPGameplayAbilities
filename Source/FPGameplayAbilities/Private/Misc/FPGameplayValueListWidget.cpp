@@ -8,7 +8,7 @@
 #include "Components/UniformGridSlot.h"
 #include "Misc/FPGameplayValueWidget.h"
 
-void UFPGameplayValueWidgetList::InitWidgets_Implementation(FGameplayTagContainer InTags, UAbilitySystemComponent* InASC)
+void UFPGameplayValueWidgetList::InitWidgets_Implementation(FGameplayTagContainer InTags, UAbilitySystemComponent* InASC, int Level)
 {
 	if (MainPanel)
 	{
@@ -20,9 +20,18 @@ void UFPGameplayValueWidgetList::InitWidgets_Implementation(FGameplayTagContaine
 			{
 				UUniformGridSlot* NewSlot = MainPanel->AddChildToUniformGrid(NewWidget, i, 0);
 				NewSlot->SetHorizontalAlignment(HAlign_Fill);
-				NewWidget->InitWidget(Tag, InASC);
+				NewWidget->InitWidget(Tag, InASC, Level);
+				ItemWidgets.Add(NewWidget);
 			}
 		}
+	}
+}
+
+void UFPGameplayValueWidgetList::UpdateLevel(int NewLevel)
+{
+	for (UFPGameplayValueWidget* ItemWidget : ItemWidgets)
+	{
+		ItemWidget->UpdateLevel(NewLevel);
 	}
 }
 

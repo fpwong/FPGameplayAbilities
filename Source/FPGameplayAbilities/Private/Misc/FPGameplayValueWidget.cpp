@@ -10,9 +10,11 @@
 #include "FPGameplayAbilities/FPGASettings.h"
 #include "Misc/FPGameplayValueRow.h"
 
-void UFPGameplayValueWidget::InitWidget_Implementation(FGameplayTag InTag, UAbilitySystemComponent* InASC)
+void UFPGameplayValueWidget::InitWidget_Implementation(FGameplayTag InTag, UAbilitySystemComponent* InASC, int InLevel)
 {
 	Tag = InTag;
+	ASC = InASC;
+	Level = InLevel;
 
 	UDataTable* Table = UFPGASettings::GetMutable().GetGameValuesTable();
 	if (!Table)
@@ -23,7 +25,7 @@ void UFPGameplayValueWidget::InitWidget_Implementation(FGameplayTag InTag, UAbil
 	// set value string
 	{
 		FString ValueAsStr;
-		UFPGameplayValueHelpers::GetDisplayValueFromTable(Table, InASC, InTag, ValueAsStr, 1);
+		UFPGameplayValueHelpers::GetDisplayValueFromTable(Table, InASC, InTag, ValueAsStr, Level);
 
 		if (ValueLabel)
 		{
@@ -47,6 +49,36 @@ void UFPGameplayValueWidget::NativePreConstruct()
 
 	if (IsDesignTime() && Tag.IsValid())
 	{
-		InitWidget(Tag, nullptr);
+		InitWidget(Tag, nullptr, 1);
+	}
+}
+
+void UFPGameplayValueWidget::UpdateLevel(int NewLevel)
+{
+	Level = NewLevel;
+	UDataTable* Table = UFPGASettings::GetMutable().GetGameValuesTable();
+	if (!Table)
+	{
+		return;
+	}
+
+	// set value string
+	{
+		FString ValueAsStr;
+		UFPGameplayValueHelpers::GetDisplayValueFromTable(Table, ASC.Get(), Tag, ValueAsStr, Level);
+
+		if (ValueLabel)
+		{
+			ValueLabel->SetText(FText::FromString(ValueAsStr));
+		}
+	}
+
+	// set name string
+	if (const FFPGameplayValueRow* Row = Table->FindRow<FFPGameplayValueRow>(Tag.GetTagName(), nullptr, false))
+	{
+		if (NameLabel)
+		{
+			NameLabel->SetText(FText::FromString(Row->ValueName));
+		}
 	}
 }
