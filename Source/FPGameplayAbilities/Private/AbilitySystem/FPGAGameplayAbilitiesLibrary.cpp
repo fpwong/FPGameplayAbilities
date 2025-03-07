@@ -308,7 +308,7 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 
 	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
 	{
-		return ActivateAbilityWithEvent(AbilitySystem, Spec, EventData.TargetData, OnGameplayAbilityEndedDelegate);
+		return ActivateAbilityWithEvent(AbilitySystem, Spec, EventData, OnGameplayAbilityEndedDelegate);
 		// FScopedPredictionWindow NewScopedWindow(AbilitySystem, true);
 		// const FGameplayTag& EventTag = EventData.EventTag.IsValid() ? EventData.EventTag : FFPGAGlobalTags::Get().Misc_Dummy;
 		// AbilitySystem->TriggerAbilityFromGameplayEvent(Spec->Handle, AbilitySystem->AbilityActorInfo.Get(), EventTag, &EventData, *AbilitySystem);
@@ -377,8 +377,9 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::ActivateAbilityWithEvent(UAbili
 			if (OnGameplayAbilityEndedDelegate)
 			{
 				Ability->OnGameplayAbilityEnded.Add(*OnGameplayAbilityEndedDelegate);
-				return Ability;
 			}
+
+			return Ability;
 		}
 	}
 
