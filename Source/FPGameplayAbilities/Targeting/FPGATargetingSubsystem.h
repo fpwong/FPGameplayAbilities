@@ -63,7 +63,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetFocus(AActor* NewFocus);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void FocusHoveredActor();
 
 	UFUNCTION()

@@ -64,6 +64,11 @@ void UFPGATargetingSubsystem::Tick(float DeltaTime)
 	// {
 	// 	// DrawDebugSphere();
 	// }
+
+	TArray<FHitResult> HitResults;
+	GetHitResultsUnderCursor(HitResults, 10000.0f);
+
+	UpdatePlayerFocus(HitResults);
 }
 
 bool UFPGATargetingSubsystem::IsTickable() const
@@ -128,6 +133,8 @@ bool UFPGATargetingSubsystem::GetHitResultsUnderCursor(TArray<FHitResult>& OutHi
 
 		GroundHitResult.HitObjectHandle = FActorInstanceHandle();
 		OutHitResults.Add(GroundHitResult);
+
+		// DrawDebugSphere(GetWorld(), GroundHitResult.Location, 20, 8, FColor::Red);
 	}
 
 	return true;
@@ -141,7 +148,15 @@ void UFPGATargetingSubsystem::UpdatePlayerFocus(const TArray<FHitResult>& HitRes
 	{
 		if (AActor* NewHovered = HitResult.GetActor())
 		{
-			if (SettingsData->HoveredFilter.DoesFilterPass(nullptr, NewHovered))
+			// DrawDebugSphere(GetWorld(), NewHovered->GetActorLocation(), 200, 8, FColor::Yellow);
+
+			AActor* SourceActor = nullptr;
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+			{
+				SourceActor = PC->GetPawn();
+			}
+
+			if (SettingsData->HoveredFilter.DoesFilterPass(SourceActor, NewHovered))
 			{
 				AActor* OldHovered = HoveredActor.Get();
 				if (OldHovered == NewHovered)
