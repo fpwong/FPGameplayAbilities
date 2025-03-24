@@ -7,7 +7,7 @@
 #include "UObject/Object.h"
 #include "FPGameplayEffectUIData.generated.h"
 
-class UMantisAttributeUIDataAsset;
+class UMantisAttributeData;
 struct FGameplayTag;
 
 UINTERFACE(BlueprintType, Blueprintable)

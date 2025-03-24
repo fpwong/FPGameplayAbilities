@@ -163,3 +163,15 @@ public:
 	virtual FPPlayerStateDelegate& GetPlayerLoginDelegate() = 0;
 	virtual FPPlayerStateDelegate& GetPlayerLogoutDelegate() = 0;
 };
+
+USTRUCT(BlueprintType)
+struct FFPTaggedAttribute
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayAttribute Attribute;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag Tag;
+};
