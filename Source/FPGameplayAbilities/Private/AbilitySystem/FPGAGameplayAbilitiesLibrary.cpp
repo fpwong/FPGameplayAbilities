@@ -685,11 +685,14 @@ AActor* UFPGAGameplayAbilitiesLibrary::GetFirstActorFromTargetData(const FGamepl
 {
 	for (TSharedPtr<FGameplayAbilityTargetData> TargetData : TargetDataHandle.Data)
 	{
-		for (TWeakObjectPtr<AActor> Actor : TargetData->GetActors())
+		if (TargetData.IsValid())
 		{
-			if (Actor.IsValid())
+			for (TWeakObjectPtr<AActor> Actor : TargetData->GetActors())
 			{
-				return Actor.Get();
+				if (Actor.IsValid())
+				{
+					return Actor.Get();
+				}
 			}
 		}
 	}
