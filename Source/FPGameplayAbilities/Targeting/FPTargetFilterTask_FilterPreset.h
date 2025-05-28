@@ -19,7 +19,7 @@ class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_FilterPreset final : public UF
 
 public:
 	UPROPERTY(EditAnywhere, Category = Default)
-	UFPTargetFilterPreset* Preset;
+	TObjectPtr<UFPTargetFilterPreset> Preset;
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 

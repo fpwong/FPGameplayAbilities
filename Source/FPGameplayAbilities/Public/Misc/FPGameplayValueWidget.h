@@ -36,9 +36,8 @@ public:
 	TWeakObjectPtr<UAbilitySystemComponent> ASC;
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	UCommonTextBlock* NameLabel;
+	TObjectPtr<UCommonTextBlock> NameLabel;
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	UCommonTextBlock* ValueLabel;
+	TObjectPtr<UCommonTextBlock> ValueLabel;
 };
-

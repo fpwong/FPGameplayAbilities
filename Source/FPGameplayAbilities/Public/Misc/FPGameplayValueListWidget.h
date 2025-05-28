@@ -18,7 +18,7 @@ class FPGAMEPLAYABILITIES_API UFPGameplayValueWidgetList : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	UUniformGridPanel* MainPanel;
+	TObjectPtr<UUniformGridPanel> MainPanel;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFPGameplayValueWidget> GameplayValueWidgetClass;
@@ -27,7 +27,7 @@ public:
 	FGameplayTagContainer DebugTags;
 
 	UPROPERTY(Transient)
-	TArray<UFPGameplayValueWidget*> ItemWidgets;
+	TArray<TObjectPtr<UFPGameplayValueWidget>> ItemWidgets;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void InitWidgets(FGameplayTagContainer InTags, UAbilitySystemComponent* InASC, int Level = 1);

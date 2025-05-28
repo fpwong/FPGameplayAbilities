@@ -36,7 +36,7 @@ public:
 
 protected:
 	UPROPERTY()
-	UAbilitySystemComponent* ASC;
+	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayTag Tag;
 

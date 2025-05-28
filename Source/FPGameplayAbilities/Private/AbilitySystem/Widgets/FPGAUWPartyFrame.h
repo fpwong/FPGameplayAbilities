@@ -27,5 +27,5 @@ public:
 	TSubclassOf<UFPGAUWPartyFrameItem> LobbyItemType;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UPanelWidget* PartyFramePanel;
+	TObjectPtr<UPanelWidget> PartyFramePanel;
 };

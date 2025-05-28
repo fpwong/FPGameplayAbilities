@@ -24,13 +24,13 @@ public:
 	bool bInvertProgress = false;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UCommonTextBlock* CooldownLabel;
+	TObjectPtr<UCommonTextBlock> CooldownLabel;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UProgressBar* AbilityProgressBar;
+	TObjectPtr<UProgressBar> AbilityProgressBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UCommonTextBlock* AbilityNameLabel;
+	TObjectPtr<UCommonTextBlock> AbilityNameLabel;
 
 	void HandleAbilityEnded(UGameplayAbility* GameplayAbility);
 	void HandleAbilityActivate(UGameplayAbility* GameplayAbility);
@@ -60,11 +60,11 @@ protected:
 	FGameplayAbilitySpecHandle AbilitySpecHandle;
 
 	UPROPERTY()
-	UGameplayAbility* Ability;
+	TObjectPtr<UGameplayAbility> Ability;
 
 	UPROPERTY()
-	UGameplayAbility* ActiveAbility;
+	TObjectPtr<UGameplayAbility> ActiveAbility;
 
 	UPROPERTY()
-	UAbilitySystemComponent* AbilitySystem;
+	TObjectPtr<UAbilitySystemComponent> AbilitySystem;
 };

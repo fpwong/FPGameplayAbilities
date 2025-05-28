@@ -23,10 +23,10 @@ public:
 	FGameplayEffectQuery EffectQuery;
 
 	UPROPERTY(VisibleAnywhere)
-	UAbilitySystemComponent* BoundAbilitySystem;
+	TObjectPtr<UAbilitySystemComponent> BoundAbilitySystem;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UPanelWidget* StatusBarPanel;
+	TObjectPtr<UPanelWidget> StatusBarPanel;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFPGAUWStatusBarItem> StatusBarItemClass;

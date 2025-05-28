@@ -37,7 +37,7 @@ public:
 
 protected:
 	UPROPERTY()
-	UAbilitySystemComponent* ASC;
+	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayAttribute AttributeToListenFor;
 	FGameplayTagContainer EvalTags;

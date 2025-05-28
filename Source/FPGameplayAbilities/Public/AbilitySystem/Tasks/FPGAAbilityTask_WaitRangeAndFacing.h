@@ -39,7 +39,7 @@ UCLASS()
 	FWaitRangeAndFacingDelegate OnFinish;
 
 	UPROPERTY()
-	AActor* TargetActor;
+	TObjectPtr<AActor> TargetActor;
 
 	UPROPERTY()
 	FVector TargetLocation;
@@ -48,7 +48,7 @@ UCLASS()
 	float Range;
 
 	UPROPERTY()
-	ACharacter* OwnerCharacter;
+	TObjectPtr<ACharacter> OwnerCharacter;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE", ExpandEnumAsExecs = "ResetExec"))
 	static UFPGAAbilityTask_WaitRangeAndFacing* WaitRangeAndFacing(

@@ -22,7 +22,7 @@ struct FPGAMEPLAYABILITIES_API FFPAbilitySetParameters
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<UDataTable*> SetByCallerDataTables;
+	TArray<TObjectPtr<UDataTable>> SetByCallerDataTables;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FFPSetByCallerMagnitude> SetByCallerMagnitudes;

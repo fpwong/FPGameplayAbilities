@@ -28,13 +28,13 @@ public:
 	FGameplayAttribute MaxAttribute;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UFPGAAttributeBar* AttributeBar;
+	TObjectPtr<UFPGAAttributeBar> AttributeBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UFPGAAttributeDisplayMax* AttributeDisplayMax;
+	TObjectPtr<UFPGAAttributeDisplayMax> AttributeDisplayMax;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UFPGAAttributeDisplay* GainAttributeDisplay;
+	TObjectPtr<UFPGAAttributeDisplay> GainAttributeDisplay;
 
 protected:
 	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;

@@ -62,7 +62,7 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	float Value = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UFPValueSettings* Settings;
+	TObjectPtr<UFPValueSettings> Settings;
 
 	// UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	// TSubclassOf<UFPValueCalculation> ValueCalculation;

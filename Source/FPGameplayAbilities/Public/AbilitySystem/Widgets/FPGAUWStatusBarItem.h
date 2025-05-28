@@ -24,13 +24,13 @@ public:
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UCommonTextBlock* DurationLabel;
+	TObjectPtr<UCommonTextBlock> DurationLabel;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UProgressBar* DurationBar;
+	TObjectPtr<UProgressBar> DurationBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UCommonTextBlock* NameLabel;
+	TObjectPtr<UCommonTextBlock> NameLabel;
 
 	void SetGameplayEffect(FActiveGameplayEffectHandle InActiveGameplayEffectHandle);
 

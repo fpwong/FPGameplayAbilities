@@ -18,7 +18,7 @@ public:
 	TObjectPtr<APlayerState> PlayerState;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UCommonTextBlock* PlayerNameLabel;
+	TObjectPtr<UCommonTextBlock> PlayerNameLabel;
 
 	virtual void NativeOnInitialized() override;
 

@@ -36,10 +36,10 @@ public:
 	FGameplayAbilityTargetDataHandle TargetData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UProjectileMovementComponent* ProjectileMovementComponent;
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USceneComponent* VisualRootComponent;
+	TObjectPtr<USceneComponent> VisualRootComponent;
 
 	UPROPERTY()
 	FFPGAProjectileEffectData ProjectileEffectData;

@@ -40,7 +40,7 @@ public:
 	TArray<FFPGAAttributePair> AttributesToShow;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UPanelWidget* ListPanel;
+	TObjectPtr<UPanelWidget> ListPanel;
 
 	virtual void NativeConstruct() override;
 

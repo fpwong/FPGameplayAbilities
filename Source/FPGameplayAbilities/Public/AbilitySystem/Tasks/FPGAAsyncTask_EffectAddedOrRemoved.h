@@ -34,7 +34,7 @@ class FPGAMEPLAYABILITIES_API UFPGAAsyncTask_EffectAddedOrRemoved : public UBlue
 
 protected:
 	UPROPERTY()
-	UAbilitySystemComponent* ASC;
+	TObjectPtr<UAbilitySystemComponent> ASC;
 
 	FGameplayTag EffectGameplayTag;
 

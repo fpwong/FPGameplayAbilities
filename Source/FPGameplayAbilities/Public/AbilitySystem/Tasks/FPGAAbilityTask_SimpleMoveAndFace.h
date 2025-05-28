@@ -18,7 +18,7 @@ UCLASS()
 	FSimpleMoveAndFaceDelegate OnFinish;
 
 	UPROPERTY()
-	AActor* TargetActor;
+	TObjectPtr<AActor> TargetActor;
 
 	UPROPERTY()
 	FVector TargetLocation;
@@ -27,7 +27,7 @@ UCLASS()
 	float Range;
 
 	UPROPERTY()
-	ACharacter* OwnerCharacter;
+	TObjectPtr<ACharacter> OwnerCharacter;
 
 	UPROPERTY()
 	bool bEndOnReachingTarget;

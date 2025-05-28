@@ -12,7 +12,7 @@ class FPGAMEPLAYABILITIES_API UFPUWAbilityFailedNotification : public UUserWidge
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UCommonTextBlock* Label;
+	TObjectPtr<UCommonTextBlock> Label;
 
 	UFUNCTION(BlueprintCallable)
 	void BindToAbilitySystem(UAbilitySystemComponent* AbilitySystem);

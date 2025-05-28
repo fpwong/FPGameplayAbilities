@@ -16,13 +16,13 @@ class FPGAMEPLAYABILITIES_API UFPGAUWTargetFrame : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-	UAbilitySystemComponent* TargetAbilitySystem = nullptr;
+	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystem = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UFPGAAttributeBar* HealthBar;
+	TObjectPtr<UFPGAAttributeBar> HealthBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UFPGAUWStatusBar* StatusBar;
+	TObjectPtr<UFPGAUWStatusBar> StatusBar;
 
 	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<AActor> TargetActor;

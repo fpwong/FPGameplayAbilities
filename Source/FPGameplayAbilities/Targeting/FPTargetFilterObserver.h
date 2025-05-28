@@ -16,7 +16,7 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterObserver
 
 public:
 	UPROPERTY()
-	UFPTargetFilterTask* Filter;
+	TObjectPtr<UFPTargetFilterTask> Filter;
 
 	FFPTargetFilterResultChanged OnResultChanged;
 

@@ -98,7 +98,7 @@ class UValidActorList : public UObject
 
 public:
 	UPROPERTY(BlueprintReadWrite)
-	TArray<AActor*> AllActors;
+	TArray<TObjectPtr<AActor>> AllActors;
 
 	UFUNCTION(BlueprintCallable, Category = "ValidActorList")
 	const TArray<AActor*>& GetActors() { return AllActors; }

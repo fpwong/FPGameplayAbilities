@@ -25,10 +25,10 @@ protected:
 	FFPGAOnDamageNumberEnded OnDamageNumberEnded;
 
 	UPROPERTY(BlueprintReadOnly)
-	UWidgetComponent* OwnerWidgetComponent;
+	TObjectPtr<UWidgetComponent> OwnerWidgetComponent;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UCommonTextBlock* DamageNumberLabel;
+	TObjectPtr<UCommonTextBlock> DamageNumberLabel;
 
 public:
 	void InitDamageNumber(UWidgetComponent* InOwnerWidgetComponent, float Damage, const FGameplayTagContainer& DamageTags);

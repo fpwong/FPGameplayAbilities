@@ -16,7 +16,7 @@ public:
 	virtual void NativeOnCurrentTextStyleChanged() override;
 
 	UPROPERTY(meta = (BindWidgetOptional))
-	UCommonTextBlock* ButtonText;
+	TObjectPtr<UCommonTextBlock> ButtonText;
 
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory() override;

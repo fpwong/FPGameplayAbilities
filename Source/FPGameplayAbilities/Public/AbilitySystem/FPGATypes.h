@@ -113,7 +113,7 @@ struct FPGAMEPLAYABILITIES_API FFPTableGameplayEffectParameters
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UDataTable* DataTable;
+	TObjectPtr<UDataTable> DataTable;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FGameplayTag EffectPeriodTag;

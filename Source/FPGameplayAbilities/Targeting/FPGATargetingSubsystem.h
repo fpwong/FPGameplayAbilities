@@ -38,7 +38,7 @@ public:
 	TWeakPtr<FFPGATargetingRequest> CurrentRequest;
 
 	UPROPERTY()
-	UFPGATargetingSystemSettingsData* SettingsData;
+	TObjectPtr<UFPGATargetingSystemSettingsData> SettingsData;
 
 	void StartTargetingRequest(TSharedPtr<FFPGATargetingRequest> Request);
 
