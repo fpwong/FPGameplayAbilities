@@ -8,6 +8,7 @@
 #include "UObject/Object.h"
 #include "FPGameplayValueRow.generated.h"
 
+class UGameplayEffect;
 class UGameplayAbility;
 struct FGameplayEffectSpecHandle;
 struct FGameplayTagContainer;
@@ -121,4 +122,6 @@ public:
 	static FGameplayTag TransformScalingTag(FGameplayTag BaseTag);
 	// static FGameplayTag GetScalingTagFromRow(const FFPGameplayValueRow* Row);
 	// static int GetScalingLevelForRow(UAbilitySystemComponent* ASC, const FFPGameplayValueRow* Row);
+
+	static FGameplayEffectSpecHandle MakeGameplayEffectSpecFromTable(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayEffect> GameplayEffectClass, int Level = 1);
 };

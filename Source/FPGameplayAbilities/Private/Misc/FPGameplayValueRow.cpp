@@ -248,6 +248,27 @@ FGameplayTag UFPGameplayValueHelpers::TransformScalingTag(FGameplayTag BaseTag)
 	return BaseTag;
 }
 
+FGameplayEffectSpecHandle UFPGameplayValueHelpers::MakeGameplayEffectSpecFromTable(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayEffect> GameplayEffectClass, int Level)
+{
+	if (!ASC)
+	{
+		return FGameplayEffectSpecHandle();
+	}
+
+	UDataTable* Table = UFPGASettings::Get().GetGameValuesTable();
+	check(Table);
+	if (!Table)
+	{
+		return FGameplayEffectSpecHandle();
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GameplayEffectClass, Level, ASC->MakeEffectContext());
+
+	UFPGameplayValueHelpers::ApplyGameValueTableToSpec(ASC, SpecHandle, Table);
+
+	return SpecHandle;
+}
+
 // FGameplayTag UFPGameplayValueHelpers::GetScalingTagFromRow(const FFPGameplayValueRow* Row)
 // {
 // 	// TODO

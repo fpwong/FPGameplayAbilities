@@ -53,7 +53,8 @@ public class FPGameplayAbilities : ModuleRules
 				"DeveloperSettings",
 				"NetCore",
 				"UMG",
-				"ModelViewViewModel",
+				"ModelViewViewModel", 
+				"Niagara",
 			}
 		);
 

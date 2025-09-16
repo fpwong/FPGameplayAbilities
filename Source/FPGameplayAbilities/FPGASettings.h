@@ -35,5 +35,5 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	UDataTable* GetGameValuesTable();
+	UDataTable* GetGameValuesTable() const;
 };
