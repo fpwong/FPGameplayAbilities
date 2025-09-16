@@ -17,7 +17,7 @@ bool FFPGATargetingRequest::IsValidEventData() const
 
 bool FFPGATargetingRequest::DoesRequireTargeting() const
 {
-	return TargetData.Num() < Requirements.Stages.Num();
+	return (Requirements.Stages.Num() == 0) || (TargetData.Num() < Requirements.Stages.Num());
 }
 
 bool FFPGATargetingRequest::TryApplyingHitResults(const TArray<FHitResult>& HitResults)
