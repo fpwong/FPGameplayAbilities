@@ -905,6 +905,11 @@ float UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(UAbilitySystemCom
 	return RetVal;
 }
 
+float UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTag(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, FGameplayTag Tag)
+{
+	return GetAttributeValueWithTags(AbilitySystem, Attribute, FGameplayTagContainer(Tag));
+}
+
 UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorASCFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle)
 {
 	return GameplayEffectContextHandle.GetInstigatorAbilitySystemComponent();

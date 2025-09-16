@@ -263,6 +263,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static float GetAttributeValueWithTags(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, const FGameplayTagContainer& Tags);
 
+	UFUNCTION(BlueprintCallable)
+	static float GetAttributeValueWithTag(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, FGameplayTag Tag);
+
 	/////////////////////////////////
 	/// GameplayEffectContextHandle
 	/////////////////////////////////
