@@ -36,6 +36,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	TObjectPtr<UFPGAAttributeDisplay> GainAttributeDisplay;
 
+	UFUNCTION(BlueprintCallable)
+	void SetMaxValue(float NewMax);
+
 protected:
 	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
 };

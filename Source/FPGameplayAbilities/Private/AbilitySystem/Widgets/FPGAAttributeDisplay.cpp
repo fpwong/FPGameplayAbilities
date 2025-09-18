@@ -86,6 +86,10 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 	const float AttributeValue = UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags);
 
 	FText AttributeText = FText::AsNumber(AttributeValue, &NumberFormat);
+	if (bShowAttributeName)
+	{
+		AttributeText = FText::Format(INVTEXT("{0}: {1}"), {FText::FromString(Attribute.AttributeName), FText::AsNumber(AttributeValue, &NumberFormat)});
+	}
 
 	if (ValueDisplayMethod)
 	{

@@ -14,6 +14,12 @@ class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplayMax : public UCommonTextBlock
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxValue;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMaxValue(float NewMaxValue);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttribute CurrentAttribute;
 
@@ -36,6 +42,7 @@ protected:
 	void UpdateText();
 
 	void OnAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData);
+	void OnMaxAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData);
 
 	TWeakObjectPtr<UAbilitySystemComponent> BoundAbilitySystem;
 

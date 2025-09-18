@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxNumDecimals = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShowAttributeName = false;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;
 

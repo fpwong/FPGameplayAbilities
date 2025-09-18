@@ -5,9 +5,15 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
 
+void UFPGAAttributeDisplayMax::SetMaxValue(float NewMaxValue)
+{
+	MaxValue = NewMaxValue;
+	UpdateText();
+}
+
 void UFPGAAttributeDisplayMax::BindToAbilitySystem(UAbilitySystemComponent* AbilitySystem)
 {
-	if (!AbilitySystem || !CurrentAttribute.IsValid() || !MaxAttribute.IsValid())
+	if (!AbilitySystem || !CurrentAttribute.IsValid())
 	{
 		return;
 	}
@@ -15,7 +21,12 @@ void UFPGAAttributeDisplayMax::BindToAbilitySystem(UAbilitySystemComponent* Abil
 	UnbindAbilitySystem();
 
 	AbilitySystem->GetGameplayAttributeValueChangeDelegate(CurrentAttribute).AddUObject(this, &UFPGAAttributeDisplayMax::OnAttributeChanged);
-	AbilitySystem->GetGameplayAttributeValueChangeDelegate(MaxAttribute).AddUObject(this, &UFPGAAttributeDisplayMax::OnAttributeChanged);
+
+	if (MaxAttribute.IsValid())
+	{
+		AbilitySystem->GetGameplayAttributeValueChangeDelegate(MaxAttribute).AddUObject(this, &UFPGAAttributeDisplayMax::OnMaxAttributeChanged);
+		MaxValue = AbilitySystem->GetNumericAttribute(MaxAttribute);
+	}
 
 	BoundAbilitySystem = AbilitySystem;
 
@@ -31,16 +42,22 @@ void UFPGAAttributeDisplayMax::BindAndSetAttributes(UAbilitySystemComponent* Abi
 
 void UFPGAAttributeDisplayMax::UpdateText()
 {
-	if (CurrentAttribute.IsValid() && MaxAttribute.IsValid())
+	if (CurrentAttribute.IsValid())
 	{
 		const int Current = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), CurrentAttribute, CurrentAttributeTags));
-		const int Max = FMath::CeilToInt(UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(BoundAbilitySystem.Get(), MaxAttribute, MaxAttributeTags));
-		SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), Current, Max)));
+		SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), Current, FMath::CeilToInt(MaxValue))));
+		UE_LOG(LogTemp, Warning, TEXT("Update %s %s"), *CurrentAttribute.AttributeName, *FString::Printf(TEXT("%d/%d"), Current, FMath::CeilToInt(MaxValue)));
 	}
 }
 
 void UFPGAAttributeDisplayMax::OnAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData)
 {
+	UpdateText();
+}
+
+void UFPGAAttributeDisplayMax::OnMaxAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData)
+{
+	MaxValue = OnAttributeChangeData.NewValue;
 	UpdateText();
 }
 

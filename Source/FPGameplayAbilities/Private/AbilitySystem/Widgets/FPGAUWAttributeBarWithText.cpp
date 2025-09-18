@@ -7,7 +7,7 @@
 
 void UFPGAUWAttributeBarWithText::BindToAbilitySystem(UAbilitySystemComponent* AbilitySystemComponent)
 {
-	if (!AbilitySystemComponent || !CurrentAttribute.IsValid() || !MaxAttribute.IsValid())
+	if (!AbilitySystemComponent || !CurrentAttribute.IsValid())
 	{
 		return;
 	}
@@ -22,4 +22,10 @@ void UFPGAUWAttributeBarWithText::BindToAbilitySystem(UAbilitySystemComponent* A
 	{
 		GainAttributeDisplay->BindAttribute(AbilitySystemComponent);
 	}
+}
+
+void UFPGAUWAttributeBarWithText::SetMaxValue(float NewMax)
+{
+	AttributeBar->SetMaxValue(NewMax);
+	AttributeDisplayMax->SetMaxValue(NewMax);
 }
