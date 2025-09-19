@@ -235,3 +235,21 @@ void FFPTargetFilterObserver_GameplayTag::BindToActor(AActor* Actor, const FGame
 		OutDelegateHandles.Add(Tag, Handle);
 	}
 }
+
+bool UFPTargetFilterTask_Relationship::DoesFilterPass(const AActor* SourceActor, const AActor* Target, FGameplayTagContainer* OutFailureTags) const
+{
+	if (!Target)
+	{
+		return Requirements.IsEmpty();
+	}
+
+	FGameplayTagContainer TargetTags;
+	UFPGAGameplayAbilitiesLibrary::FillRelationshipTags(TargetTags, SourceActor, Target);
+
+	if (!OutFailureTags)
+	{
+		return TargetTags.HasAny(Requirements);
+	}
+
+	return true;
+}

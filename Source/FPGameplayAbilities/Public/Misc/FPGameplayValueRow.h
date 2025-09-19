@@ -88,7 +88,7 @@ struct FPGAMEPLAYABILITIES_API FFPGameplayValueRow : public FTableRowBase
 	int GetScalingLevel(UAbilitySystemComponent* ASC) const;
 };
 
-UCLASS(BlueprintType, DefaultToInstanced)
+UCLASS(BlueprintType)
 class FPGAMEPLAYABILITIES_API UFPGameplayValueHelpers : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()

@@ -51,3 +51,18 @@ private:
 	TMap<FGameplayTag, FDelegateHandle> SourceDelegateHandles;
 	TMap<FGameplayTag, FDelegateHandle> TargetDelegateHandles;
 };
+
+UCLASS(Blueprintable)
+class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_Relationship final : public UFPTargetFilterTask
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = Default, meta=(Categories="Relationship"))
+	FGameplayTagContainer Requirements;
+
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
+
+	// bool CheckTagRequirements(const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements, OUT FGameplayTagContainer* OutFailureTags) const;
+	// virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
+};

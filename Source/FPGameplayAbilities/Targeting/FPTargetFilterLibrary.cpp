@@ -4,6 +4,7 @@
 
 #include "FPTargetFilterTaskSet.h"
 #include "FPTargetFilterTask_GameplayTag.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UFPTargetFilterLibrary::GetAllRequiredTagsInTaskSet(const FFPTargetFilterTaskSet& TaskSet, AActor* Source, AActor* Target, const FGameplayTagContainer& Tags, FGameplayTagContainer& OUT OutTags)
 {
@@ -29,4 +30,60 @@ void UFPTargetFilterLibrary::GetAllRequiredTagsInTaskSet(const FFPTargetFilterTa
 	// 		QueryForTags(Filter->ChildTaskSet, Tags, OutTags);
 	// 	}
 	// }
+}
+
+TArray<AActor*> UFPTargetFilterLibrary::FPTraceActorsCapsule(
+	AActor* Source,
+	const FVector Start,
+	const FVector End,
+	const TArray<AActor*>& ActorsToIgnore,
+	ETraceTypeQuery TraceChannel,
+	float Radius,
+	float HalfHeight,
+	const FFPTargetFilterTaskSet& FilterTaskSet,
+	EDrawDebugTrace::Type DrawDebugType)
+{
+	TArray<FHitResult> OutHits;
+	UKismetSystemLibrary::CapsuleTraceMulti(Source, Start, End, Radius, HalfHeight, TraceChannel, false, ActorsToIgnore, DrawDebugType, OutHits, false);
+
+	TArray<AActor*> OutActors;
+
+	for (const FHitResult& OutHit : OutHits)
+	{
+		if (AActor* Actor = OutHit.GetActor())
+		{
+			if (FilterTaskSet.DoesFilterPass(Source, Actor))
+			{
+				OutActors.Add(Actor);
+			}
+		}
+	}
+
+	return OutActors;
+}
+
+TArray<AActor*> UFPTargetFilterLibrary::FPTraceActorsSphere(
+	AActor* Source,
+	const FVector Location,
+	const TArray<AActor*>& ActorsToIgnore,
+	ETraceTypeQuery TraceChannel,
+	float Radius,
+	const FFPTargetFilterTaskSet& FilterTaskSet,
+	EDrawDebugTrace::Type DrawDebugType)
+{
+	return FPTraceActorsCapsule(Source, Location, Location, ActorsToIgnore, TraceChannel, Radius, 1.0f, FilterTaskSet, DrawDebugType);
+}
+
+TArray<AActor*> UFPTargetFilterLibrary::FilterActorArray(AActor* Source, const TArray<AActor*>& Actors, const FFPTargetFilterTaskSet& FilterTaskSet)
+{
+	TArray<AActor*> OutActors;
+	for (AActor* A : Actors)
+	{
+		if (FilterTaskSet.DoesFilterPass(Source, A))
+		{
+			OutActors.Add(A);
+		}
+	}
+
+	return OutActors;
 }
