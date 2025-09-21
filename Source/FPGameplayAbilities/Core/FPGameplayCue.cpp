@@ -53,13 +53,15 @@ void UFPGameplayCue::SpawnParticle(AActor* MyTarget, const FGameplayCueParameter
 		}
 		else
 		{
-			// if (MyTarget)
-			// {
-			// 	Location = MyTarget->GetActorLocation();
-			// }
-			// else
+			if (MyTarget && !bUseLocationParam)
+			{
+				Location = MyTarget->GetActorLocation();
+				Rotation = Parameters.Normal.Rotation();
+			}
+			else
 			{
 				Location = Parameters.Location;
+				Rotation = Parameters.Normal.Rotation();
 			}
 		}
 

@@ -36,7 +36,7 @@ void UFPGATargetingSubsystem::StartTargetingRequest(TSharedPtr<FFPGATargetingReq
 	GetLocalPlayer()->PlayerController->CurrentMouseCursor = EMouseCursor::Crosshairs;
 }
 
-bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResults)
+bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResults) // LMB
 {
 	if (CurrentRequest.IsValid())
 	{
@@ -47,6 +47,11 @@ bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResu
 			CancelTargetingRequest();
 			return true;
 		}
+	}
+
+	if (UFPGATargetingSubsystem* TargetingSubsystem = UFPGATargetingSubsystem::Get(GetLocalPlayer()))
+	{
+		TargetingSubsystem->FocusHoveredActor(true);
 	}
 
 	return false;
@@ -224,9 +229,13 @@ void UFPGATargetingSubsystem::SetFocus(AActor* NewFocus)
 	OnFocusedActorChanged.Broadcast(OldFocused, NewFocus);
 }
 
-void UFPGATargetingSubsystem::FocusHoveredActor()
+void UFPGATargetingSubsystem::FocusHoveredActor(bool bClearIfNone)
 {
-	SetFocus(GetHoveredActor());
+	AActor* NewHover = GetHoveredActor();
+	if (NewHover || bClearIfNone)
+	{
+		SetFocus(NewHover);
+	}
 }
 
 void UFPGATargetingSubsystem::UpdateMouseCursor()

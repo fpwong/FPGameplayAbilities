@@ -208,9 +208,29 @@ FGameplayAbilitySpecHandle UFPGAGameplayAbilitiesLibrary::GetHandleFromSpec(FGam
 
 void UFPGAGameplayAbilitiesLibrary::ExecuteGameplayCueForAbilitySystem(UAbilitySystemComponent* AbilitySystem, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters)
 {
-	if (!AbilitySystem)
-		return;
-	AbilitySystem->ExecuteGameplayCue(GameplayCueTag, GameplayCueParameters);
+	if (AbilitySystem)
+	{
+		AbilitySystem->ExecuteGameplayCue(GameplayCueTag, GameplayCueParameters);
+	}
+}
+
+void UFPGAGameplayAbilitiesLibrary::ExecuteGameplayCueForActor(AActor* Actor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters)
+{
+	ExecuteGameplayCueForAbilitySystem(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Actor), GameplayCueTag, GameplayCueParameters);
+}
+
+void UFPGAGameplayAbilitiesLibrary::SimpleGameplayCueForActor(AActor* Target, FGameplayTag GameplayCueTag, AActor* OptionalSource, FGameplayCueParameters GameplayCueParameters)
+{
+	if (Target)
+	{
+		if (OptionalSource)
+		{
+			GameplayCueParameters.Normal = Target->GetActorLocation() - OptionalSource->GetActorLocation();
+			GameplayCueParameters.Normal.Z = 0.0f;
+		}
+
+		ExecuteGameplayCueForAbilitySystem(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Target), GameplayCueTag, GameplayCueParameters);
+	}
 }
 
 FActiveGameplayEffectHandle UFPGAGameplayAbilitiesLibrary::ApplyGameplayEffect(

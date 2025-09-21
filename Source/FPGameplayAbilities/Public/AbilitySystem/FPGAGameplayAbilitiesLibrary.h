@@ -63,8 +63,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static FGameplayAbilitySpecHandle GetHandleFromSpec(FGameplayAbilitySpec Spec);
 
-	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility", meta=(AutoCreateRefTerm="GameplayCueParameters"))
 	static void ExecuteGameplayCueForAbilitySystem(UAbilitySystemComponent* AbilitySystem, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
+
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility", meta=(AutoCreateRefTerm="GameplayCueParameters"))
+	static void ExecuteGameplayCueForActor(AActor* Actor, const FGameplayTag GameplayCueTag, const FGameplayCueParameters& GameplayCueParameters);
+
+	/* Run a gameplay cue that uses the rotation between source and target */
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility", meta=(AutoCreateRefTerm="GameplayCueParameters"))
+	static void SimpleGameplayCueForActor(AActor* Target, FGameplayTag GameplayCueTag, AActor* OptionalSource, FGameplayCueParameters GameplayCueParameters);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static FActiveGameplayEffectHandle ApplyGameplayEffect(

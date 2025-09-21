@@ -64,7 +64,7 @@ public:
 	virtual void SetFocus(AActor* NewFocus);
 
 	UFUNCTION(BlueprintCallable)
-	void FocusHoveredActor();
+	void FocusHoveredActor(bool bClearIfNone = false);
 
 	UFUNCTION()
 	void UpdateMouseCursor();

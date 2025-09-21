@@ -15,7 +15,7 @@ void FFPTargetFilterObserver::Clear()
 
 void FFPTargetFilterObserver::Init(const FFPTargetFilter& FilterTask, AActor* SourceActor, AActor* TargetActor)
 {
-	if (!ensure(FilterTask.IsValid()))
+	if (!FilterTask.IsValid())
 	{
 		return;
 	}

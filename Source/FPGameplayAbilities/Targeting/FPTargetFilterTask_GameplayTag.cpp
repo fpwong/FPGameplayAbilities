@@ -27,7 +27,7 @@ bool FFPTargetFilterTask_GameplayTag::DoesFilterPass(const AActor* SourceActor, 
 		return false;
 	}
 
-	if (!CheckTagRequirements(TargetActor, SourceActor, SourceRequirements, OutFailureTags))
+	if (SourceActor && !CheckTagRequirements(TargetActor, SourceActor, SourceRequirements, OutFailureTags))
 	{
 		return false;
 	}
