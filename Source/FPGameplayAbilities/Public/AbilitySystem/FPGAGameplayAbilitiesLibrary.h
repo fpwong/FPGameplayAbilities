@@ -255,9 +255,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void ApplyGameplayAttributeInitter(FName GroupName, UAbilitySystemComponent* AbilitySystemComponent);
 
-	UFUNCTION(BlueprintCallable, Category = TargetFilter)
-	static bool EvaluateTargetFilterTaskSet(struct FFPTargetFilterTaskSet TaskSet, const AActor* SourceActor, const AActor* TargetActor);
-
 	static bool EvaluateGameplayEffectModifierMagnitude(UAbilitySystemComponent* AbilitySystem, const FGameplayEffectModifierMagnitude& ModifierMagnitude, float& OutValue);
 
 	UFUNCTION(BlueprintCallable)

@@ -6,9 +6,6 @@
 #include "GameplayEffect.h"
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemInterface.h"
-
-#include "GameplayAbilitySet.h"
 #include "GameplayAbilitiesModule.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameplayTagContainer.h"
@@ -18,7 +15,6 @@
 #include "AbilitySystem/FPGAGlobalTags.h"
 #include "Engine/Engine.h"
 #include "FPGameplayAbilities/Targeting/FPGATargetTypes.h"
-#include "FPGameplayAbilities/Targeting/FPTargetFilterTaskSet.h"
 
 void UFPGAGameplayAbilitiesLibrary::InitGlobalData()
 {
@@ -846,11 +842,6 @@ void UFPGAGameplayAbilitiesLibrary::ApplyGameplayAttributeInitter(FName GroupNam
 			AttributeSetInit->InitAttributeSetDefaults(AbilitySystemComponent, GroupName, 1, true);
 		}
 	}
-}
-
-bool UFPGAGameplayAbilitiesLibrary::EvaluateTargetFilterTaskSet(FFPTargetFilterTaskSet TaskSet, const AActor* SourceActor, const AActor* TargetActor)
-{
-	return TaskSet.DoesFilterPass(SourceActor, TargetActor);
 }
 
 bool UFPGAGameplayAbilitiesLibrary::EvaluateGameplayEffectModifierMagnitude(UAbilitySystemComponent* AbilitySystem, const FGameplayEffectModifierMagnitude& ModifierMagnitude, float& OutValue)

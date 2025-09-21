@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "FPGameplayAbilities/Targeting/FPTargetFilterTaskSetObserver.h"
+#include "FPGameplayAbilities/Targeting/FPTargetFilterObserver.h"
 #include "FPGAOverlapManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPGAActorOverlapEvent, AActor*, Actor);
@@ -18,10 +18,10 @@ struct FFPGAOverlapInstance
 	TWeakObjectPtr<AActor> Actor;
 
 	UPROPERTY()
-	FFPTargetFilterTaskSetObserver OngoingFilterTaskset;
+	FFPTargetFilterObserver FilterObserver;
 
 	FFPGAOverlapInstance() = default;
-	FFPGAOverlapInstance(const FFPTargetFilterTaskSet& Taskset, AActor* Source, AActor* Target);
+	FFPGAOverlapInstance(const FFPTargetFilter& TargetFilter, AActor* Source, AActor* Target);
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -60,7 +60,7 @@ public:
 	void BindToActor(AActor* Actor);
 
 	UFUNCTION(BlueprintCallable)
-	void SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilterTaskSet);
+	void SetFilterTaskSet(const FFPTargetFilter& InFilterTaskSet);
 
 protected:
 	UPROPERTY()
@@ -72,7 +72,7 @@ protected:
 	TArray<TObjectPtr<AActor>> ValidOverlappingActors;
 
 	UPROPERTY(EditDefaultsOnly)
-	FFPTargetFilterTaskSet FilterTaskset;
+	FFPTargetFilter TargetFilter;
 
 	TWeakObjectPtr<AActor> SourceActorPtr;
 

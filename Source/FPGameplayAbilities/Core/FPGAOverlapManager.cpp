@@ -2,9 +2,9 @@
 
 #include "FPGAOverlapManager.h"
 
-FFPGAOverlapInstance::FFPGAOverlapInstance(const FFPTargetFilterTaskSet& Taskset, AActor* Source, AActor* Target)
+FFPGAOverlapInstance::FFPGAOverlapInstance(const FFPTargetFilter& TargetFilter, AActor* Source, AActor* Target)
 {
-	OngoingFilterTaskset.Bind(Taskset, Source, Target);
+	FilterObserver.Init(TargetFilter, Source, Target);
 	Actor = Target;
 }
 
@@ -90,21 +90,22 @@ void UFPGAOverlapManager::BindToActor(AActor* Actor)
 	Actor->UpdateOverlaps(true);
 }
 
-void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilterTaskSet& InFilterTaskSet)
+void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilter& InFilterTaskSet)
 {
-	FilterTaskset = InFilterTaskSet;
+	TargetFilter = InFilterTaskSet;
 }
 
 void UFPGAOverlapManager::HandleBeginOverlap(AActor* OtherActor)
 {
 	// if (SourceActorPtr.IsValid())
+	if (TargetFilter.IsValid())
 	{
-		TSharedRef<FFPGAOverlapInstance> OverlapInstance = MakeShared<FFPGAOverlapInstance>(FilterTaskset, SourceActorPtr.Get(), OtherActor);
-		OverlapInstance->OngoingFilterTaskset.OnResultChanged.AddUObject(this, &ThisClass::OnFilterResultChanged);
+		TSharedRef<FFPGAOverlapInstance> OverlapInstance = MakeShared<FFPGAOverlapInstance>(TargetFilter, SourceActorPtr.Get(), OtherActor);
+		OverlapInstance->FilterObserver.OnResultChanged.AddUObject(this, &ThisClass::OnFilterResultChanged);
 
 		AllOverlappingActors.Add(OtherActor, OverlapInstance);
 
-		if (OverlapInstance->OngoingFilterTaskset.GetCurrentResult())
+		if (OverlapInstance->FilterObserver.GetCurrentResult())
 		{
 			ValidOverlappingActors.Add(OtherActor);
 			OnBeginOverlap.Broadcast(OtherActor);

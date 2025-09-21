@@ -156,7 +156,7 @@ void UFPGATargetingSubsystem::UpdatePlayerFocus(const TArray<FHitResult>& HitRes
 				SourceActor = PC->GetPawn();
 			}
 
-			if (SettingsData->HoveredFilter.DoesFilterPass(SourceActor, NewHovered))
+			if (SettingsData->HoveredTargetFilter.DoesFilterPass(SourceActor, NewHovered))
 			{
 				AActor* OldHovered = HoveredActor.Get();
 				if (OldHovered == NewHovered)
@@ -205,7 +205,7 @@ void UFPGATargetingSubsystem::SetFocus(AActor* NewFocus)
 		return;
 	}
 
-	if (NewFocus && !SettingsData->HoveredFilter.DoesFilterPass(nullptr, NewFocus))
+	if (NewFocus && !SettingsData->HoveredTargetFilter.DoesFilterPass(nullptr, NewFocus))
 	{
 		return;
 	}
@@ -236,7 +236,7 @@ void UFPGATargetingSubsystem::UpdateMouseCursor()
 	{
 		for (const FFPGAHoveredCursor& HoveredCursor : SettingsData->HoveredCursors)
 		{
-			if (HoveredCursor.FilterTaskSet.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
+			if (HoveredCursor.TargetFilter.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
 			{
 				HoveredCursorState = HoveredCursor.CursorType;
 				break;

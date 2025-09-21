@@ -5,9 +5,6 @@
 #include "FPGATargetType.h"
 #include "FPGATargetTypes.h"
 #include "FPTargetFilterLibrary.h"
-#include "GameplayTagAssetInterface.h"
-#include "FPGameplayAbilities/FPGASettings.h"
-#include "FPGameplayAbilities/Utils/FPGAMiscUtils.h"
 #include "GameFramework/Actor.h"
 
 FFPGATargetData::FFPGATargetData()
@@ -296,7 +293,7 @@ bool FFPGATargetingStage::IsValidActor(AActor* SourceActor, AActor* TargetActor,
 
 	if (TargetActor && UFPGAHelperLibrary::IsTargetTypeFlagChecked(TargetTypeFlags, EFPGATargetTypeFlags::ACTOR))
 	{
-		return TargetFilterTaskSet.DoesFilterPass(SourceActor, TargetActor, OutFailureTags);
+		return TargetFilter.DoesFilterPass(SourceActor, TargetActor, OutFailureTags);
 	}
 
 	return false;

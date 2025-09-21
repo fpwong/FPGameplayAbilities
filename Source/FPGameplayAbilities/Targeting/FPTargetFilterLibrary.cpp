@@ -1,36 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FPTargetFilterLibrary.h"
-
-#include "FPTargetFilterTaskSet.h"
+#include "FPTargetFilter.h"
+#include "FPTargetFilterPreset.h"
 #include "FPTargetFilterTask_GameplayTag.h"
+#include "FPTargetFilterTask_AttributeComparison.h"
 #include "Kismet/KismetSystemLibrary.h"
-
-void UFPTargetFilterLibrary::GetAllRequiredTagsInTaskSet(const FFPTargetFilterTaskSet& TaskSet, AActor* Source, AActor* Target, const FGameplayTagContainer& Tags, FGameplayTagContainer& OUT OutTags)
-{
-	TaskSet.IterateTasks(Source, Target, [&Tags = Tags, &OutTags = OutTags](UFPTargetFilterTask* Task, bool bResult)
-	{
-		if (Task->TaskType == EFPTargetFilterTaskType::FailureTask)
-		{
-			if (UFPTargetFilterTask_GameplayTag* GameplayTagFilter = Cast<UFPTargetFilterTask_GameplayTag>(Task))
-			{
-				OutTags.AppendTags(GameplayTagFilter->TargetRequirements.RequireTags.Filter(Tags));
-			}
-		}
-	});
-	// for (UFPTargetFilterTask* Filter : TaskSet.Tasks)
-	// {
-	// 	if (auto GameplayFilter = Cast<UFPTargetFilterTask_GameplayTag>(Filter))
-	// 	{
-	// 		
-	// 	}
-	//
-	// 	if (!Filter->ChildTaskSet.IsEmpty())
-	// 	{
-	// 		QueryForTags(Filter->ChildTaskSet, Tags, OutTags);
-	// 	}
-	// }
-}
 
 TArray<AActor*> UFPTargetFilterLibrary::FPTraceActorsCapsule(
 	AActor* Source,
@@ -40,7 +15,7 @@ TArray<AActor*> UFPTargetFilterLibrary::FPTraceActorsCapsule(
 	ETraceTypeQuery TraceChannel,
 	float Radius,
 	float HalfHeight,
-	const FFPTargetFilterTaskSet& FilterTaskSet,
+	const FFPTargetFilter& FilterTaskSet,
 	EDrawDebugTrace::Type DrawDebugType)
 {
 	TArray<FHitResult> OutHits;
@@ -68,13 +43,13 @@ TArray<AActor*> UFPTargetFilterLibrary::FPTraceActorsSphere(
 	const TArray<AActor*>& ActorsToIgnore,
 	ETraceTypeQuery TraceChannel,
 	float Radius,
-	const FFPTargetFilterTaskSet& FilterTaskSet,
+	const FFPTargetFilter& FilterTaskSet,
 	EDrawDebugTrace::Type DrawDebugType)
 {
 	return FPTraceActorsCapsule(Source, Location, Location, ActorsToIgnore, TraceChannel, Radius, 1.0f, FilterTaskSet, DrawDebugType);
 }
 
-TArray<AActor*> UFPTargetFilterLibrary::FilterActorArray(AActor* Source, const TArray<AActor*>& Actors, const FFPTargetFilterTaskSet& FilterTaskSet)
+TArray<AActor*> UFPTargetFilterLibrary::FilterActorArray(AActor* Source, const TArray<AActor*>& Actors, const FFPTargetFilter& FilterTaskSet)
 {
 	TArray<AActor*> OutActors;
 	for (AActor* A : Actors)
@@ -86,4 +61,38 @@ TArray<AActor*> UFPTargetFilterLibrary::FilterActorArray(AActor* Source, const T
 	}
 
 	return OutActors;
+}
+
+FFPTargetFilter UFPTargetFilterLibrary::Conv_TaskGameplayTag(const FFPTargetFilterTask_GameplayTag& FilterTask)
+{
+	FFPTargetFilter Filter;
+	Filter.Task = FInstancedStruct::Make(FilterTask);
+	return Filter;
+}
+
+FFPTargetFilter UFPTargetFilterLibrary::Conv_TaskRelationship(const FFPTargetFilterTask_Relationship& FilterTask)
+{
+	return FFPTargetFilter(FilterTask); 
+	// FFPTargetFilter Filter;
+	// Filter.Task = FInstancedStruct::Make(FilterTask);
+	// return Filter;
+}
+
+FFPTargetFilter UFPTargetFilterLibrary::Conv_TaskAttributeComparison(const FFPTargetFilterTask_AttributeComparison& FilterTask)
+{
+	FFPTargetFilter Filter;
+	Filter.Task = FInstancedStruct::Make(FilterTask);
+	return Filter;
+}
+
+FFPTargetFilter UFPTargetFilterLibrary::Conv_TaskPreset(const FFPTargetFilterTask_Preset& FilterTask)
+{
+	FFPTargetFilter Filter(FilterTask);
+	Filter.Task = FInstancedStruct::Make(FilterTask);
+	return Filter;
+}
+
+bool UFPTargetFilterLibrary::EvaluateFilterTask(const FFPTargetFilter& FilterTask, AActor* SourceActor, AActor* TargetActor)
+{
+	return FilterTask.DoesFilterPass(SourceActor, TargetActor, nullptr);
 }

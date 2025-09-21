@@ -3,66 +3,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPTargetFilterTask.h"
-#include "FPTargetFilterObserver.h"
+#include "FPTargetFilter.h"
 #include "GameplayEffectTypes.h"
 #include "FPTargetFilterTask_GameplayTag.generated.h"
 
-struct FFPTargetFilterTaskSetObserver;
-
-UCLASS(Blueprintable)
-class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_GameplayTag final : public UFPTargetFilterTask
+USTRUCT(BlueprintType, meta=(DisplayName="TargetFilterTask Gameplay Tag"))
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_GameplayTag : public FFPTargetFilterTask
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(EditAnywhere, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	FGameplayTagRequirements SourceRequirements;
 
-	UPROPERTY(EditAnywhere, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	FGameplayTagRequirements TargetRequirements;
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
-	// FGameplayTagContainer GetAllRelatedTags();
-
 	bool CheckTagRequirements(const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements, OUT FGameplayTagContainer* OutFailureTags) const;
 
-	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
+	virtual void BindToChanges(FFPTargetFilterObserver& Observer, AActor* SourceActor, AActor* TargetActor) const override;
+
+	void BindToActor(FFPTargetFilterObserver& Observer, AActor* Actor, const FGameplayTagRequirements& Requirements) const;
 };
 
-USTRUCT()
-struct FPGAMEPLAYABILITIES_API FFPTargetFilterObserver_GameplayTag : public FFPTargetFilterObserver
+USTRUCT(BlueprintType, meta=(DisplayName="TargetFilterTask Relationship"))
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_Relationship final : public FFPTargetFilterTask
 {
 	GENERATED_BODY()
 
-	virtual ~FFPTargetFilterObserver_GameplayTag() override;
-
-	virtual void Init(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
-
-	void BindToActor(AActor* Actor, const FGameplayTagRequirements& Requirements, TMap<FGameplayTag, FDelegateHandle>& OutDelegateHandles);
-
-	void UnbindDelegates(AActor* Actor, const TMap<FGameplayTag, FDelegateHandle>& DelegateHandles);
-
-	void OnFilterTagChanged(FGameplayTag Tag, int NewCount);
-
-private:
-	// TMap<FGameplayTag, FDelegateHandle> TagChangedDelegates;
-	TMap<FGameplayTag, FDelegateHandle> SourceDelegateHandles;
-	TMap<FGameplayTag, FDelegateHandle> TargetDelegateHandles;
-};
-
-UCLASS(Blueprintable)
-class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_Relationship final : public UFPTargetFilterTask
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, Category = Default, meta=(Categories="Relationship"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta=(Categories="Relationship"))
 	FGameplayTagContainer Requirements;
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
-	// bool CheckTagRequirements(const AActor* Source, const AActor* Target, const FGameplayTagRequirements& Requirements, OUT FGameplayTagContainer* OutFailureTags) const;
-	// virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
+	// TODO bind to team changes 
 };

@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPTargetFilterTask.h"
+#include "AbilitySystemComponent.h"
 #include "FPTargetFilterObserver.h"
 #include "GameplayEffect.h"
-#include "GameplayEffectTypes.h"
 
 #include "FPTargetFilterTask_AttributeComparison.generated.h"
 
@@ -52,25 +51,25 @@ struct FFPAttributeComparison_Context
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::NumericValue", EditConditionHides))
-	float NumericValue = 0.0f;
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::AttributeValue;
 
-	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
-	FFPAttributeComparison_AttributeValue AttributeValue;
+	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::NumericValue", EditConditionHides))
+	float NumericValue = 0.0f; // Perhaps this could be a scalable float?
 
 	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
 	EFPTargetFilterTaskContext Context = EFPTargetFilterTaskContext::Target;
 
-	UPROPERTY(EditDefaultsOnly, Category = Default)
-	EFPAttributeComparison_ValueType ValueType = EFPAttributeComparison_ValueType::AttributeValue;
+	UPROPERTY(EditDefaultsOnly, Category = Default, meta = (EditCondition = "ValueType == EFPAttributeComparison_ValueType::AttributeValue", EditConditionHides))
+	FFPAttributeComparison_AttributeValue AttributeValue;
 
 	float GetValue(UAbilitySystemComponent* AbilitySystem) const;
 
 	bool IsValid(UAbilitySystemComponent* AbilitySystem) const;
 };
 
-UCLASS(Blueprintable)
-class FPGAMEPLAYABILITIES_API UFPTargetFilterTask_AttributeComparison final : public UFPTargetFilterTask
+USTRUCT(BlueprintType, meta=(DisplayName="TargetFilterTask Attribute Comparison"))
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_AttributeComparison : public FFPTargetFilterTask
 {
 	GENERATED_BODY()
 
@@ -89,40 +88,7 @@ public:
 
 	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
 
-	virtual FFPTargetFilterObserver* MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor) override;
-};
+	virtual void BindToChanges(FFPTargetFilterObserver& Observer, AActor* SourceActor, AActor* TargetActor) const override;
 
-USTRUCT()
-struct FFPTargetFilterObserverBinding
-{
-	GENERATED_BODY()
-
-	FDelegateHandle Handle;
-
-	UPROPERTY()
-	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
-
-	FGameplayAttribute Attribute;
-
-	void Reset()
-	{
-		Handle.Reset();
-		AbilitySystem.Reset();
-	}
-};
-
-USTRUCT()
-struct FPGAMEPLAYABILITIES_API FFPTargetFilterObserver_AttributeComparison : public FFPTargetFilterObserver
-{
-	GENERATED_BODY()
-
-	virtual ~FFPTargetFilterObserver_AttributeComparison() override;
-
-	void InitAttributeValue(UFPTargetFilterTask_AttributeComparison* FilterTask, AActor* SourceActor, AActor* TargetActor);
-
-	void OnAttributeChanged(const FOnAttributeChangeData& Data);
-
-private:
-	FFPTargetFilterObserverBinding BindingA;
-	FFPTargetFilterObserverBinding BindingB;
+	virtual void BindToAbilitySystem(FFPTargetFilterObserver& Observer, UAbilitySystemComponent* Sys) const;
 };

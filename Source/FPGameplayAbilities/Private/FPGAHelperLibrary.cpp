@@ -2,8 +2,8 @@
 
 #include "FPGAHelperLibrary.h"
 
+#include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
-#include "FPGameplayAbilities/Targeting/FPTargetFilterTask_GameplayTag.h"
 #include "Perception/AISense.h"
 
 bool UFPGAHelperLibrary::CheckAffiliation(FAISenseAffiliationFilter Affiliation, AActor* ActorA, AActor* ActorB)

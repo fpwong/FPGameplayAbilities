@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPTargetFilterTaskSet.h"
+#include "FPTargetFilter.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "FPGATargetData.generated.h"
@@ -80,7 +80,7 @@ struct FPGAMEPLAYABILITIES_API FFPGATargetingStage
 	FFPGATargetingStage();
 
 	UPROPERTY(Category = "FPGA Targeting", EditDefaultsOnly)
-	FFPTargetFilterTaskSet TargetFilterTaskSet;
+	FFPTargetFilter TargetFilter;
 
 	/**
 	* The target types of this stage.

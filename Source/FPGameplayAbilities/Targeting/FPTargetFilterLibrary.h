@@ -3,9 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FPTargetFilter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "FPTargetFilterLibrary.generated.h"
 
+struct FFPTargetFilterTask_Preset;
+struct FFPTargetFilterTask_AttributeComparison;
+struct FFPTargetFilterTask_Relationship;
+struct FFPTargetFilterTask_GameplayTag;
 struct FFPTargetFilterTaskSet;
 struct FGameplayTagContainer;
 
@@ -15,13 +20,6 @@ class FPGAMEPLAYABILITIES_API UFPTargetFilterLibrary final : public UBlueprintFu
 	GENERATED_BODY()
 
 public:
-	static void GetAllRequiredTagsInTaskSet(	
-		const FFPTargetFilterTaskSet& TaskSet,
-		AActor* Source,
-		AActor* Target, 
-		const FGameplayTagContainer& Tags,
-		OUT FGameplayTagContainer& OutTags);
-
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf = "Source", AutoCreateRefTerm="ActorsToIgnore,FilterTaskSet"))
 	static TArray<AActor*> FPTraceActorsCapsule(AActor* Source,
 										const FVector Start,
@@ -30,7 +28,7 @@ public:
 										ETraceTypeQuery TraceChannel,
 										float Radius,
 										float HalfHeight,
-										const FFPTargetFilterTaskSet& FilterTaskSet,
+										const FFPTargetFilter& FilterTaskSet,
 										EDrawDebugTrace::Type DrawDebugType);
 
 	UFUNCTION(BlueprintCallable, meta=(DefaultToSelf = "Source", AutoCreateRefTerm="ActorsToIgnore,FilterTaskSet"))
@@ -39,9 +37,24 @@ public:
 										const TArray<AActor*>& ActorsToIgnore,
 										ETraceTypeQuery TraceChannel,
 										float Radius,
-										const FFPTargetFilterTaskSet& FilterTaskSet,
+										const FFPTargetFilter& FilterTaskSet,
 										EDrawDebugTrace::Type DrawDebugType);
 
 	UFUNCTION(BlueprintCallable)
-	static TArray<AActor*> FilterActorArray(AActor* Source, const TArray<AActor*>& Actors, const FFPTargetFilterTaskSet& FilterTaskSet);
+	static TArray<AActor*> FilterActorArray(AActor* Source, const TArray<AActor*>& Actors, const FFPTargetFilter& FilterTaskSet);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "To FilterTask", CompactNodeTitle = "->", BlueprintAutocast), Category = "Conversion")
+	static FFPTargetFilter Conv_TaskGameplayTag(const FFPTargetFilterTask_GameplayTag& FilterTask);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "To FilterTask", CompactNodeTitle = "->", BlueprintAutocast), Category = "Conversion")
+	static FFPTargetFilter Conv_TaskRelationship(const FFPTargetFilterTask_Relationship& FilterTask);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "To FilterTask", CompactNodeTitle = "->", BlueprintAutocast), Category = "Conversion")
+	static FFPTargetFilter Conv_TaskAttributeComparison(const FFPTargetFilterTask_AttributeComparison& FilterTask);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "To FilterTask", CompactNodeTitle = "->", BlueprintAutocast), Category = "Conversion")
+	static FFPTargetFilter Conv_TaskPreset(const FFPTargetFilterTask_Preset& FilterTask);
+
+	UFUNCTION(BlueprintCallable)
+	static bool EvaluateFilterTask(const FFPTargetFilter& FilterTask, AActor* SourceActor, AActor* TargetActor);
 };

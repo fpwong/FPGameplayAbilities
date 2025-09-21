@@ -31,7 +31,7 @@ bool FFPAttributeComparison_Context::IsValid(UAbilitySystemComponent* AbilitySys
 	return true;
 }
 
-bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
+bool FFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags) const
 {
 	if (!TargetActor)
 	{
@@ -57,82 +57,58 @@ bool UFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* Sourc
 	bool bResult = false;
 	switch (ComparisonMethod)
 	{
-		case EFPAttributeComparison_ComparisonMethod::Equals:
-			bResult = ValueA == ValueB;
-			break;
-		case EFPAttributeComparison_ComparisonMethod::Less:
-			bResult = ValueA < ValueB;
-			break;
-		case EFPAttributeComparison_ComparisonMethod::LessEquals:
-			bResult = ValueA <= ValueB;
-			break;
-		case EFPAttributeComparison_ComparisonMethod::Greater:
-			bResult = ValueA > ValueB;
-			break;
-		case EFPAttributeComparison_ComparisonMethod::GreaterEquals:
-			bResult = ValueA >= ValueB;
-			break;
-		default: ;
+	case EFPAttributeComparison_ComparisonMethod::Equals:
+		bResult = ValueA == ValueB;
+		break;
+	case EFPAttributeComparison_ComparisonMethod::Less:
+		bResult = ValueA < ValueB;
+		break;
+	case EFPAttributeComparison_ComparisonMethod::LessEquals:
+		bResult = ValueA <= ValueB;
+		break;
+	case EFPAttributeComparison_ComparisonMethod::Greater:
+		bResult = ValueA > ValueB;
+		break;
+	case EFPAttributeComparison_ComparisonMethod::GreaterEquals:
+		bResult = ValueA >= ValueB;
+		break;
+	default: ;
 	}
 
 	return bResult ^ bInvert;
 }
 
-FFPTargetFilterObserver* UFPTargetFilterTask_AttributeComparison::MakeBinding(UFPTargetFilterTask* FilterTask, AActor* SourceActor, AActor* TargetActor)
+void FFPTargetFilterTask_AttributeComparison::BindToChanges(FFPTargetFilterObserver& Observer, AActor* SourceActor, AActor* TargetActor) const
 {
-	FFPTargetFilterObserver_AttributeComparison* Binding = new FFPTargetFilterObserver_AttributeComparison();
-	Binding->InitAttributeValue(Cast<UFPTargetFilterTask_AttributeComparison>(FilterTask), SourceActor, TargetActor);
-	return Binding;
-}
-
-FFPTargetFilterObserver_AttributeComparison::~FFPTargetFilterObserver_AttributeComparison()
-{
-	if (BindingA.AbilitySystem.IsValid())
-	{
-		BindingA.AbilitySystem->GetGameplayAttributeValueChangeDelegate(BindingA.Attribute).Remove(BindingA.Handle);
-	}
-
-	if (BindingB.AbilitySystem.IsValid())
-	{
-		BindingB.AbilitySystem->GetGameplayAttributeValueChangeDelegate(BindingB.Attribute).Remove(BindingB.Handle);
-	}
-}
-
-void FFPTargetFilterObserver_AttributeComparison::InitAttributeValue(UFPTargetFilterTask_AttributeComparison* FilterTask, AActor* SourceActor, AActor* TargetActor)
-{
-	Init(FilterTask, SourceActor, TargetActor);
-
-	BindingA.Reset();
-	BindingB.Reset();
-
 	UAbilitySystemComponent* TargetAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 	UAbilitySystemComponent* SourceAbilitySystem = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(SourceActor);
 
-	UAbilitySystemComponent* AbilitySystemA = FilterTask->ContextA.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
-	UAbilitySystemComponent* AbilitySystemB = FilterTask->ContextB.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
-
-	if (FilterTask->ContextA.IsValid(AbilitySystemA))
+	UAbilitySystemComponent* SysA = ContextA.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+	if (SysA && ContextA.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
 	{
-		if (FilterTask->ContextA.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
-		{
-			BindingA.Attribute = FilterTask->ContextA.AttributeValue.Attribute;
-			BindingA.Handle = AbilitySystemA->GetGameplayAttributeValueChangeDelegate(BindingA.Attribute).AddRaw(this, &FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged);
-			BindingA.AbilitySystem = AbilitySystemA;
-		}
+		BindToAbilitySystem(Observer, SysA);
 	}
 
-	if (FilterTask->ContextB.IsValid(AbilitySystemB))
+	UAbilitySystemComponent* SysB = ContextB.Context == EFPTargetFilterTaskContext::Source ? SourceAbilitySystem : TargetAbilitySystem;
+	if (SysB && ContextB.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
 	{
-		if (FilterTask->ContextB.ValueType == EFPAttributeComparison_ValueType::AttributeValue)
-		{
-			BindingB.Attribute = FilterTask->ContextB.AttributeValue.Attribute;
-			BindingB.Handle = AbilitySystemB->GetGameplayAttributeValueChangeDelegate(BindingB.Attribute).AddRaw(this, &FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged);
-			BindingB.AbilitySystem = AbilitySystemB;
-		}
+		BindToAbilitySystem(Observer, SysB);
 	}
 }
 
-void FFPTargetFilterObserver_AttributeComparison::OnAttributeChanged(const FOnAttributeChangeData& Data)
+void FFPTargetFilterTask_AttributeComparison::BindToAbilitySystem(FFPTargetFilterObserver& Observer, UAbilitySystemComponent* Sys) const
 {
-	CheckResultChanged();
+	FGameplayAttribute Attrib = ContextA.AttributeValue.Attribute;
+	FDelegateHandle Handle = Sys->GetGameplayAttributeValueChangeDelegate(Attrib).AddLambda([&Observer](const FOnAttributeChangeData& Data)
+	{
+		Observer.CheckResultChanged();
+	});
+
+	Observer.AddCleanup([Handle, Sys = TWeakObjectPtr(Sys), Attrib]
+	{
+		if (Sys.IsValid())
+		{
+			Sys->GetGameplayAttributeValueChangeDelegate(Attrib).Remove(Handle);
+		}
+	});
 }

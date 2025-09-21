@@ -8,7 +8,7 @@
 
 /** Add additional Gameplay Effects that attempt to activate under certain conditions (or no conditions) */
 UCLASS(CollapseCategories)
-class FPGAMEPLAYABILITIES_API UFPTriggerAbilitiesGameplayEffectComponent : public UGameplayEffectComponent
+class UFPTriggerAbilitiesGameplayEffectComponent : public UGameplayEffectComponent
 {
 	GENERATED_BODY()
 

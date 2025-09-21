@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPTargetFilterTaskSet.h"
+#include "FPTargetFilter.h"
 #include "FPTargetFilterPreset.generated.h"
 
 UCLASS(BlueprintType)
@@ -12,36 +12,48 @@ class FPGAMEPLAYABILITIES_API UFPTargetFilterPreset final : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = Default, meta = (ShowOnlyInnerProperties))
-	FFPTargetFilterTaskSet TaskSet;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Default)
+	FFPTargetFilter TargetFilter;
 
-	UFUNCTION(BlueprintCallable, Category = TargetFilter)
-	bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor) const
-	{
-		return TaskSet.DoesFilterPass(SourceActor, TargetActor);
-	}
+	UFUNCTION(BlueprintPure)
+	static const FFPTargetFilter& GetTargetFilterFromPreset(UFPTargetFilterPreset* Preset) { return Preset->TargetFilter; }
+};
 
-	UFUNCTION(BlueprintCallable, Category = TargetFilter)
-	static bool EvaluateTargetFilter(UFPTargetFilterPreset* TargetFilterPreset, const AActor* SourceActor, const AActor* TargetActor)
-	{
-		return TargetFilterPreset ? TargetFilterPreset->DoesFilterPass(SourceActor, TargetActor) : false;
-	}
+USTRUCT(BlueprintType, meta = (ShowOnlyInnerProperties))
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_Preset : public FFPTargetFilterTask
+{
+	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable, Category = TargetFilter)
-	static TArray<AActor*> ApplyTargetFilterToArray(UFPTargetFilterPreset* TargetFilterPreset, const AActor* SourceActor, TArray<AActor*> TargetArray)
+	UPROPERTY(EditAnywhere)
+	UFPTargetFilterPreset* Preset;
+
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override
 	{
-		TArray<AActor*> OutActors;
-		if (TargetFilterPreset)
+		if (!Preset)
 		{
-			for (AActor* TargetActor : TargetArray)
-			{
-				if (EvaluateTargetFilter(TargetFilterPreset, SourceActor, TargetActor))
-				{
-					OutActors.Add(TargetActor);
-				}
-			}
+			return true;
 		}
 
-		return OutActors;
+		return Preset->TargetFilter.GetTask().DoesFilterPass(SourceActor, TargetActor, OutFailureTags);
+	}
+
+	virtual void BindToChanges(FFPTargetFilterObserver& Observer, AActor* SourceActor, AActor* TargetActor) const override
+	{
+		if (!Preset)
+		{
+			return;
+		}
+
+		Preset->TargetFilter.GetTask().BindToChanges(Observer, SourceActor, TargetActor);
+	}
+
+	virtual void GetChildTasks(TArray<FInstancedStruct>& OutTasks) const override
+	{
+		if (!Preset)
+		{
+			return;
+		}
+
+		Preset->TargetFilter.GetTask().GetChildTasks(OutTasks);
 	}
 };
