@@ -21,8 +21,6 @@ void UFPGATargetingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	SettingsData = Cast<UFPGATargetingSystemSettingsData>(GetDefault<UFPGASettings>()->TargetingSettingsData.LoadSynchronous());
-
-	HoveredCursorState = EMouseCursor::Default;
 }
 
 void UFPGATargetingSubsystem::Deinitialize()
@@ -33,7 +31,7 @@ void UFPGATargetingSubsystem::Deinitialize()
 void UFPGATargetingSubsystem::StartTargetingRequest(TSharedPtr<FFPGATargetingRequest> Request)
 {
 	CurrentRequest = Request;
-	GetLocalPlayer()->PlayerController->CurrentMouseCursor = EMouseCursor::Crosshairs;
+	UpdateMouseCursor();
 }
 
 bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResults) // LMB
@@ -59,8 +57,11 @@ bool UFPGATargetingSubsystem::ConfirmTargeting(const TArray<FHitResult>& HitResu
 
 void UFPGATargetingSubsystem::CancelTargetingRequest()
 {
-	CurrentRequest.Reset();
-	SetMouseCursor(HoveredCursorState);
+	if (CurrentRequest.IsValid())
+	{
+		CurrentRequest.Reset();
+		UpdateMouseCursor();
+	}
 }
 
 void UFPGATargetingSubsystem::Tick(float DeltaTime)
@@ -147,7 +148,7 @@ bool UFPGATargetingSubsystem::GetHitResultsUnderCursor(TArray<FHitResult>& OutHi
 
 void UFPGATargetingSubsystem::UpdatePlayerFocus(const TArray<FHitResult>& HitResults)
 {
-	check(SettingsData != nullptr); 
+	check(SettingsData != nullptr);
 
 	for (const auto& HitResult : HitResults)
 	{
@@ -241,26 +242,44 @@ void UFPGATargetingSubsystem::FocusHoveredActor(bool bClearIfNone)
 void UFPGATargetingSubsystem::UpdateMouseCursor()
 {
 	check(SettingsData != nullptr);
-	if (HoveredActor.IsValid())
+	if (CurrentRequest.IsValid()) // update the cursor for the current request
 	{
-		for (const FFPGAHoveredCursor& HoveredCursor : SettingsData->HoveredCursors)
+		if (HoveredActor.IsValid())
 		{
-			if (HoveredCursor.TargetFilter.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
+			// if the current request passes the hovered actor, show some casting cursor
+			if (CurrentRequest.Pin()->GetCurrentStage().TargetFilter.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
 			{
-				HoveredCursorState = HoveredCursor.CursorType;
-				break;
+				SetMouseCursor(EMouseCursor::GrabHand);
 			}
+			// show some "invalid target" cursor
+			else
+			{
+				SetMouseCursor(EMouseCursor::GrabHandClosed);
+			}
+		}
+		else
+		{
+			SetMouseCursor(EMouseCursor::Crosshairs);
 		}
 	}
 	else
 	{
-		HoveredCursorState = EMouseCursor::Default;
-	}
-
-	// don't actually update the mouse cursor if we have a targeting request ongoing
-	if (!CurrentRequest.IsValid())
-	{
-		SetMouseCursor(HoveredCursorState);
+		if (HoveredActor.IsValid())
+		{
+			// try to find a cursor from this list of potential actions (e.g. attack / interact)
+			for (const FFPGAHoveredCursor& HoveredCursor : SettingsData->HoveredCursors)
+			{
+				if (HoveredCursor.TargetFilter.DoesFilterPass(SourcePawn.Get(), HoveredActor.Get()))
+				{
+					SetMouseCursor(HoveredCursor.CursorType);
+					break;
+				}
+			}
+		}
+		else // set to the default cursor
+		{
+			SetMouseCursor(EMouseCursor::Default);
+		}
 	}
 }
 
@@ -282,5 +301,9 @@ void UFPGATargetingSubsystem::SetMouseCursor(const EMouseCursor::Type Cursor)
 		{
 			PC->CurrentMouseCursor = Cursor;
 		}
+
+		float X, Y;
+		PC->GetMousePosition(X, Y);
+		PC->SetMouseLocation(X, Y);
 	}
 }

@@ -94,6 +94,4 @@ protected:
 	TWeakObjectPtr<AActor> HoveredActor;
 
 	void SetMouseCursor(EMouseCursor::Type Cursor);
-
-	EMouseCursor::Type HoveredCursorState = EMouseCursor::Default;
 };
