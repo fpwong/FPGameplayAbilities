@@ -35,6 +35,15 @@ public:
 	virtual FString GetDisplayString(float Value) { return FString::SanitizeFloat(Value, 0); }
 };
 
+UCLASS(BlueprintType, Blueprintable, meta=(DisplayName="Display Percent"))
+class FPGAMEPLAYABILITIES_API UFPValueDisplay_Percent : public UFPValueDisplay
+{
+	GENERATED_BODY()
+
+public:
+	virtual FString GetDisplayString(float Value) override { return FString::Printf(TEXT("%d%%"), FMath::RoundToInt(Value) * 100); }
+};
+
 UCLASS(BlueprintType)
 class FPGAMEPLAYABILITIES_API UFPValueSettings : public UDataAsset
 {

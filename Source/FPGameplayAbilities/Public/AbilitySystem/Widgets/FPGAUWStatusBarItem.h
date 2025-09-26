@@ -18,7 +18,8 @@ class FPGAMEPLAYABILITIES_API UFPGAUWStatusBarItem : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UAbilitySystemComponent* AbilitySystem;
+	UPROPERTY()
+	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystem;
 
 	UPROPERTY(BlueprintReadOnly)
 	FActiveGameplayEffectHandle ActiveGameplayEffectHandle;
@@ -33,6 +34,12 @@ public:
 	TObjectPtr<UCommonTextBlock> NameLabel;
 
 	void SetGameplayEffect(FActiveGameplayEffectHandle InActiveGameplayEffectHandle);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SetGameplayEffect(const FActiveGameplayEffectHandle& Effect, const FGameplayTagContainer& EffectTags);
+
+	UFUNCTION(BlueprintCallable)
+	UAbilitySystemComponent* GetAbilitySystemComponent() const;
 
 protected:
 	float StartWorldTime = 0.0f;

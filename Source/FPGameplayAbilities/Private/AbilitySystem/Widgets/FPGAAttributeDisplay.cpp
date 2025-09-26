@@ -83,20 +83,63 @@ void UFPGAAttributeDisplay::OnAttributeChanged(const FOnAttributeChangeData& Cha
 
 void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 {
+	if (!AbilitySystemPtr.IsValid())
+	{
+		return;
+	}
+
 	const float AttributeValue = UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags);
 
-	FText AttributeText = FText::AsNumber(AttributeValue, &NumberFormat);
+	FString ValueString;
+	if (bShowBaseFinal)
+	{
+		static FGameplayTagRequirements Empty;
+		bool bSuccess;
+		const int32 BaseValue = UFPGAGameplayAbilitiesLibrary::EvaluateAttributeValueForChannel(AbilitySystemPtr.Get(), Attribute, BaseChannel, bSuccess);
+		const int32 FinalValue = AbilitySystemPtr.Get()->GetNumericAttribute(Attribute);
+
+		if (FinalValue != BaseValue)
+		{
+			ValueString = FString::Printf(TEXT("%d + %d"), BaseValue, (FinalValue - BaseValue));
+		}
+		else
+		{
+			ValueString = FText::AsNumber(AttributeValue, &NumberFormat).ToString();
+		}
+	}
+	else if (ValueDisplayMethod)
+	{
+		ValueString = UFPGameplayValueHelpers::ApplyValueDisplayMethod(ValueDisplayMethod, AttributeValue);
+	}
+	else
+	{
+		ValueString = FText::AsNumber(AttributeValue, &NumberFormat).ToString();
+	}
+
+	TStringBuilder<256> StringBuilder;
+
 	if (bShowAttributeName)
 	{
-		AttributeText = FText::Format(INVTEXT("{0}: {1}"), {FText::FromString(Attribute.AttributeName), FText::AsNumber(AttributeValue, &NumberFormat)});
+		StringBuilder.Append(Attribute.AttributeName);
+		StringBuilder.Append(TEXT(": "));
 	}
 
-	if (ValueDisplayMethod)
+	if (bShowPlusMinus && AttributeValue > 0)
 	{
-		AttributeText = FText::FromString(UFPGameplayValueHelpers::ApplyValueDisplayMethod(ValueDisplayMethod, AttributeValue));
+		StringBuilder.AppendChar(TEXT('+'));
+	}
+	// A negative sign is already part of the string from SanitizeFloat.
+
+	StringBuilder.Append(ValueString);
+
+	// Add Suffix: Unit
+	if (!Unit.IsEmpty())
+	{
+		// StringBuilder.AppendChar(TEXT(' '));
+		StringBuilder.Append(Unit);
 	}
 
-	SetText(AttributeText);
+	SetText(FText::FromString(StringBuilder.ToString()));
 
 	if (OldValue != AttributeValue)
 	{

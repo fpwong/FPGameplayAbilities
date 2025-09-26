@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/TextBlock.h"
 #include "AttributeSet.h"
 #include "CommonTextBlock.h"
 #include "GameplayTagContainer.h"
 #include "Misc/FPGameplayValueRow.h"
+#include "GameplayEffectTypes.h"
 #include "FPGAAttributeDisplay.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFPGAAttributeDisplayChanged, float, OldValue, float, NewValue);
@@ -44,7 +44,19 @@ public:
 	int MaxNumDecimals = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShowPlusMinus = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bShowAttributeName = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShowBaseFinal = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EGameplayModEvaluationChannel BaseChannel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Unit;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;

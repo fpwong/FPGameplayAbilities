@@ -10,6 +10,8 @@
 #include "GameplayTagContainer.h"
 #include "FPAbilitySet.generated.h"
 
+struct FGameplayModifierInfo;
+struct FGameplayEffectModifierMagnitude;
 class IAbilitySystemInterface;
 class UAbilitySystemComponent;
 class UAttributeSet;
@@ -137,4 +139,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = FPAbilitySet, meta=(DisplayName="IsValid"))
 	static bool IsAbilitySetHandleValid(const FFPAbilitySetHandle& Handle) { return Handle.IsValid(); }
+
+	UFUNCTION(BlueprintCallable, Category = FPAbilitySet)
+	static TArray<FGameplayModifierInfo> GetAbilitySetModifiers(const FFPAbilitySet& AbilitySet);
 };

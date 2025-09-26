@@ -921,6 +921,42 @@ float UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTag(UAbilitySystemComp
 	return GetAttributeValueWithTags(AbilitySystem, Attribute, FGameplayTagContainer(Tag));
 }
 
+float UFPGAGameplayAbilitiesLibrary::EvaluateAttributeValueForChannel(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, EGameplayModEvaluationChannel Channel, bool& bSuccess)
+{
+	float RetVal = 0.f;
+	if (!AbilitySystem || !AbilitySystem->HasAttributeSetForAttribute(Attribute))
+	{
+		bSuccess = false;
+		return RetVal;
+	}
+
+	FGameplayEffectAttributeCaptureDefinition Capture(Attribute, EGameplayEffectAttributeCaptureSource::Source, true);
+
+	FGameplayEffectAttributeCaptureSpec CaptureSpec(Capture);
+	AbilitySystem->CaptureAttributeForGameplayEffect(CaptureSpec);
+
+	FAggregatorEvaluateParameters EvalParams;
+	bSuccess = CaptureSpec.AttemptCalculateAttributeMagnitudeUpToChannel(EvalParams, Channel, RetVal);
+	return RetVal;
+}
+
+float UFPGAGameplayAbilitiesLibrary::GetModifierStaticMagnitude(const FGameplayModifierInfo& ModInfo)
+{
+	float Mag = 0;
+	ModInfo.ModifierMagnitude.GetStaticMagnitudeIfPossible(0, Mag);
+	return Mag;
+}
+
+const FGameplayAttribute& UFPGAGameplayAbilitiesLibrary::GetModifierAttribute(const FGameplayModifierInfo& ModInfo)
+{
+	return ModInfo.Attribute;
+}
+
+bool UFPGAGameplayAbilitiesLibrary::IsStaticModifier(const FGameplayModifierInfo& ModInfo)
+{
+	return ModInfo.ModifierMagnitude.GetMagnitudeCalculationType() == EGameplayEffectMagnitudeCalculation::ScalableFloat;
+}
+
 UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorASCFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle)
 {
 	return GameplayEffectContextHandle.GetInstigatorAbilitySystemComponent();

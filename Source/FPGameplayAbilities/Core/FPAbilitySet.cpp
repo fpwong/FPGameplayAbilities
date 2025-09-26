@@ -212,3 +212,13 @@ FFPAbilitySetHandle UFPAbilitySetLibrary::GiveAbilitySetWithParams(UAbilitySyste
 {
 	return AbilitySet.GiveAbilityWithParameters(ASC, Parameters, OverrideSourceObject);
 }
+
+TArray<FGameplayModifierInfo> UFPAbilitySetLibrary::GetAbilitySetModifiers(const FFPAbilitySet& AbilitySet)
+{
+	TArray<FGameplayModifierInfo> Out;
+	for (const FFPGrantedGameplayEffect& GE : AbilitySet.GrantedGameplayEffects)
+	{
+		Out.Append(GE.GameplayEffect.GetDefaultObject()->Modifiers);
+	}
+	return Out;
+}

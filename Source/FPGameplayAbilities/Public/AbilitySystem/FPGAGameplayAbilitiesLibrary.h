@@ -270,6 +270,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static float GetAttributeValueWithTag(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, FGameplayTag Tag);
 
+	UFUNCTION(BlueprintCallable)
+	static float EvaluateAttributeValueForChannel(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, EGameplayModEvaluationChannel Channel, bool& bSuccess);
+
+	UFUNCTION(BlueprintCallable)
+	static float GetModifierStaticMagnitude(const FGameplayModifierInfo& ModInfo);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static const FGameplayAttribute& GetModifierAttribute(const FGameplayModifierInfo& ModInfo);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static bool IsStaticModifier(const FGameplayModifierInfo& ModInfo);
+
 	/////////////////////////////////
 	/// GameplayEffectContextHandle
 	/////////////////////////////////

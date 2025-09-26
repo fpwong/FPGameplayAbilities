@@ -31,10 +31,10 @@ void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiv
 		StartWorldTime = ActiveGameplayEffect->StartWorldTime;
 		Duration = ActiveGameplayEffect->GetDuration();
 
-		// infinite duration, set the progress to full
-		if (Duration < 0.0f && DurationBar)
+		// hide duration bar when infinite
+		if (Duration == FGameplayEffectConstants::INFINITE_DURATION && DurationBar)
 		{
-			DurationBar->SetPercent(1.0f);
+			DurationBar->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
 		FString EffectName = ActiveGameplayEffect->Spec.ToSimpleString();
@@ -59,17 +59,19 @@ void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiv
 			NameLabel->SetText(FText::FromString(EffectName));
 		}
 
-		// TODO: Setup a tooltip widget
-		if (UWidget* Root = GetRootWidget())
-		{
-			Root->SetToolTipText(FText::FromString(EffectName));
-		}
+		BP_SetGameplayEffect(ActiveGameplayEffectHandle, EffectTags);
 	}
 
 	if (DurationLabel)
 	{
 		DurationLabel->SetText(FText::GetEmpty());
 	}
+
+}
+
+UAbilitySystemComponent* UFPGAUWStatusBarItem::GetAbilitySystemComponent() const
+{
+	return AbilitySystem.Get();
 }
 
 void UFPGAUWStatusBarItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
