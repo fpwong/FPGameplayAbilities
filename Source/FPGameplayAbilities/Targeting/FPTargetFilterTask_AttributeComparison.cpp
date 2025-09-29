@@ -57,19 +57,19 @@ bool FFPTargetFilterTask_AttributeComparison::DoesFilterPass(const AActor* Sourc
 	bool bResult = false;
 	switch (ComparisonMethod)
 	{
-	case EFPAttributeComparison_ComparisonMethod::Equals:
+	case EFPNumericComparisonMethod::Equals:
 		bResult = ValueA == ValueB;
 		break;
-	case EFPAttributeComparison_ComparisonMethod::Less:
+	case EFPNumericComparisonMethod::Less:
 		bResult = ValueA < ValueB;
 		break;
-	case EFPAttributeComparison_ComparisonMethod::LessEquals:
+	case EFPNumericComparisonMethod::LessEquals:
 		bResult = ValueA <= ValueB;
 		break;
-	case EFPAttributeComparison_ComparisonMethod::Greater:
+	case EFPNumericComparisonMethod::Greater:
 		bResult = ValueA > ValueB;
 		break;
-	case EFPAttributeComparison_ComparisonMethod::GreaterEquals:
+	case EFPNumericComparisonMethod::GreaterEquals:
 		bResult = ValueA >= ValueB;
 		break;
 	default: ;

@@ -33,10 +33,16 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTextBlock> NameLabel;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	TObjectPtr<UCommonTextBlock> StackLabel;
+
 	void SetGameplayEffect(FActiveGameplayEffectHandle InActiveGameplayEffectHandle);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetGameplayEffect(const FActiveGameplayEffectHandle& Effect, const FGameplayTagContainer& EffectTags);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnInhibitedChanged(bool bIsInhibited);
 
 	UFUNCTION(BlueprintCallable)
 	UAbilitySystemComponent* GetAbilitySystemComponent() const;
@@ -48,4 +54,9 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	void OnEffectRemoved(const FGameplayEffectRemovalInfo& GameplayEffectRemovalInfo);
+	void OnTimeChanged(FActiveGameplayEffectHandle ActiveGameplayEffectHandle, float NewStartTime, float NewDuration);
+	void OnStackChanged(FActiveGameplayEffectHandle ActiveGameplayEffectHandle, int NewStackCount, int PreviousStackCount) const;
+	void OnInhibitionChanged(FActiveGameplayEffectHandle ActiveGameplayEffectHandle, bool bIsInhibited);
+
+	void UpdateStackCount() const;
 };

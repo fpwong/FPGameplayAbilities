@@ -10,16 +10,6 @@
 #include "FPTargetFilterTask_AttributeComparison.generated.h"
 
 UENUM()
-enum class EFPAttributeComparison_ComparisonMethod : uint8
-{
-	Equals,
-	Less,
-	LessEquals,
-	Greater,
-	GreaterEquals
-};
-
-UENUM()
 enum class EFPAttributeComparison_ValueType : uint8
 {
 	NumericValue,
@@ -75,7 +65,7 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_AttributeComparison : public 
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = Default)
-	EFPAttributeComparison_ComparisonMethod ComparisonMethod = EFPAttributeComparison_ComparisonMethod::Equals;
+	EFPNumericComparisonMethod ComparisonMethod = EFPNumericComparisonMethod::Equals;
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	FFPAttributeComparison_Context ContextA;

@@ -28,6 +28,17 @@ enum class EFPTargetFilterTaskContext : uint8
 	Target
 };
 
+UENUM()
+enum class EFPNumericComparisonMethod : uint8
+{
+	Equals,
+	Less,
+	LessEquals,
+	Greater,
+	GreaterEquals
+};
+
+
 // USTRUCT(BlueprintType)
 // struct FPGAMEPLAYABILITIES_API FFPTargetFilterTaskContext
 // {

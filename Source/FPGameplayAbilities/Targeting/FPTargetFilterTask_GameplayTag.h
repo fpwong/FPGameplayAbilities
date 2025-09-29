@@ -39,3 +39,38 @@ struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_Relationship final : public F
 
 	// TODO bind to team changes 
 };
+
+USTRUCT(BlueprintType)
+struct FTagCountRequirement
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag Tag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Count;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EFPNumericComparisonMethod ComparisonMethod;
+};
+
+USTRUCT(BlueprintType, meta=(DisplayName="TargetFilterTask Gameplay Tag Count"))
+struct FPGAMEPLAYABILITIES_API FFPTargetFilterTask_GameplayTagCount : public FFPTargetFilterTask
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TArray<FTagCountRequirement> SourceRequirements;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TArray<FTagCountRequirement> TargetRequirements;
+
+	virtual bool DoesFilterPass(const AActor* SourceActor, const AActor* TargetActor, OUT FGameplayTagContainer* OutFailureTags = nullptr) const override;
+
+	bool CheckTagRequirements(const AActor* Source, const AActor* Target, const TArray<FTagCountRequirement>& Requirements, OUT FGameplayTagContainer* OutFailureTags) const;
+
+	virtual void BindToChanges(FFPTargetFilterObserver& Observer, AActor* SourceActor, AActor* TargetActor) const override;
+
+	void BindToActor(FFPTargetFilterObserver& Observer, AActor* Actor, const TArray<FTagCountRequirement>& Requirements) const;
+};

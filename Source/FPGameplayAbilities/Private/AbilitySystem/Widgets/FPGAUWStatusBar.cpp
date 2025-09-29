@@ -70,8 +70,8 @@ void UFPGAUWStatusBar::CreateStatusBarItem(const FActiveGameplayEffectHandle& Ac
 
 	if (UFPGAUWStatusBarItem* StatusBarItem = WidgetTree->ConstructWidget<UFPGAUWStatusBarItem>(StatusBarItemClass))
 	{
-		StatusBarItem->SetGameplayEffect(ActiveEffectHandle);
 		StatusBarPanel->AddChild(StatusBarItem);
+		StatusBarItem->SetGameplayEffect(ActiveEffectHandle);
 	}
 }
 

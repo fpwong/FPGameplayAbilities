@@ -8,6 +8,10 @@
 #include "UObject/Object.h"
 #include "FPTargetFilterGEComponent.generated.h"
 
+struct FActiveGameplayEffectHandle;
+struct FGameplayEffectRemovalInfo;
+class UAbilitySystemComponent;
+
 UCLASS(DisplayName="Target Filter")
 class UFPTargetFilterGEComponent : public UGameplayEffectComponent
 {
@@ -17,5 +21,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FFPTargetFilter TargetFilter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bInhibits = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bBlocksApplication = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bRemoveOnFail = false;
+
 	virtual bool CanGameplayEffectApply(const FActiveGameplayEffectsContainer& ActiveGEContainer, const FGameplayEffectSpec& GESpec) const override;
+
+	virtual bool OnActiveGameplayEffectAdded(FActiveGameplayEffectsContainer& ActiveGEContainer, FActiveGameplayEffect& ActiveGE) const override;
+
+	void OnGameplayEffectRemoved(const FGameplayEffectRemovalInfo& GERemovalInfo, UAbilitySystemComponent* ASC, TSharedPtr<FFPTargetFilterObserver> Observer) const;
+
+	void OnResultChanged(AActor* Actor, bool bFilterPassed, FActiveGameplayEffectHandle ActiveGEHandle) const;
 };

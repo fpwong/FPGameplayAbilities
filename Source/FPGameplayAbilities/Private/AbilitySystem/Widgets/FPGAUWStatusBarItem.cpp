@@ -18,12 +18,13 @@ void UFPGAUWStatusBarItem::SetGameplayEffect(FActiveGameplayEffectHandle InActiv
 		if (FActiveGameplayEffectEvents* ActiveEventSet = AbilitySystem->GetActiveEffectEventSet(ActiveGameplayEffectHandle))
 		{
 			ActiveEventSet->OnEffectRemoved.AddUObject(this, &ThisClass::OnEffectRemoved);
+			ActiveEventSet->OnTimeChanged.AddUObject(this, &ThisClass::OnTimeChanged);
+			ActiveEventSet->OnStackChanged.AddUObject(this, &ThisClass::OnStackChanged);
+			ActiveEventSet->OnInhibitionChanged.AddUObject(this, &ThisClass::OnInhibitionChanged);
 		}
-	}
 
-	// TODO: stack change / time change
-	// AbilitySystem->OnGameplayEffectStackChangeDelegate(ActiveGameplayEffectHandle);
-	// AbilitySystem->OnGameplayEffectTimeChangeDelegate(ActiveGameplayEffectHandle);
+		UpdateStackCount();
+	}
 
 	if (const FActiveGameplayEffect* ActiveGameplayEffect = AbilitySystem->GetActiveGameplayEffect(ActiveGameplayEffectHandle))
 	{
@@ -88,7 +89,7 @@ void UFPGAUWStatusBarItem::NativeTick(const FGeometry& MyGeometry, float InDelta
 				FText DurationText;
 				if (TimeRemaining > 0)
 				{
-					DurationText = FText::FromString(FString::Printf(TEXT("%d"), FMath::RoundToInt(TimeRemaining)));
+					DurationText = FText::FromString(FString::Printf(TEXT("%d"), FMath::CeilToInt(TimeRemaining)));
 				}
 
 				DurationLabel->SetText(DurationText);
@@ -109,4 +110,37 @@ void UFPGAUWStatusBarItem::NativeTick(const FGeometry& MyGeometry, float InDelta
 void UFPGAUWStatusBarItem::OnEffectRemoved(const FGameplayEffectRemovalInfo& GameplayEffectRemovalInfo)
 {
 	RemoveFromParent();
+}
+
+void UFPGAUWStatusBarItem::OnTimeChanged(FActiveGameplayEffectHandle ActiveHandle, float NewStartTime, float NewDuration)
+{
+	Duration = NewDuration;
+	StartWorldTime = NewStartTime;
+}
+
+void UFPGAUWStatusBarItem::OnStackChanged(FActiveGameplayEffectHandle ActiveHandle, int NewStackCount, int PreviousStackCount) const
+{
+	UpdateStackCount();
+}
+
+void UFPGAUWStatusBarItem::OnInhibitionChanged(FActiveGameplayEffectHandle ActiveHandle, bool bIsInhibited)
+{
+	BP_OnInhibitedChanged(bIsInhibited);
+}
+
+void UFPGAUWStatusBarItem::UpdateStackCount() const
+{
+	if (StackLabel && ActiveGameplayEffectHandle.IsValid())
+	{
+		int StackCount = AbilitySystem->GetCurrentStackCount(ActiveGameplayEffectHandle);
+		if (StackCount > 1)
+		{
+			StackLabel->SetText(FText::FromString(FString::FromInt(StackCount)));
+			StackLabel->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		}
+		else
+		{
+			StackLabel->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
