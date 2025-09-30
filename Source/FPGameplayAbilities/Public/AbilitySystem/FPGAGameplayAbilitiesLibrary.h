@@ -61,6 +61,9 @@ public:
 	static UGameplayAbility* GetAbilityFromSpec(FGameplayAbilitySpec Spec);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
+	static int GetAbilityLevelFromSpec(FGameplayAbilitySpec Spec) { return Spec.Level; }
+
+	UFUNCTION(BlueprintCallable, Category = "FPGAAbility")
 	static FGameplayAbilitySpecHandle GetHandleFromSpec(FGameplayAbilitySpec Spec);
 
 	UFUNCTION(BlueprintCallable, Category = "FPGAAbility", meta=(AutoCreateRefTerm="GameplayCueParameters"))
@@ -272,6 +275,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static float EvaluateAttributeValueForChannel(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, EGameplayModEvaluationChannel Channel, bool& bSuccess);
+
+	UFUNCTION(BlueprintCallable)
+	static void SetNumericAttributeBase(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, float NewBaseValue);
+
+	UFUNCTION(BlueprintCallable)
+	static void IncrementNumericAttributeBase(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, float Value);
 
 	UFUNCTION(BlueprintCallable)
 	static float GetModifierStaticMagnitude(const FGameplayModifierInfo& ModInfo);

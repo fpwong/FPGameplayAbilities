@@ -940,6 +940,22 @@ float UFPGAGameplayAbilitiesLibrary::EvaluateAttributeValueForChannel(UAbilitySy
 	return RetVal;
 }
 
+void UFPGAGameplayAbilitiesLibrary::SetNumericAttributeBase(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, float NewBaseValue)
+{
+	if (AbilitySystem)
+	{
+		AbilitySystem->SetNumericAttributeBase(Attribute, NewBaseValue);
+	}
+}
+
+void UFPGAGameplayAbilitiesLibrary::IncrementNumericAttributeBase(UAbilitySystemComponent* AbilitySystem, FGameplayAttribute Attribute, float Value)
+{
+	if (AbilitySystem)
+	{
+		AbilitySystem->SetNumericAttributeBase(Attribute, AbilitySystem->GetNumericAttributeBase(Attribute) + Value);
+	}
+}
+
 float UFPGAGameplayAbilitiesLibrary::GetModifierStaticMagnitude(const FGameplayModifierInfo& ModInfo)
 {
 	float Mag = 0;
