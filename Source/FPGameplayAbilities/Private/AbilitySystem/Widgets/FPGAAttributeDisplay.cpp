@@ -3,6 +3,51 @@
 #include "AbilitySystem/Widgets/FPGAAttributeDisplay.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/FPGAGameplayAbilitiesLibrary.h"
+#include "FPGameplayAbilities/FPGASettings.h"
+
+UFPGAAttributeDisplayDataAsset& UFPGAAttributeDisplayDataAsset::Get()
+{
+	return *UFPGASettings::Get().AttributeDisplayData.LoadSynchronous();
+}
+
+FString UFPGAAttributeDisplayDataAsset::GetAttributeName(FGameplayAttribute Attribute)
+{
+	if (FFPAttributeDisplayData* Display = Get().DisplayData.Find(Attribute))
+	{
+		return Display->Name.ToString();
+	}
+
+	return Attribute.AttributeName;
+}
+
+FString UFPGAAttributeDisplayDataAsset::GetAttributeValueAsString(FGameplayAttribute Attribute, float AttributeValue)
+{
+	if (FFPAttributeDisplayData* Display = Get().DisplayData.Find(Attribute))
+	{
+		TStringBuilder<256> StringBuilder;
+		if (Display->ValueDisplayMethod)
+		{
+			StringBuilder.Append(UFPGameplayValueHelpers::ApplyValueDisplayMethod(Display->ValueDisplayMethod, AttributeValue));
+		}
+		else
+		{
+			FNumberFormattingOptions Format;
+			Format.MinimumFractionalDigits = Display->MinNumDecimals;
+			Format.MaximumFractionalDigits = Display->MaxNumDecimals;
+			StringBuilder.Append(FText::AsNumber(AttributeValue, &Format).ToString());
+		}
+
+		// Add Suffix: Unit
+		if (!Display->Unit.IsEmpty())
+		{
+			StringBuilder.Append(Display->Unit);
+		}
+
+		return StringBuilder.ToString();
+	}
+
+	return FString::SanitizeFloat(AttributeValue);
+}
 
 UFPGAAttributeDisplay::UFPGAAttributeDisplay()
 {
@@ -10,7 +55,8 @@ UFPGAAttributeDisplay::UFPGAAttributeDisplay()
 
 void UFPGAAttributeDisplay::BindAttribute(UAbilitySystemComponent* AbilitySystem)
 {
-	NumberFormat.SetMinimumFractionalDigits(MinNumDecimals).SetMaximumFractionalDigits(MaxNumDecimals).SetRoundingMode(ToZero);
+	const auto& Display = GetDisplayData();
+	NumberFormat.SetMinimumFractionalDigits(Display.MinNumDecimals).SetMaximumFractionalDigits(Display.MaxNumDecimals).SetRoundingMode(ToZero);
 
 	UnbindAttribute();
 
@@ -88,6 +134,8 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 		return;
 	}
 
+	auto& Display = GetDisplayData();
+
 	const float AttributeValue = UFPGAGameplayAbilitiesLibrary::GetAttributeValueWithTags(AbilitySystemPtr.Get(), Attribute, AttributeTags);
 
 	FString ValueString;
@@ -107,9 +155,9 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 			ValueString = FText::AsNumber(AttributeValue, &NumberFormat).ToString();
 		}
 	}
-	else if (ValueDisplayMethod)
+	else if (Display.ValueDisplayMethod)
 	{
-		ValueString = UFPGameplayValueHelpers::ApplyValueDisplayMethod(ValueDisplayMethod, AttributeValue);
+		ValueString = UFPGameplayValueHelpers::ApplyValueDisplayMethod(Display.ValueDisplayMethod, AttributeValue);
 	}
 	else
 	{
@@ -120,7 +168,28 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 
 	if (bShowAttributeName)
 	{
-		StringBuilder.Append(Attribute.AttributeName);
+		if (AttributeTags.Num())
+		{
+			auto TagArr = AttributeTags.GetGameplayTagArray();
+			for (int i = 0; i < TagArr.Num(); ++i)
+			{
+				auto Tag = TagArr[i];
+				StringBuilder.Append(Tag.GetTagLeafName().ToString());
+
+				if (i != TagArr.Num() - 1)
+				{
+					StringBuilder.Append(TEXT(","));
+				}
+				else
+				{
+					StringBuilder.Append(TEXT(" "));
+				}
+			}
+		}
+
+		FString AttribName = Display.Name.IsEmpty() ? Attribute.AttributeName : Display.Name.ToString();  
+
+		StringBuilder.Append(AttribName);
 		StringBuilder.Append(TEXT(": "));
 	}
 
@@ -133,10 +202,10 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 	StringBuilder.Append(ValueString);
 
 	// Add Suffix: Unit
-	if (!Unit.IsEmpty())
+	if (!Display.Unit.IsEmpty())
 	{
 		// StringBuilder.AppendChar(TEXT(' '));
-		StringBuilder.Append(Unit);
+		StringBuilder.Append(Display.Unit);
 	}
 
 	SetText(FText::FromString(StringBuilder.ToString()));
@@ -150,6 +219,22 @@ void UFPGAAttributeDisplay::UpdateAttributeValue(bool bBroadcastChange)
 
 		OldValue = AttributeValue;
 	}
+}
+
+const FFPAttributeDisplayData& UFPGAAttributeDisplay::GetDisplayData()
+{
+	if (!UFPGASettings::Get().AttributeDisplayData.IsNull())
+	{
+		if (UFPGAAttributeDisplayDataAsset* AttribData = Cast<UFPGAAttributeDisplayDataAsset>(UFPGASettings::Get().AttributeDisplayData.LoadSynchronous()))
+		{
+			if (FFPAttributeDisplayData* Data = AttribData->DisplayData.Find(Attribute))
+			{
+				return *Data;
+			}
+		}
+	}
+
+	return DisplayData;
 }
 
 void UFPGAAttributeDisplay::BeginDestroy()

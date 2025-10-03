@@ -154,11 +154,14 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::FindInstancedAbilityFromClass(
 	UAbilitySystemComponent* AbilitySystem,
 	TSubclassOf<UGameplayAbility> AbilityClass)
 {
-	if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+	if (AbilitySystem)
 	{
-		UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
-		UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability.Get();
-		return Ability;
+		if (FGameplayAbilitySpec* Spec = AbilitySystem->FindAbilitySpecFromClass(AbilityClass))
+		{
+			UGameplayAbility* InstancedAbility = Spec->GetPrimaryInstance();
+			UGameplayAbility* Ability = InstancedAbility ? InstancedAbility : Spec->Ability.Get();
+			return Ability;
+		}
 	}
 
 	return nullptr;

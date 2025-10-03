@@ -6,6 +6,7 @@
 #include "AttributeSet.h"
 #include "FPGASettings.generated.h"
 
+class UFPGAAttributeDisplayDataAsset;
 /**
 * Settings are saved in Config/DefaultGame.ini
 */
@@ -23,6 +24,9 @@ public:
 
 	UPROPERTY(config, EditAnywhere)
 	TSoftObjectPtr<UDataTable> GameValues;
+
+	UPROPERTY(config, EditAnywhere)
+	TSoftObjectPtr<UFPGAAttributeDisplayDataAsset> AttributeDisplayData;
 
 	static const UFPGASettings& Get()
 	{

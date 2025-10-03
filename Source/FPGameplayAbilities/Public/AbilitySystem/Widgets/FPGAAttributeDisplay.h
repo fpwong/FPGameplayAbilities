@@ -15,24 +15,19 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFPGAAttributeDisplayChanged, flo
 struct FOnAttributeChangeData;
 class UAbilitySystemComponent;
 
-UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplay : public UCommonTextBlock
+USTRUCT(BlueprintType)
+struct FFPAttributeDisplayData
 {
 	GENERATED_BODY()
 
-public:
-	FDelegateHandle DelegateHandle;
-
-	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystemPtr = nullptr;
-
-	bool bNeedToUnbind = false;
-
-	/** The attribute */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayAttribute Attribute;
+	FText Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTagContainer AttributeTags;
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UFPValueDisplay> ValueDisplayMethod;
@@ -42,6 +37,49 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxNumDecimals = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Unit;
+};
+
+UCLASS()
+class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplayDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ForceInlineRow))
+	TMap<FGameplayAttribute, FFPAttributeDisplayData> DisplayData;
+
+	static UFPGAAttributeDisplayDataAsset& Get();
+
+	UFUNCTION(BlueprintCallable)
+	static FString GetAttributeName(FGameplayAttribute Attribute);
+
+	UFUNCTION(BlueprintCallable)
+	static FString GetAttributeValueAsString(FGameplayAttribute Attribute, float AttributeValue);
+};
+
+UCLASS(BlueprintType)
+class FPGAMEPLAYABILITIES_API UFPGAAttributeDisplay : public UCommonTextBlock
+{
+	GENERATED_BODY()
+
+public:
+	FDelegateHandle DelegateHandle;
+
+	TWeakObjectPtr<UAbilitySystemComponent> AbilitySystemPtr = nullptr;
+
+	FFPAttributeDisplayData DisplayData;
+
+	bool bNeedToUnbind = false;
+
+	/** The attribute */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayAttribute Attribute;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer AttributeTags;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bShowPlusMinus = false;
@@ -54,9 +92,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EGameplayModEvaluationChannel BaseChannel;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Unit;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnFPGAAttributeDisplayChanged OnAttributeDisplayChanged;
@@ -82,6 +117,8 @@ public:
 	void OnAttributeChanged(const FOnAttributeChangeData& ChangeData);
 
 	void UpdateAttributeValue(bool bBroadcastChange);
+
+	const FFPAttributeDisplayData& GetDisplayData();
 
 	virtual void BeginDestroy() override;
 
