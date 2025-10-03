@@ -637,19 +637,9 @@ UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetAbilitySystemFromEffe
 	return Handle.GetOwningAbilitySystemComponent();
 }
 
-class UGameplayEffectUIData* UFPGAGameplayAbilitiesLibrary::GetGameplayEffectUIData(FActiveGameplayEffectHandle Handle)
+bool UFPGAGameplayAbilitiesLibrary::IsActiveGameplayEffectHandleValid(FActiveGameplayEffectHandle Handle)
 {
-	UAbilitySystemComponent* ASC = Handle.GetOwningAbilitySystemComponent();
-	// if (ASC != nullptr)
-	// {
-	// 	const UGameplayEffect* Effect = ASC->GetGameplayEffectDefForHandle(Handle);
-	// 	if (Effect != nullptr)
-	// 	{
-	// 		return Effect->UIData;
-	// 	}
-	// }
-
-	return nullptr;
+	return Handle.IsValid();
 }
 
 class UAbilitySystemComponent* UFPGAGameplayAbilitiesLibrary::GetInstigatorAbilitySystemFromEffectSpec(const FGameplayEffectSpec& Spec)

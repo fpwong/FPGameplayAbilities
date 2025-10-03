@@ -201,7 +201,7 @@ public:
 	static FGameplayEffectQuery Query_MatchAnyOwningTags(const FGameplayTagContainer& InTags);
 
 	UFUNCTION(BlueprintPure, Category = "GameplayEffect")
-	static class UGameplayEffectUIData* GetGameplayEffectUIData(FActiveGameplayEffectHandle Handle);
+	static bool IsActiveGameplayEffectHandleValid(FActiveGameplayEffectHandle Handle);
 
 	UFUNCTION(BlueprintPure, Category = "GameplayEffect")
 	static UAbilitySystemComponent* GetAbilitySystemFromEffectHandle(FActiveGameplayEffectHandle Handle);
