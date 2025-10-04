@@ -15,11 +15,6 @@ void FFPTargetFilterObserver::Clear()
 
 void FFPTargetFilterObserver::Init(const FFPTargetFilter& FilterTask, AActor* SourceActor, AActor* TargetActor)
 {
-	if (!FilterTask.IsValid())
-	{
-		return;
-	}
-
 	Filter = FilterTask;
 	SourceActorPtr = SourceActor;
 	TargetActorPtr = TargetActor;
@@ -27,7 +22,10 @@ void FFPTargetFilterObserver::Init(const FFPTargetFilter& FilterTask, AActor* So
 	bCurrentResult = Filter.GetTask().DoesFilterPass(SourceActorPtr.Get(), TargetActorPtr.Get());
 	// UE_LOG(LogTemp, Warning, TEXT("Initial result %d"), bCurrentResult);
 
-	Filter.GetTask().BindToChanges(*this, SourceActor, TargetActor);
+	if (FilterTask.IsValid())
+	{
+		Filter.GetTask().BindToChanges(*this, SourceActor, TargetActor);
+	}
 }
 
 void FFPTargetFilterObserver::CheckResultChanged()

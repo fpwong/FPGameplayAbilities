@@ -98,19 +98,16 @@ void UFPGAOverlapManager::SetFilterTaskSet(const FFPTargetFilter& InFilterTaskSe
 void UFPGAOverlapManager::HandleBeginOverlap(AActor* OtherActor)
 {
 	// if (SourceActorPtr.IsValid())
-	if (TargetFilter.IsValid())
+	TSharedRef<FFPGAOverlapInstance> OverlapInstance = MakeShared<FFPGAOverlapInstance>(TargetFilter, SourceActorPtr.Get(), OtherActor);
+	OverlapInstance->FilterObserver.OnResultChanged.AddUObject(this, &ThisClass::OnFilterResultChanged);
+
+	AllOverlappingActors.Add(OtherActor, OverlapInstance);
+
+	if (OverlapInstance->FilterObserver.GetCurrentResult())
 	{
-		TSharedRef<FFPGAOverlapInstance> OverlapInstance = MakeShared<FFPGAOverlapInstance>(TargetFilter, SourceActorPtr.Get(), OtherActor);
-		OverlapInstance->FilterObserver.OnResultChanged.AddUObject(this, &ThisClass::OnFilterResultChanged);
-
-		AllOverlappingActors.Add(OtherActor, OverlapInstance);
-
-		if (OverlapInstance->FilterObserver.GetCurrentResult())
-		{
-			ValidOverlappingActors.Add(OtherActor);
-			OnBeginOverlap.Broadcast(OtherActor);
-			// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Green, false, 1.0f);
-		}
+		ValidOverlappingActors.Add(OtherActor);
+		OnBeginOverlap.Broadcast(OtherActor);
+		// DrawDebugSphere(GetWorld(), OtherActor->GetActorLocation(), 100.0f, 8, FColor::Green, false, 1.0f);
 	}
 }
 
