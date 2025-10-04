@@ -302,9 +302,6 @@ public:
 	static UGameplayAbility* GetInstigatorAbilityFromGEContextHandle(const FGameplayEffectContextHandle& GameplayEffectContextHandle);
 
 	UFUNCTION(BlueprintCallable)
-	static FGameplayCueParameters MakeLocationGameplayCueParams(FVector Location, FRotator Rotation);
-
-	UFUNCTION(BlueprintCallable)
 	static TArray<FGameplayTag> GetSetByCallerTagsFromGameplayEffectClass(TSubclassOf<UGameplayEffect> Effect);
 
 	UFUNCTION(BlueprintCallable)

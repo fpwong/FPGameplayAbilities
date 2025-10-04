@@ -6,39 +6,42 @@
 #include "GameplayCueNotify_Burst.h"
 #include "GameplayCueNotify_HitImpact.h"
 #include "UObject/Object.h"
-#include "FPGameplayCue.generated.h"
+#include "FPGameplayCue_Beam.generated.h"
 
 class UNiagaraComponent;
 class UParticleSystemComponent;
 
+/**
+ * 
+ */
 UCLASS()
-class FPGAMEPLAYABILITIES_API UFPGameplayCue : public UGameplayCueNotify_Static
+class FPGAMEPLAYABILITIES_API UFPGameplayCue_Beam : public UGameplayCueNotify_Static
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	TObjectPtr<USoundBase> Sound;
 
 	/** Effects to play for weapon attacks against specific surfaces */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
-	TObjectPtr<UNiagaraSystem> NiagaraSystem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TObjectPtr<UNiagaraSystem> BeamNiagaraSystem;
 
 	/** Effects to play for weapon attacks against specific surfaces */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
-	TObjectPtr<UParticleSystem> CascadeSystem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TObjectPtr<UNiagaraSystem> HitNiagaraSystem;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	bool bAttachEmitter = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue, meta=(EditCondition="bAttachEmitter"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	bool bRotateHitTowardsDir = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta=(EditCondition="bAttachEmitter"))
 	FName AttachSocketName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta=(AllowPreserveRatio))
 	FVector ParticleSystemScale = FVector(1.0f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
-	bool bUseLocationParam = false;
 
 	virtual bool HandlesEvent(EGameplayCueEvent::Type EventType) const override;
 	virtual void HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters) override;
@@ -49,5 +52,5 @@ public:
 	void OnParticleSpawned(UNiagaraComponent* Niagara, UParticleSystemComponent* Cascade);
 
 	UFUNCTION(BlueprintCallable)
-	static FGameplayCueParameters MakeLocationGameplayCueParams(FVector Location, FRotator Rotation);
+	static FGameplayCueParameters MakeBeamCueParams(FVector Start, FVector End);
 };

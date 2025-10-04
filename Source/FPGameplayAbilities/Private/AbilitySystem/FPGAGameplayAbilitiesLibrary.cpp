@@ -976,20 +976,6 @@ UGameplayAbility* UFPGAGameplayAbilitiesLibrary::GetInstigatorAbilityFromGEConte
 	return const_cast<UGameplayAbility*>(GameplayEffectContextHandle.GetAbilityInstance_NotReplicated());
 }
 
-FGameplayCueParameters UFPGAGameplayAbilitiesLibrary::MakeLocationGameplayCueParams(FVector Location, FRotator Rotation)
-{
-	// this is so dumb...
-	FGameplayCueParameters Params;
-	FHitResult DummyHitResult;
-	DummyHitResult.Location = Location;
-	DummyHitResult.Normal = Rotation.Vector();
-	DummyHitResult.ImpactPoint = DummyHitResult.Location;
-	DummyHitResult.ImpactNormal = DummyHitResult.Normal;
-	Params.EffectContext = FGameplayEffectContextHandle(UAbilitySystemGlobals::Get().AllocGameplayEffectContext());
-	Params.EffectContext.AddHitResult(DummyHitResult);
-	return Params;
-}
-
 TArray<FGameplayTag> UFPGAGameplayAbilitiesLibrary::GetSetByCallerTagsFromGameplayEffectClass(TSubclassOf<UGameplayEffect> Effect)
 {
 	if (Effect)

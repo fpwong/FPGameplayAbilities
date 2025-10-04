@@ -1,19 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "FPGameplayCue.h"
+#include "FPGameplayCue_Burst.h"
 
 #include "AbilitySystemGlobals.h"
-#include "GameplayCueManager.h"
-#include "NiagaraFunctionLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
-bool UFPGameplayCue::HandlesEvent(EGameplayCueEvent::Type EventType) const
+bool UFPGameplayCue_Burst::HandlesEvent(EGameplayCueEvent::Type EventType) const
 {
 	return (EventType == EGameplayCueEvent::Executed);
 }
 
-void UFPGameplayCue::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)
+void UFPGameplayCue_Burst::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)
 {
 	if (Sound)
 	{
@@ -23,7 +21,7 @@ void UFPGameplayCue::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type
 	SpawnParticle(MyTarget, Parameters);
 }
 
-void UFPGameplayCue::SpawnParticle(AActor* MyTarget, const FGameplayCueParameters& Parameters)
+void UFPGameplayCue_Burst::SpawnParticle(AActor* MyTarget, const FGameplayCueParameters& Parameters)
 {
 	if (bAttachEmitter && MyTarget)
 	{
@@ -81,11 +79,11 @@ void UFPGameplayCue::SpawnParticle(AActor* MyTarget, const FGameplayCueParameter
 	}
 }
 
-void UFPGameplayCue::OnParticleSpawned_Implementation(UNiagaraComponent* Niagara, UParticleSystemComponent* Cascade)
+void UFPGameplayCue_Burst::OnParticleSpawned_Implementation(UNiagaraComponent* Niagara, UParticleSystemComponent* Cascade)
 {
 }
 
-FGameplayCueParameters UFPGameplayCue::MakeLocationGameplayCueParams(FVector Location, FRotator Rotation)
+FGameplayCueParameters UFPGameplayCue_Burst::MakeLocationGameplayCueParams(FVector Location, FRotator Rotation)
 {
 	// this is so dumb...
 	FGameplayCueParameters Params;
